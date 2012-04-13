@@ -9,8 +9,8 @@ Purpose variable chat manager, nice API, other contexts too
 - !(add) /ignore command (player, *)
 
 (0.2.0)
-- !(add) Message color for party chat.
-- !(bugfix) Announcing with party chat. 
+- (add) Message color for party chat.
+- (bugfix) Announcing globally when in party chat. 
 
 (0.1.2)
 - (bugfix) Do not handle cancelled events.

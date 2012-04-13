@@ -197,6 +197,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 		msgCol = Messaging.withChatColors(cfg.getString("chat.color.normal"));
 		partyBracketCol = Messaging.withChatColors(cfg.getString("chat.color.party.brackets"));
 		partyNameCol = Messaging.withChatColors(cfg.getString("chat.color.party.name"));
+		partyMsgCol = Messaging.withChatColors(cfg.getString("chat.color.party.message"));
 	}
 	
 	public MemoryConfiguration getDefaultSettings(){
@@ -206,6 +207,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 		cfg.set("chat.color.announce", "&e");
 		cfg.set("chat.color.party.brackets", "&a");
 		cfg.set("chat.color.party.name", "&7");
+		cfg.set("chat.color.party.message", "&7");
 //		List<String> load = new LinkedList<String>();
 //		for ( String plg : new String[]{
 //				"PermissionsEx", "mcMMO"
@@ -240,7 +242,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 			}
 		}
 		
-		String msgCol = this.msgCol;
+		String msgCol = null; // this.msgCol;
 		boolean forceBroadcast = false;
 		if ( message.startsWith("!") && player.hasPermission("contextmanager.chat.announce")){
 			msgCol = broadCastCol;
@@ -258,7 +260,9 @@ public class ContextManager extends JavaPlugin implements Listener{
 		// TODO: filters for who wants to hear (or must) and who should hear / forces to hear
 		
 		// assemble message
-		String format = getFormat(player, msgCol);
+		String format;
+		if (forceBroadcast) format = getNormalFormat(player.getName(), msgCol);
+		else format = getFormat(player, msgCol);
 		if (useEvent) event.setFormat(format);
 		else {
 			event.setCancelled(true);
@@ -295,14 +299,15 @@ public class ContextManager extends JavaPlugin implements Listener{
 		return true;
 	}
 
-	public final String getFormat(Player player, String msgCol){
-		String playerName = player.getName();
+	public final String getFormat(final Player player, final String msgCol){
+		final String playerName = player.getName();
 		// TODO: context dependent ...
 		if ( isPartyChat(player)) return getPartyFormat(playerName, msgCol);
 		else return getNormalFormat(playerName, msgCol);
 	}
 	
 	public final String getNormalFormat(String playerName, String msgCol){
+		if (msgCol == null) msgCol = this.msgCol;
 		String[] decorated = PexUtil.findDecoration(playerName);
 		if (decorated[0] == null) decorated[0] = "";
 		else decorated[0] = Messaging.withChatColors(decorated[0]);
@@ -312,6 +317,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 	}
 	
 	public final String getPartyFormat(String playerName, String msgCol){
+		if (msgCol == null) msgCol = partyMsgCol;
 		return partyBracketCol+"("+partyNameCol+"%1$s"+partyBracketCol+")"+msgCol+" %2$s";
 	}
 	/**
