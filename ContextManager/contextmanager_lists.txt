@@ -1,0 +1,24 @@
+ContextManager lists
+------------------------------
+
+Purpose variable chat manager, nice API, other contexts too
+
+- !(add) permissions for muting "newbies" + interfacing for playing time
+- !(add) custom context to define what to hear + /cx reset
+- !(add) replace tell for the case of offline or hidden players or players that ignore the telling player
+- !(add) /ignore command (player, *)
+
+(0.2.0)
+- !(add) Message color for party chat.
+- !(bugfix) Announcing with party chat. 
+
+(0.1.2)
+- (bugfix) Do not handle cancelled events.
+
+(0.1.1)
+- (bugfix) adjust to new mcmmo party api.
+
+(0.1.0)
+- (add) /mute player [minutes] / TODO: mute oncerning contexts !
+
+(0.0.0)

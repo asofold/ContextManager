@@ -1,0 +1,27 @@
+name: ContextManager
+main: me.asofold.bukkit.contextmanager.ContextManager
+version: 0.2.0
+depend:
+- PluginLibSharedLibrary
+- PermissionsEx
+softdepend:
+- mcMMO
+commands:
+  cmreload:
+    description: reload settings
+  mute:
+    description: 'Mute a player, if desired for a certain mamount of minutes.'
+    usage: '/mute <player> [<minutes>]'
+    aliases:
+    - cmmute
+  unmute:
+    description: 'Remove a player from muted.'
+    usage: '/unmute <player>'
+    aliases:
+    - cmunmute
+    - demute
+  muted:
+    description: 'Show muted players.'
+    usage: '/muted'
+    aliases:
+    - cmmuted
