@@ -8,6 +8,28 @@ Purpose variable chat manager, nice API, other contexts too
 - !(add) replace tell for the case of offline or hidden players or players that ignore the telling player
 - !(add) /ignore command (player, *)
 
+!(add) Tag for global shout ?
+
+*** OPT
+!(add) World aliases (translate just the format part)
+!(add) Map context to integers ! For fastest comparison !
+
+! (add) context all (hear all, speak to all)
+! (add) context world ! [for mods: also other worlds! ]
+! (add) context with [to switch to the same context]
+
+! (add) context channel [with permissions!, from config]
+
+! (add) contexts recipients
+
+
+
+(0.3.0)
+- (add) Ignore feature.
+- (add) Reflect message to player and log, for tell.
+- (add) Prevent commands features for muted.
+- (bugfix) Prevent /me for muted.
+
 (0.2.0)
 - (add) Message color for party chat.
 - (bugfix) Announcing globally when in party chat. 

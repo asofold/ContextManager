@@ -2,6 +2,7 @@ package me.asofold.bukkit.contextmanager;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,6 @@ import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -19,6 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import asofold.pluginlib.shared.Messaging;
@@ -26,7 +27,7 @@ import asofold.pluginlib.shared.permissions.pex.PexUtil;
 
 public class ContextManager extends JavaPlugin implements Listener{
 	
-	private final String plgLabel = "[ContextManager]";
+	public static final String plgLabel = "[ContextManager]";
 	
 	String msgCol = ChatColor.WHITE.toString();
 	String partyNameCol = ChatColor.GRAY.toString();
@@ -34,22 +35,34 @@ public class ContextManager extends JavaPlugin implements Listener{
 	String partyMsgCol = ChatColor.GRAY.toString();
 	String broadCastCol = ChatColor.YELLOW.toString();
 	
+	Set<String> mutePreventCommands = new HashSet<String>();
+	
 	/**
 	 * muted players
 	 */
 
     Map<String, Long> muted = new HashMap<String, Long>();
+    
+    public Map<String, PlayerData> playerData = new HashMap<String, PlayerData>();
 	
 	boolean useEvent = true;
+	
+	public ContextManager(){
+		
+	}
+	
+	CMCommand cmdExe = new CMCommand(this);
 	
 	@Override
 	public void onEnable() {
 		loadSettings();
 		getServer().getPluginManager().registerEvents(this, this);
 		for ( String cmd : new String[]{
-			"cmreload",	"cmmute", "cmunmute", "mute", "unmute", "demute",
+			"cmreload",	"cmmute", "cmunmute", "mute", "unmute", "demute", "muted",
+			"context",
 		}){
-			getCommand(cmd).setExecutor(this);
+			// TODO: Most probably unnecessary !
+			getCommand(cmd).setExecutor(cmdExe);
 		}
 		System.out.println(plgLabel+getDescription().getFullName()+ "enabled.");
 	}
@@ -75,12 +88,45 @@ public class ContextManager extends JavaPlugin implements Listener{
 		return false;
 	}
 	
+	public static boolean checkPlayer(CommandSender sender){
+		if (sender instanceof Player) return true;
+		sender.sendMessage(plgLabel+" This is only available to players!");
+		return false;
+	}
+	
 	public static final boolean isPlayerKnown(String name){
 		if ( Bukkit.getPlayerExact(name)!=null) return true;
 		OfflinePlayer player = Bukkit.getOfflinePlayer(name);
 		if ( player == null) return false;
 		if ( player.hasPlayedBefore()) return true;
 		return false;
+	}
+	
+	/**
+	 * Obtain player data.
+	 * @param playerName
+	 * @param create
+	 * @return
+	 */
+	public PlayerData getPlayerData(String playerName, boolean create){
+		String lcName = playerName.toLowerCase(); 
+		PlayerData data = playerData.get(lcName);
+		if (data != null) return data;
+		else if (!create) return null;
+		else{
+			data = new PlayerData(lcName);
+			playerData.put(lcName, data);
+			return data;
+		}
+	}
+	
+	/**
+	 * Obtain PalyerData, create if not existent.
+	 * @param playerName
+	 * @return
+	 */
+	public PlayerData getPlayerData(String playerName){
+		return getPlayerData(playerName, true);
 	}
 	
 	/**
@@ -100,68 +146,11 @@ public class ContextManager extends JavaPlugin implements Listener{
 		}
 		return builder.toString();
 	}
-
-	@Override
-	public boolean onCommand(CommandSender sender, Command command,
-			String label, String[] args) {
-		lightChecks();
-		label = label.trim().toLowerCase();
-		int len = args.length;
-		if ( label.equals("cmreload")){
-			if( !checkPerm(sender, "contextmanager.admin.cmd.reload")) return true;
-			loadSettings();
-			sender.sendMessage(plgLabel+" Settings reloaded");
-			return true;
-			
-		} 
-		else if ( (len==1 || len==2 ) && (label.equals("mute") || label.equals("cmmute"))){
-			if( !checkPerm(sender, "contextmanager.admin.cmd.mute")) return true;
-			int minutes = 0;
-			if ( len == 2){
-				try{
-					minutes = Integer.parseInt(args[1]);
-					if ( minutes <=0 ) throw new NumberFormatException();
-				} catch ( NumberFormatException e){
-					send(sender, ChatColor.DARK_RED+"Bad number for minutes: "+args[1]);
-				}
-			}
-			String name = args[0].trim().toLowerCase();
-			boolean known = isPlayerKnown(name);
-			
-			String end = ".";
-			Long ts = 0L;
-			if (minutes>0){
-				end = " for "+minutes+" minutes.";
-				ts = System.currentTimeMillis() + 60000L* (long)minutes;
-			}
-			muted.put(name, ts);
-			send(sender, ChatColor.YELLOW+plgLabel+" Muted "+(known?"":(ChatColor.RED+"unknown "+ChatColor.YELLOW))+"player '"+name+"'"+end);
-			return true;
-		} 
-		else if ( (len==1 ) && (label.equals("unmute") || label.equals("demute") || label.equals("cmunmute"))){
-			if( !checkPerm(sender, "contextmanager.admin.cmd.unmute")) return true;
-			if ( args[0].equals("*")){
-				muted.clear();
-				send(sender,ChatColor.YELLOW+plgLabel+" Cleared muted players list.");
-				return true;
-			}
-			String name = args[0].trim().toLowerCase();
-			Long ts = muted.remove(name);
-			if ( ts!=null ){
-				send(sender, ChatColor.YELLOW+plgLabel+" Removed from muted: "+name);
-			} else{
-				send(sender, ChatColor.GRAY+plgLabel+" Not in muted: "+name);
-			}
-			return true;
-		} 
-		else if (label.equals("muted")){
-			if( !checkPerm(sender, "contextmanager.admin.cmd.muted")) return true;
-			send(sender, ChatColor.YELLOW+plgLabel+" Muted: "+ChatColor.GRAY+join(muted.keySet(), ChatColor.DARK_GRAY+" | "+ChatColor.GRAY));
-			return true;
-		}
-		return false;
-	}
 	
+
+
+
+
 	/**
 	 * Light checks to be performed now and then.
 	 * (such as cleanup muted).
@@ -198,6 +187,14 @@ public class ContextManager extends JavaPlugin implements Listener{
 		partyBracketCol = Messaging.withChatColors(cfg.getString("chat.color.party.brackets"));
 		partyNameCol = Messaging.withChatColors(cfg.getString("chat.color.party.name"));
 		partyMsgCol = Messaging.withChatColors(cfg.getString("chat.color.party.message"));
+		mutePreventCommands.clear();
+		List<String> cmds = cfg.getStringList("mute.prevent-commands");
+		if (cmds!= null){
+			for (String cmd : cmds){
+				cmd = cmd.trim().toLowerCase();
+				if (!cmd.isEmpty()) mutePreventCommands.add(cmd);
+			}
+		}
 	}
 	
 	public MemoryConfiguration getDefaultSettings(){
@@ -208,6 +205,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 		cfg.set("chat.color.party.brackets", "&a");
 		cfg.set("chat.color.party.name", "&7");
 		cfg.set("chat.color.party.message", "&7");
+		cfg.set("mute.prevent-commands", new LinkedList<String>());
 //		List<String> load = new LinkedList<String>();
 //		for ( String plg : new String[]{
 //				"PermissionsEx", "mcMMO"
@@ -216,6 +214,55 @@ public class ContextManager extends JavaPlugin implements Listener{
 //		}
 		return cfg;
 	}
+	
+	@EventHandler(priority=EventPriority.LOW)
+	void onPlayerCommand(PlayerCommandPreprocessEvent event){
+		if (event.isCancelled()) return;
+		final String msg = event.getMessage().trim();
+		final String[] split = msg.split(" ");
+		String cmd = split[0].toLowerCase();
+		if (cmd.length()>1) cmd = cmd.substring(1);
+		// TODO: check set of others ?
+		final Player player = event.getPlayer();
+		if (cmd.equals("tell")){
+			// TODO: maybe log and amybe message player self.
+			if (split.length > 1){
+				String recipient = split[1].trim().toLowerCase();
+				if (recipient.isEmpty()){
+					// TODO: maybe better command parsing (stripping of space only parts).
+					player.sendMessage(ChatColor.DARK_RED+plgLabel+" Bad tell message.");
+					event.setCancelled(true);
+					return;
+				}
+				PlayerData otherData = getPlayerData(recipient, false);
+				if (otherData != null && otherData.ignored.contains(player.getName().toLowerCase())){
+					player.sendMessage(ChatColor.DARK_RED+plgLabel+" You are ignored by this player.");
+					event.setCancelled(true);
+					return;
+				}
+				Player other = getServer().getPlayerExact(recipient);
+				if (other != null){
+					final String tellMsg = "[Tell] "+player.getName()+" -> "+other.getName()+" "+join(getCollection(split, 2), " ");
+					System.out.println(tellMsg);
+					player.sendMessage(ChatColor.DARK_GRAY + tellMsg);
+					return;
+				}
+				
+				return; // TODO: consider cancelling tell always
+			}
+		}
+		if (!cmd.equals("me") && !mutePreventCommands.contains(cmd)) return;
+		// TODO: maybe find the fastest way to do this !
+		if (isMuted(player)) event.setCancelled(true);
+	}
+	
+	public static Collection<String> getCollection(String[] args, int  startIndex){
+		List<String> out = new LinkedList<String>();
+		for ( int i = startIndex; i<args.length; i++){
+			out.add(args[i]);
+		}
+		return out;
+	}
 
 	@EventHandler(priority=EventPriority.LOW)
 	void onPlayerChat(PlayerChatEvent event){
@@ -223,23 +270,9 @@ public class ContextManager extends JavaPlugin implements Listener{
 		String message = event.getMessage();
 		Player player = event.getPlayer();
 		
-		String lcn = player.getName().toLowerCase();
-		Long tsMute = muted.get(lcn);
-		if ( tsMute !=null){
-			if ( ( tsMute!=0L) && (System.currentTimeMillis() > muted.get(lcn))){
-				muted.remove(lcn);
-			}
-			else if ( hasPermission(player, "contextmanager.bypass.mute")){
-				send(player, ChatColor.YELLOW+plgLabel+" Removed you from muted (permission present).");
-				muted.remove(lcn);
-			}
-			else if ( isGlobalChat(player) ){
-				event.setCancelled(true);
-				// TODO: add time descr.
-				send(player, ChatColor.RED+plgLabel+" You are currently muted.");
-				event.setCancelled(true);
-				return;
-			}
+		if (isMuted(player)){
+			event.setCancelled(true);
+			return;
 		}
 		
 		String msgCol = null; // this.msgCol;
@@ -277,6 +310,31 @@ public class ContextManager extends JavaPlugin implements Listener{
 		}
 	}
 	
+	/**
+	 * Also messages the player or removes the timestamp from the map, if expired.
+	 * @param player
+	 * @return
+	 */
+	public boolean isMuted(Player player) {
+		String lcn = player.getName().toLowerCase();
+		Long tsMute = muted.get(lcn);
+		if ( tsMute !=null){
+			if ( ( tsMute!=0L) && (System.currentTimeMillis() > muted.get(lcn))){
+				muted.remove(lcn);
+			}
+			else if ( hasPermission(player, "contextmanager.bypass.mute")){
+				send(player, ChatColor.YELLOW+plgLabel+" Removed you from muted (permission present).");
+				muted.remove(lcn);
+			}
+			else if ( isGlobalChat(player) ){
+				// TODO: add time descr.
+				send(player, ChatColor.RED+plgLabel+" You are currently muted.");
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private boolean isPartyChat(Player player){
 		try{
 			if (com.gmail.nossr50.Users.getProfile(player).getPartyChatMode()) return true;
@@ -334,5 +392,15 @@ public class ContextManager extends JavaPlugin implements Listener{
 			recipients.clear(); 
 			recipients.addAll(add);
 		}
+	}
+
+	/**
+	 * Send if online.
+	 * @param playerName
+	 * @param msg
+	 */
+	public static final void tryMessage(final String playerName, String msg) {
+		Player player = Bukkit.getServer().getPlayerExact(playerName);
+		if (player != null) player.sendMessage(msg);
 	}
 }

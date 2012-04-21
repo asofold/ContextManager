@@ -10,7 +10,7 @@ commands:
   cmreload:
     description: reload settings
   mute:
-    description: 'Mute a player, if desired for a certain mamount of minutes.'
+    description: 'Mute a player, if desired for a certain amount of minutes.'
     usage: '/mute <player> [<minutes>]'
     aliases:
     - cmmute
@@ -25,3 +25,9 @@ commands:
     usage: '/muted'
     aliases:
     - cmmuted
+  context:
+    description: 'Set your chat context.'
+    aliases:
+    - cx
+    usage: '/context ... or /cx ... for: | /cx channel <name> | /cx recipients <rec1> ... | /cx ignore <player1> ... | /cx reset [ignore|all] | /cx info | Use - (-) as prefix to remove an entry!'
+
