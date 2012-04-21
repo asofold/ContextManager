@@ -155,7 +155,7 @@ public class CMCommand implements CommandExecutor {
 				}
 			}
 		}
-		else if (cmd.equals("ignore") && len > 1){
+		else if (cmd.equals("ignore")){
 			for (int i = 1; i< args.length; i++){
 				String c = args[i].trim().toLowerCase();
 				if (c.isEmpty()) continue;
