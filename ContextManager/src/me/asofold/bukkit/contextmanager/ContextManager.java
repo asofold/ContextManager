@@ -384,13 +384,24 @@ public class ContextManager extends JavaPlugin implements Listener{
 	 * @param recipients
 	 */
 	public final void adjustRecipients(Player player, Set<Player> recipients) {
+		PlayerData data = getPlayerData(player.getName());
 		if ( isPartyChat(player)){
+			// TODO: these might be already set by mcmmo, on the other hand this allows for others.
 			List<Player> add = new LinkedList<Player>();
 			for ( Player rec : recipients){ // TODO: get directly from mcMMO
 				if (inSameParty(player, rec)) add.add(rec);
 			}
 			recipients.clear(); 
 			recipients.addAll(add);
+		}
+		else{
+			// remove those that ignore the player:
+			List<Player> rem = new LinkedList<Player>();
+			for (Player other : recipients){
+				PlayerData otherData = getPlayerData(other.getName());
+				if (otherData.ignored.contains(data.lcName)) rem.add(other);
+			}
+			if (!rem.isEmpty()) recipients.removeAll(rem);
 		}
 	}
 
