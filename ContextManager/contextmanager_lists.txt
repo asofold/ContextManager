@@ -22,7 +22,10 @@ Purpose variable chat manager, nice API, other contexts too
 
 ! (add) contexts recipients
 
+! (add) Message on empty recipients !
 
+(0.4.0)
+- (add) canHear method in PlayerData.
 
 (0.3.0)
 - (add) Ignore feature.

@@ -6,7 +6,9 @@ import java.util.Set;
 import org.bukkit.ChatColor;
 
 public class PlayerData {
-	
+	/**
+	 * Lower case name.
+	 */
 	String lcName;
 	
 	public PlayerData(String lcName){
@@ -74,13 +76,23 @@ public class PlayerData {
 	}
 	
 	/**
-	 * Shortcut method to check if the other player is hard by this one.<br>
+	 * Shortcut method to check if the other player is heard by this one.<br>
 	 * NOTE: this does not check broadcast and party chat.
 	 * @param other
 	 * @return
 	 */
-	public boolean canHear(PlayerData other){
-		// TODO
+	public final boolean canHear(final PlayerData other){
+		// TODO: maybe make more efficient ways ...
+		if (ignored.contains(other.lcName)) return false; // allow to ignore oneself.
+		if (other == this) return true; // important check.
+		if (!other.recipients.isEmpty() && !other.recipients.contains(lcName)) return false;
+		if (channel == null){
+			if (other.channel != null) return false;
+		} else{
+			if (other.channel == null) return false;
+			else if (!channel.equals(other.channel)) return false;
+		}
+		// TODO: more aspects.
 		return true;
 	}
 	

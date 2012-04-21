@@ -395,11 +395,12 @@ public class ContextManager extends JavaPlugin implements Listener{
 			recipients.addAll(add);
 		}
 		else{
-			// remove those that ignore the player:
 			List<Player> rem = new LinkedList<Player>();
+			// General checks:
+			rem.clear();
 			for (Player other : recipients){
 				PlayerData otherData = getPlayerData(other.getName());
-				if (otherData.ignored.contains(data.lcName)) rem.add(other);
+				if (!otherData.canHear(data)) rem.add(other);
 			}
 			if (!rem.isEmpty()) recipients.removeAll(rem);
 		}
