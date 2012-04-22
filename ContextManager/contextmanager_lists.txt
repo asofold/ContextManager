@@ -62,7 +62,7 @@ CHANGELOG
 -----------------------------------
 
 (0.4.3)
-- (bugix) Do fix default channel name
+- (bugix) Do fix default channel name and allow an empty one
 
 (0.4.2)
 - (bugfix) channels display

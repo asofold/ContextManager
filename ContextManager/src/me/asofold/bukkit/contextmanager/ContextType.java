@@ -4,7 +4,7 @@ public enum ContextType {
 	/**
 	 * Normal global chat.
 	 */
-	GLOBAL,
+	DEFAULT,
 	/**
 	 * Some named channel.
 	 */

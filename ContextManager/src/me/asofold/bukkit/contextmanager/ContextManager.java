@@ -205,7 +205,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 		partyBracketCol = Messaging.withChatColors(cfg.getString("chat.color.party.brackets"));
 		partyNameCol = Messaging.withChatColors(cfg.getString("chat.color.party.name"));
 		partyMsgCol = Messaging.withChatColors(cfg.getString("chat.color.party.message"));
-		ContextManager.defaultChannelName = cfg.getString("channels.default-channel-name", "default");
+		ContextManager.defaultChannelName = cfg.getString("channels.default-channel-name", "default").trim();
 		histSize = cfg.getInt("history.size");
 		mutePreventCommands.clear();
 		channels.clear();
@@ -214,6 +214,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 		List<String> ch = cfg.getStringList("contexts.channels.names");
 		if (ch != null){
 			for (String c : ch){
+				c = c.trim();
 				channels.put(c.trim().toLowerCase(), c);
 				channelsOrdered.add(c);
 			}
@@ -356,12 +357,12 @@ public class ContextManager extends JavaPlugin implements Listener{
 		ContextType type;
 		if (forceBroadcast) type = ContextType.BROADCAST;
 		else if (isAnnounce){
-			if (data.channel == null) type = ContextType.GLOBAL;
+			if (data.channel == null) type = ContextType.DEFAULT;
 			else type = ContextType.CHANNEL;
 		}
 		else if (isParty) type = ContextType.PARTY;
 		else if (!data.recipients.isEmpty()) type = ContextType.PRIVATE;
-		else if (data.channel == null) type = ContextType.GLOBAL;
+		else if (data.channel == null) type = ContextType.DEFAULT;
 		else type = ContextType.CHANNEL;
 		addToHistory(new HistoryElement(type, playerName, data.extraFormat, message, isAnnounce));
 		
