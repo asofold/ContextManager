@@ -453,7 +453,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 		else decorated[0] = Messaging.withChatColors(decorated[0]);
 		if (decorated[1] == null) decorated[1] = "";
 		else decorated[1] = Messaging.withChatColors(decorated[1]);
-		return msgCol+"<"+decorated[0]+"%1$s"+decorated[1]+msgCol+(isAnnounce?"":getPlayerData(playerName).extraFormat)+msgCol+"> %2$s";
+		return msgCol+"<"+decorated[0]+"%1$s"+decorated[1]+msgCol+">"+(isAnnounce?"":getPlayerData(playerName).extraFormat)+msgCol+" %2$s";
 	}
 	
 	public final String getPartyFormat(String playerName, String msgCol){

@@ -119,7 +119,7 @@ public class PlayerData {
 	}
 	
 	public String getExtraFormat(){
-		if (!recipients.isEmpty()) return ChatColor.DARK_GRAY + "@to:"+ ChatColor.DARK_PURPLE + ContextManager.join(recipients, ",");
+		if (!recipients.isEmpty()) return ChatColor.DARK_GRAY + "@"+ ChatColor.DARK_PURPLE + ContextManager.join(recipients, ",");
 		if (channel!=null) return ChatColor.DARK_GRAY + "@" + channel;
 		return ChatColor.DARK_GRAY + "@global";
 	}

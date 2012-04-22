@@ -52,6 +52,17 @@ record + cx inspect ?
 
 !(bugfix) Players cant hear each other after reload ? 
 !(bugfix) history doe not work (after reload).
+- ?(add) Make global channel name configurable.
+
+
+
+
+
+CHANGELOG
+-----------------------------------
+
+(0.4.2)
+- (adjust) Message / contet descr. appearance.
 
 (0.4.1)
 - (bugfix) remove invalid channels on reload.
