@@ -212,6 +212,9 @@ public class ContextManager extends JavaPlugin implements Listener{
 				channelsOrdered.add(c);
 			}
 		}
+		for (PlayerData data: playerData.values()){
+			if (data.channel != null) data.setChannel(getAvailableChannel(data.channel));
+		}
 		List<String> cmds = cfg.getStringList("mute.prevent-commands");
 		if (cmds!= null){
 			for (String cmd : cmds){

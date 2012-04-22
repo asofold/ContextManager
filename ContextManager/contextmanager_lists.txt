@@ -40,10 +40,22 @@ record + cx inspect ?
 - !(add) cx with ?
 
 - ? add silent flag ?
-
+- ? greedy flag ?
+- ! say (server) log it
 ***
 
+! (add) ping player [+ deactivatable] + ping mods or so
 
+
+! (add) global to channels
+
+
+!(bugfix) Players cant hear each other after reload ? 
+!(bugfix) history doe not work (after reload).
+
+(0.4.1)
+- (bugfix) remove invalid channels on reload.
+- (bugfix) history: decrement index when too high !
 
 (0.4.0)
 - (add) shortcut commands for context ...

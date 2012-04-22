@@ -257,7 +257,7 @@ public class CMCommand implements CommandExecutor {
 			int i = man.history.size()-1;
 			for (HistoryElement element : man.history){
 				if (i<startIndex) break;
-				else if (i>endIndex) continue;
+				else if (i>endIndex);
 				else if (perms.get(element.type)) candidates.add(element);
 				i --;
 			}
