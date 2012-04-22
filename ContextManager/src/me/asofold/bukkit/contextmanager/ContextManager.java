@@ -56,6 +56,8 @@ public class ContextManager extends JavaPlugin implements Listener{
 	
 	boolean useEvent = true;
 	
+	long tsSetChannelsString = 0;
+	
 	public ContextManager(){
 		channelsOrdered.add(ContextManager.defaultChannelName);
 	}
@@ -71,7 +73,10 @@ public class ContextManager extends JavaPlugin implements Listener{
 	 */
 	static String defaultChannelName = "global";
 	
-	String channelsString = "default (0) |";
+	String[] channelsString = new String[]{ChatColor.YELLOW + "[ContextManager] Available channels: ", ChatColor.GRAY+"(0)"+ChatColor.YELLOW+" default"};
+
+	long delayChannelsString = 2500;
+	
 	
 	@Override
 	public void onEnable() {
@@ -207,6 +212,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 		partyBracketCol = Messaging.withChatColors(cfg.getString("chat.color.party.brackets"));
 		partyNameCol = Messaging.withChatColors(cfg.getString("chat.color.party.name"));
 		partyMsgCol = Messaging.withChatColors(cfg.getString("chat.color.party.message"));
+		delayChannelsString = cfg.getLong("channels.fetch-delay", 2500L);
 		ContextManager.defaultChannelName = cfg.getString("channels.default-channel-name", "default").trim();
 		histSize = cfg.getInt("history.size");
 		mutePreventCommands.clear();
@@ -246,6 +252,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 		cfg.set("contexts.channels.names", new LinkedList<String>());
 		cfg.set("history.size", 100);
 		cfg.set("channels.default-channel-name", "default");
+		cfg.set("channels.fetch-delay", 2500L);
 //		List<String> load = new LinkedList<String>();
 //		for ( String plg : new String[]{
 //				"PermissionsEx", "mcMMO"
@@ -287,11 +294,13 @@ public class ContextManager extends JavaPlugin implements Listener{
 					if (!otherData.recipients.contains(lcName)) other = null;
 				}
 				if (other != null){
-					final String tellMsg = "[Tell] ("+player.getName()+" -> "+other.getName()+") "+join(getCollection(split, 2), " ");
-					System.out.println(tellMsg);
-					player.sendMessage(ChatColor.DARK_GRAY + tellMsg);
-					other.sendMessage(ChatColor.GRAY+ tellMsg);
-					addToHistory(new HistoryElement(ContextType.PRIVATE, playerName, "", tellMsg, false));
+					final String detail = "->"+other.getName();
+					final String tellMsg = join(getCollection(split, 2), " ");
+					final String sendMsg = "(" + playerName + detail + ") " + tellMsg;
+					System.out.println("[Tell]" + sendMsg);
+					player.sendMessage(ChatColor.DARK_GRAY + sendMsg);
+					other.sendMessage(ChatColor.GRAY+ sendMsg);
+					addToHistory(new HistoryElement(ContextType.PRIVATE, playerName, detail, tellMsg, false));
 				}
 				else{
 					player.sendMessage(ChatColor.DARK_RED+"[Tell] "+recipient+" is not available.");
@@ -529,22 +538,57 @@ public class ContextManager extends JavaPlugin implements Listener{
 		while (history.size() > histSize && !history.isEmpty()) history.remove(0);
 	}
 
-	public String getChannesString() {
+	public String[] getChannesString() {
+		if (System.currentTimeMillis()- tsSetChannelsString > delayChannelsString){
+			setChannelsString();
+		}
 		return channelsString;
 	}
 	
 	public void setChannelsString(){
+		tsSetChannelsString = System.currentTimeMillis();
+		// TODO: add number of users + one line per channel
 		// TODO: generate on load settings.
-		StringBuilder b = new StringBuilder();
-		int start = 1;
-		if (defaultChannelName.isEmpty()) b.append("default (0) | ");
-		else start = 0;
-		for (int i = start; i< channelsOrdered.size(); i++){
-			String n = channelsOrdered.get(i);
-			b.append(n + " ("+i+") | ");
+		
+		Map<String, Integer> userCount = getChannelUserCount();
+		
+		String[] out = new String[channelsOrdered.size()+1];
+		out[0] = ChatColor.YELLOW + "[ContextManager" +
+				"] Available channels: ";
+		out[1] = getChannelListEntry(0, getDefaultChannelDisplayName(), userCount.get(ContextManager.defaultChannelName));
+		for (int i = 1; i< channelsOrdered.size(); i++){
+			String ch = channelsOrdered.get(i);
+			out[i+1] = getChannelListEntry(i, ch, userCount.get(ch));
 		}
-		channelsString =  b.toString();
+		channelsString =  out;
 	}
+	
+	public  Map<String, Integer> getChannelUserCount() {
+		Map<String, Integer> counts = new HashMap<String, Integer>();
+		for ( Player player : getServer().getOnlinePlayers()){
+			PlayerData data = getPlayerData(player.getName());
+			String ch;
+			if (!data.recipients.isEmpty()) continue; // regard as if not there
+			if (data.channel == null) ch = ContextManager.defaultChannelName;
+			else ch = data.channel;
+			Integer c = counts.get(ch);
+			if ( c == null){
+				counts.put(ch, 1);
+			}
+			else counts.put(ch,  c + 1);
+		}
+		return counts;
+	}
+
+	public String getChannelListEntry(int n, String name, Integer users){
+		if (users == null) users = 0;
+		String out = ChatColor.GRAY+"("+n+") "+ChatColor.YELLOW+name;
+		if (users == 0) return out;
+		out += ChatColor.GRAY+" - "+users+ " player";
+		if (users>1) out += "s";
+		return out;
+	}
+		
 
 	public String getDefaultChannelDisplayName() {
 		if (ContextManager.defaultChannelName.isEmpty()) return "default";

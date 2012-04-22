@@ -216,7 +216,7 @@ public class CMCommand implements CommandExecutor {
 				}
 			}
 			else if (len == 1){
-				player.sendMessage(ChatColor.YELLOW + "[Context] Available channels: "+man.getChannesString());
+				player.sendMessage(man.getChannesString());
 			}
 			sendInfo(player, data);
 			return true;

@@ -56,10 +56,14 @@ record + cx inspect ?
 
 
 
-
+! improve / shorten tell message !
 
 CHANGELOG
 -----------------------------------
+
+(0.4.4)
+- (adjust) Tell message.
+- (adjust) Channel info now shows number of players in the channel.
 
 (0.4.3)
 - (bugix) Do fix default channel name and allow an empty one, still display default on infos but not in chat if empty.
