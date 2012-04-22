@@ -62,7 +62,7 @@ CHANGELOG
 -----------------------------------
 
 (0.4.3)
-- (bugix) Do fix default channel name and allow an empty one
+- (bugix) Do fix default channel name and allow an empty one, still display default on infos but not in chat if empty.
 
 (0.4.2)
 - (bugfix) channels display

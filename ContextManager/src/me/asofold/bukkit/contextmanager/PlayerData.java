@@ -84,6 +84,7 @@ public class PlayerData {
 	
 	
 	public void setChannel(String channel){
+		if (channel.equals(ContextManager.defaultChannelName)) channel = null;
 		this.channel = channel;
 		setExtraFormat(); // also resets format.
 	}

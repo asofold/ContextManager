@@ -284,7 +284,7 @@ public class CMCommand implements CommandExecutor {
 	private void sendInfo(Player player, PlayerData data) {
 		if (man.isMuted(player)) player.sendMessage(ChatColor.DARK_GRAY+"[Context] "+ChatColor.RED+"You are muted!");
 		if (!data.ignored.isEmpty()) player.sendMessage(ChatColor.DARK_GRAY+"[Ignored] "+ContextManager.join(data.ignored, " | "));
-		player.sendMessage(ChatColor.GRAY+"[Channel] "+(data.channel==null?ContextManager.defaultChannelName:data.channel));
+		player.sendMessage(ChatColor.GRAY+"[Channel] "+(data.channel==null?(man.getDefaultChannelDisplayName()):data.channel));
 		if (!data.recipients.isEmpty()) player.sendMessage(ChatColor.GRAY+"[Recipients] "+ContextManager.join(data.recipients, " | "));
 		if (man.isPartyChat(player)) player.sendMessage(ChatColor.YELLOW+"[Party] "+ChatColor.GREEN+"On");
 	}

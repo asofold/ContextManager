@@ -71,6 +71,8 @@ public class ContextManager extends JavaPlugin implements Listener{
 	 */
 	static String defaultChannelName = "global";
 	
+	String channelsString = "default (0) |";
+	
 	@Override
 	public void onEnable() {
 		loadSettings();
@@ -219,6 +221,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 				channelsOrdered.add(c);
 			}
 		}
+		setChannelsString();
 		for (PlayerData data: playerData.values()){
 			if (data.channel != null) data.setChannel(getAvailableChannel(data.channel));
 		}
@@ -510,11 +513,14 @@ public class ContextManager extends JavaPlugin implements Listener{
 		if (chan == null){
 			try{
 				int i = Integer.parseInt(name);
-				if (i>=0 && i<channelsOrdered.size()) chan = channelsOrdered.get(i);
+				if (i>=0 && i<channelsOrdered.size()){
+					if (i == 0) return ContextManager.defaultChannelName;
+					chan = channelsOrdered.get(i);
+				}
 			} catch (NumberFormatException e){		
 			}
 		}
-		if (name.equalsIgnoreCase("global") || (name.equalsIgnoreCase("default") || name.equalsIgnoreCase(ContextManager.defaultChannelName))) return null;
+		if (name.equalsIgnoreCase("global") || (name.equalsIgnoreCase("default") || name.equalsIgnoreCase(ContextManager.defaultChannelName))) return ContextManager.defaultChannelName;
 		else return chan;
 	}
 	
@@ -524,13 +530,24 @@ public class ContextManager extends JavaPlugin implements Listener{
 	}
 
 	public String getChannesString() {
+		return channelsString;
+	}
+	
+	public void setChannelsString(){
 		// TODO: generate on load settings.
 		StringBuilder b = new StringBuilder();
-		int i = -1;
-		for (String n : channelsOrdered){
-			i ++;
+		int start = 1;
+		if (defaultChannelName.isEmpty()) b.append("default (0) | ");
+		else start = 0;
+		for (int i = start; i< channelsOrdered.size(); i++){
+			String n = channelsOrdered.get(i);
 			b.append(n + " ("+i+") | ");
 		}
-		return b.toString();
+		channelsString =  b.toString();
+	}
+
+	public String getDefaultChannelDisplayName() {
+		if (ContextManager.defaultChannelName.isEmpty()) return "default";
+		else return ContextManager.defaultChannelName;
 	}
 }
