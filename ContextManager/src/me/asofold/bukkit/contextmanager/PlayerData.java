@@ -121,7 +121,8 @@ public class PlayerData {
 	public String getExtraFormat(){
 		if (!recipients.isEmpty()) return ChatColor.DARK_GRAY + "@"+ ChatColor.DARK_PURPLE + ContextManager.join(recipients, ",");
 		if (channel!=null) return ChatColor.DARK_GRAY + "@" + channel;
-		return ChatColor.DARK_GRAY + "@global";
+		if (!ContextManager.defaultChannelName.isEmpty()) return ChatColor.DARK_GRAY + "@"+ContextManager.defaultChannelName;
+		else return "";
 	}
 
 	public void setExtraFormat() {

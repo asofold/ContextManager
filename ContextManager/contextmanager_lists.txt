@@ -61,7 +61,11 @@ record + cx inspect ?
 CHANGELOG
 -----------------------------------
 
+(0.4.3)
+- (bugix) Do fix default channel name
+
 (0.4.2)
+- (bugfix) channels display
 - (adjust) Message / contet descr. appearance.
 
 (0.4.1)

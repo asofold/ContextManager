@@ -35,6 +35,7 @@ public class CMCommand implements CommandExecutor {
 		{"cxc", "cxch"},
 		{"cxr", "cxrec"},
 		{"history", "hist", "h"},
+		{"default", "def"},
 	};
 	
 	private ContextManager man;
@@ -203,7 +204,7 @@ public class CMCommand implements CommandExecutor {
 		}
 		else if (cmd.equals("channel")){
 			if (len == 2){
-				if (getMappedCommandLabel(args[1]).equals("global")) data.resetChannel();
+				if (getMappedCommandLabel(args[1]).equals(ContextManager.defaultChannelName)) data.resetChannel();
 				else{
 					String channel = man.getAvailableChannel(args[1]);
 					if (channel == null){
@@ -215,7 +216,7 @@ public class CMCommand implements CommandExecutor {
 				}
 			}
 			else if (len == 1){
-				player.sendMessage(ChatColor.YELLOW + "[Context] Available channels: "+ContextManager.join(man.channels.values(), " | "));
+				player.sendMessage(ChatColor.YELLOW + "[Context] Available channels: "+man.getChannesString());
 			}
 			sendInfo(player, data);
 			return true;
@@ -283,7 +284,7 @@ public class CMCommand implements CommandExecutor {
 	private void sendInfo(Player player, PlayerData data) {
 		if (man.isMuted(player)) player.sendMessage(ChatColor.DARK_GRAY+"[Context] "+ChatColor.RED+"You are muted!");
 		if (!data.ignored.isEmpty()) player.sendMessage(ChatColor.DARK_GRAY+"[Ignored] "+ContextManager.join(data.ignored, " | "));
-		player.sendMessage(ChatColor.GRAY+"[Channel] "+(data.channel==null?"global":data.channel));
+		player.sendMessage(ChatColor.GRAY+"[Channel] "+(data.channel==null?ContextManager.defaultChannelName:data.channel));
 		if (!data.recipients.isEmpty()) player.sendMessage(ChatColor.GRAY+"[Recipients] "+ContextManager.join(data.recipients, " | "));
 		if (man.isPartyChat(player)) player.sendMessage(ChatColor.YELLOW+"[Party] "+ChatColor.GREEN+"On");
 	}

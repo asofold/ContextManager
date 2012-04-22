@@ -57,7 +57,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 	boolean useEvent = true;
 	
 	public ContextManager(){
-		channelsOrdered.add("global");
+		channelsOrdered.add(ContextManager.defaultChannelName);
 	}
 	
 	CMCommand cmdExe = new CMCommand(this);
@@ -65,6 +65,11 @@ public class ContextManager extends JavaPlugin implements Listener{
 	List<HistoryElement> history = new LinkedList<HistoryElement>(); 
 	
 	int histSize = 100;
+	
+	/**
+	 * TODO: is a hack ?
+	 */
+	static String defaultChannelName = "global";
 	
 	@Override
 	public void onEnable() {
@@ -200,11 +205,12 @@ public class ContextManager extends JavaPlugin implements Listener{
 		partyBracketCol = Messaging.withChatColors(cfg.getString("chat.color.party.brackets"));
 		partyNameCol = Messaging.withChatColors(cfg.getString("chat.color.party.name"));
 		partyMsgCol = Messaging.withChatColors(cfg.getString("chat.color.party.message"));
+		ContextManager.defaultChannelName = cfg.getString("channels.default-channel-name", "default");
 		histSize = cfg.getInt("history.size");
 		mutePreventCommands.clear();
 		channels.clear();
 		channelsOrdered.clear();
-		channelsOrdered.add("global");
+		channelsOrdered.add(ContextManager.defaultChannelName);
 		List<String> ch = cfg.getStringList("contexts.channels.names");
 		if (ch != null){
 			for (String c : ch){
@@ -235,6 +241,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 		cfg.set("mute.prevent-commands", new LinkedList<String>());
 		cfg.set("contexts.channels.names", new LinkedList<String>());
 		cfg.set("history.size", 100);
+		cfg.set("channels.default-channel-name", "default");
 //		List<String> load = new LinkedList<String>();
 //		for ( String plg : new String[]{
 //				"PermissionsEx", "mcMMO"
@@ -497,6 +504,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 	}
 
 	public String getAvailableChannel(String name) {
+		if (name == null) return null;
 		String chan = channels.get(name.trim().toLowerCase());
 		if (chan == null){
 			try{
@@ -505,12 +513,23 @@ public class ContextManager extends JavaPlugin implements Listener{
 			} catch (NumberFormatException e){		
 			}
 		}
-		if (name.equalsIgnoreCase("global")) return null;
+		if (name.equalsIgnoreCase("global") || (name.equalsIgnoreCase("default") || name.equalsIgnoreCase(ContextManager.defaultChannelName))) return null;
 		else return chan;
 	}
 	
 	public void addToHistory(HistoryElement element){
 		history.add(element);
 		while (history.size() > histSize && !history.isEmpty()) history.remove(0);
+	}
+
+	public String getChannesString() {
+		// TODO: generate on load settings.
+		StringBuilder b = new StringBuilder();
+		int i = -1;
+		for (String n : channelsOrdered){
+			i ++;
+			b.append(n + " ("+i+") | ");
+		}
+		return b.toString();
 	}
 }
