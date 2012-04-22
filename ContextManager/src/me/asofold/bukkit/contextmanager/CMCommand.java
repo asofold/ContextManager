@@ -1,6 +1,8 @@
 package me.asofold.bukkit.contextmanager;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.ChatColor;
@@ -22,14 +24,17 @@ public class CMCommand implements CommandExecutor {
 		{"muted"},
 		{"context", "cx"},
 		// sub commands:
-		{"channel", "chan", "ch", "c"},
+		{"channel", "chan", "ch", "c", "channels"},
 		{"world", "wor", "w"},
 		{"info", "?", "help", "hlp"},
 		{"reset", "clear", "clr", "cl", "res"},
 		{"ignore", "ign", "ig" , "i"},
 		{"all", "al", "a"},
-		
-		
+		{"global", "glob", "glo", "gl", "g"},
+		{"recipients", "recipient", "recip", "rec", "re" , "r"},
+		{"cxc", "cxch"},
+		{"cxr", "cxrec"},
+		{"history", "hist", "h"},
 	};
 	
 	private ContextManager man;
@@ -65,7 +70,13 @@ public class CMCommand implements CommandExecutor {
 		man.lightChecks();
 		label = getMappedCommandLabel(label);
 		int len = args.length;
-		if ( label.equals("cmreload")){
+		
+		if (label.equals("cxc")) return onCommand(sender, null, "context", inflate(args, "channel"));
+		else if (label.equals("cxr")) return onCommand(sender, null, "context", inflate(args, "recipients"));
+		else if (label.equals("cxign")) return onCommand(sender, null, "context", inflate(args, "ignore"));
+		else if (label.equals("cxcl")) return onCommand(sender, null, "context", inflate(args, "reset"));
+		else if (label.equals("cxinf")) return onCommand(sender, null, "context", inflate(args, "info"));
+		else if ( label.equals("cmreload")){
 			if( !ContextManager.checkPerm(sender, "contextmanager.admin.cmd.reload")) return true;
 			man.loadSettings();
 			sender.sendMessage(ContextManager.plgLabel+" Settings reloaded");
@@ -124,6 +135,15 @@ public class CMCommand implements CommandExecutor {
 		return false;
 	}
 	
+	private String[] inflate(String[] args, String cmd) {
+		String[] out = new String[args.length+1];
+		out[0] = cmd;
+		for ( int i = 0 ; i<args.length; i++){
+			out[i+1] = args[i];
+		}
+		return out;
+	}
+
 	/**
 	 * Handling a "context" command for a player.
 	 * @param player
@@ -140,22 +160,30 @@ public class CMCommand implements CommandExecutor {
 			if (len == 1){
 				data.resetContexts();
 				ContextManager.send(player, ChatColor.YELLOW+ContextManager.plgLabel+" Contexts reset.");
-				return true;
 			} else if (len==2){
 				String target = getMappedCommandLabel(args[1]);
 				if (target.equals("ignore")){
 					data.resetIgnored();
 					ContextManager.send(player, ChatColor.YELLOW+ContextManager.plgLabel+" Ignored players reset.");
-					return true;
 				}
 				else if (target.equals("all")){
 					data.resetAll();
 					ContextManager.send(player, ChatColor.YELLOW+ContextManager.plgLabel+" Everything reset.");
-					return true;
+				}
+				else if (target.equals("recipients")){
+					data.resetRecipients();
+					ContextManager.send(player, ChatColor.YELLOW+ContextManager.plgLabel+" Recipients reset.");
+				}
+				else if (target.equals("channel")){
+					data.resetChannel();
+					ContextManager.send(player, ChatColor.YELLOW+ContextManager.plgLabel+" Channel reset.");
 				}
 			}
+			sendInfo(player, data);
+			return true;
 		}
 		else if (cmd.equals("ignore")){
+			// TODO: also use access methods.
 			for (int i = 1; i< args.length; i++){
 				String c = args[i].trim().toLowerCase();
 				if (c.isEmpty()) continue;
@@ -165,10 +193,101 @@ public class CMCommand implements CommandExecutor {
 				}
 				else data.ignored.add(c);
 			}
-			player.sendMessage(ChatColor.DARK_GRAY+"[Ignored] "+ContextManager.join(data.ignored, " | "));
+			sendInfo(player, data);
+			return true;
+		}
+		else if (cmd.equals("recipients")){
+			if (len>1) data.addRecipients(args, 1);
+			sendInfo(player, data);
+			return true;
+		}
+		else if (cmd.equals("channel")){
+			if (len == 2){
+				if (getMappedCommandLabel(args[1]).equals("global")) data.resetChannel();
+				else{
+					String channel = man.getAvailableChannel(args[1]);
+					if (channel == null){
+						player.sendMessage(ChatColor.DARK_RED+"[Context] Unavailable channel: "+args[1]);
+					}
+					else{
+						data.setChannel(channel);
+					}
+				}
+			}
+			else if (len == 1){
+				player.sendMessage(ChatColor.YELLOW + "[Context] Available channels: "+ContextManager.join(man.channels.values(), " | "));
+			}
+			sendInfo(player, data);
+			return true;
+		}
+		else if(cmd.equals("info")){
+			// send a bunch of info
+			sendInfo(player, data);
+			return true;
+		}
+		else if (cmd.equals("history")){
+			// shows 50 at a time , max.
+			if (!ContextManager.checkPerm(player,"contextmanager.admin.cmd.history")) return true;
+			int startIndex = 0;
+			if (len>=2){
+				try{
+					int i = Integer.parseInt(args[1].trim());
+					if (i<0) return badNumber(player, args[1]);
+					startIndex = i;
+				} catch (NumberFormatException e){
+					return badNumber(player, args[1]);
+				}
+			} 			
+			int endIndex = Math.max(0, startIndex + 50);
+			
+			// collect permissions:
+			Map<ContextType, Boolean> perms = new HashMap<ContextType, Boolean>();
+			boolean hasSomePerm = false;
+			for ( ContextType type : ContextType.values()){
+				boolean has = ContextManager.hasPermission(player, "contextmanager.history.display."+type.toString().toLowerCase());
+				hasSomePerm |= has;
+				perms.put(type, has);
+			}
+			if (!hasSomePerm){
+				ContextManager.send(player, ChatColor.DARK_RED+ContextManager.plgLabel+" You are lacking the permissions to view any entries.");
+				return true;
+			}
+			// collect candidates: TODO: 
+			List<HistoryElement> candidates = new LinkedList<HistoryElement>();
+			int i = man.history.size()-1;
+			for (HistoryElement element : man.history){
+				if (i<startIndex) break;
+				else if (i>endIndex) continue;
+				else if (perms.get(element.type)) candidates.add(element);
+				i --;
+			}
+			String[] msgs = new String[2+candidates.size()]; 
+			msgs[0] = ChatColor.YELLOW+"[Chat] History ("+endIndex+"..."+startIndex+"):";
+			i = 1;
+			for (HistoryElement element : candidates){
+				msgs[i] = element.toString();
+				i++;
+			}
+			msgs[1+candidates.size()] = ChatColor.YELLOW+"[Chat] History ("+startIndex+"..."+endIndex+" / "+man.history.size()+") - "+candidates.size() + " viewable, done.";
+			player.sendMessage(msgs);
 			return true;
 		}
 		return false;
 	}
+	
+	public boolean badNumber(CommandSender sender, String arg){
+		ContextManager.send(sender, ChatColor.DARK_RED+ContextManager.plgLabel+" Bad number: "+arg);
+		return true;
+	}
+
+	private void sendInfo(Player player, PlayerData data) {
+		if (man.isMuted(player)) player.sendMessage(ChatColor.DARK_GRAY+"[Context] "+ChatColor.RED+"You are muted!");
+		if (!data.ignored.isEmpty()) player.sendMessage(ChatColor.DARK_GRAY+"[Ignored] "+ContextManager.join(data.ignored, " | "));
+		player.sendMessage(ChatColor.GRAY+"[Channel] "+(data.channel==null?"global":data.channel));
+		if (!data.recipients.isEmpty()) player.sendMessage(ChatColor.GRAY+"[Recipients] "+ContextManager.join(data.recipients, " | "));
+		if (man.isPartyChat(player)) player.sendMessage(ChatColor.YELLOW+"[Party] "+ChatColor.GREEN+"On");
+	}
+
+
 
 }

@@ -1,8 +1,10 @@
 package me.asofold.bukkit.contextmanager;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,20 +40,31 @@ public class ContextManager extends JavaPlugin implements Listener{
 	Set<String> mutePreventCommands = new HashSet<String>();
 	
 	/**
+	 * Lower case -> correct case.
+	 */
+	Map<String, String> channels = new LinkedHashMap<String, String>();
+	
+	ArrayList<String> channelsOrdered = new ArrayList<String>();
+	
+	/**
 	 * muted players
 	 */
 
-    Map<String, Long> muted = new HashMap<String, Long>();
+    Map<String, Long> muted = new LinkedHashMap<String, Long>();
     
     public Map<String, PlayerData> playerData = new HashMap<String, PlayerData>();
 	
 	boolean useEvent = true;
 	
 	public ContextManager(){
-		
+		channelsOrdered.add("global");
 	}
 	
 	CMCommand cmdExe = new CMCommand(this);
+	
+	List<HistoryElement> history = new LinkedList<HistoryElement>(); 
+	
+	int histSize = 100;
 	
 	@Override
 	public void onEnable() {
@@ -59,7 +72,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 		getServer().getPluginManager().registerEvents(this, this);
 		for ( String cmd : new String[]{
 			"cmreload",	"cmmute", "cmunmute", "mute", "unmute", "demute", "muted",
-			"context",
+			"context", "cxc", "cxch", "cxr", "cxrec", "cxign", "cxcl", "cxinf",
 		}){
 			// TODO: Most probably unnecessary !
 			getCommand(cmd).setExecutor(cmdExe);
@@ -187,7 +200,18 @@ public class ContextManager extends JavaPlugin implements Listener{
 		partyBracketCol = Messaging.withChatColors(cfg.getString("chat.color.party.brackets"));
 		partyNameCol = Messaging.withChatColors(cfg.getString("chat.color.party.name"));
 		partyMsgCol = Messaging.withChatColors(cfg.getString("chat.color.party.message"));
+		histSize = cfg.getInt("history.size");
 		mutePreventCommands.clear();
+		channels.clear();
+		channelsOrdered.clear();
+		channelsOrdered.add("global");
+		List<String> ch = cfg.getStringList("contexts.channels.names");
+		if (ch != null){
+			for (String c : ch){
+				channels.put(c.trim().toLowerCase(), c);
+				channelsOrdered.add(c);
+			}
+		}
 		List<String> cmds = cfg.getStringList("mute.prevent-commands");
 		if (cmds!= null){
 			for (String cmd : cmds){
@@ -206,6 +230,8 @@ public class ContextManager extends JavaPlugin implements Listener{
 		cfg.set("chat.color.party.name", "&7");
 		cfg.set("chat.color.party.message", "&7");
 		cfg.set("mute.prevent-commands", new LinkedList<String>());
+		cfg.set("contexts.channels.names", new LinkedList<String>());
+		cfg.set("history.size", 100);
 //		List<String> load = new LinkedList<String>();
 //		for ( String plg : new String[]{
 //				"PermissionsEx", "mcMMO"
@@ -215,7 +241,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 		return cfg;
 	}
 	
-	@EventHandler(priority=EventPriority.LOW)
+	@EventHandler(priority=EventPriority.HIGHEST)
 	void onPlayerCommand(PlayerCommandPreprocessEvent event){
 		if (event.isCancelled()) return;
 		final String msg = event.getMessage().trim();
@@ -225,29 +251,37 @@ public class ContextManager extends JavaPlugin implements Listener{
 		// TODO: check set of others ?
 		final Player player = event.getPlayer();
 		if (cmd.equals("tell")){
-			// TODO: maybe log and amybe message player self.
+			// TODO: maybe log and maybe message player self.
+			event.setCancelled(true);
 			if (split.length > 1){
+				final String playerName =  player.getName(); 
+				String lcName = playerName.toLowerCase();
 				String recipient = split[1].trim().toLowerCase();
+				if (lcName.equals(recipient)) return;
 				if (recipient.isEmpty()){
 					// TODO: maybe better command parsing (stripping of space only parts).
 					player.sendMessage(ChatColor.DARK_RED+plgLabel+" Bad tell message.");
-					event.setCancelled(true);
 					return;
 				}
 				PlayerData otherData = getPlayerData(recipient, false);
-				if (otherData != null && otherData.ignored.contains(player.getName().toLowerCase())){
+				if (otherData != null && otherData.ignored.contains(lcName) && !hasPermission(player, "contextmanager.bypass.tell")){
 					player.sendMessage(ChatColor.DARK_RED+plgLabel+" You are ignored by this player.");
-					event.setCancelled(true);
 					return;
 				}
 				Player other = getServer().getPlayerExact(recipient);
+				if (other != null && !player.canSee(other) && !hasPermission(player, "contextmanager.bypass.tell")){
+					if (!otherData.recipients.contains(lcName)) other = null;
+				}
 				if (other != null){
-					final String tellMsg = "[Tell] "+player.getName()+" -> "+other.getName()+" "+join(getCollection(split, 2), " ");
+					final String tellMsg = "[Tell] ("+player.getName()+" -> "+other.getName()+") "+join(getCollection(split, 2), " ");
 					System.out.println(tellMsg);
 					player.sendMessage(ChatColor.DARK_GRAY + tellMsg);
-					return;
+					other.sendMessage(ChatColor.GRAY+ tellMsg);
+					addToHistory(new HistoryElement(ContextType.PRIVATE, playerName, "", tellMsg, false));
 				}
-				
+				else{
+					player.sendMessage(ChatColor.DARK_RED+"[Tell] "+recipient+" is not available.");
+				}
 				return; // TODO: consider cancelling tell always
 			}
 		}
@@ -270,14 +304,31 @@ public class ContextManager extends JavaPlugin implements Listener{
 		String message = event.getMessage();
 		Player player = event.getPlayer();
 		
+		// Tell shortcut
+		if (message.startsWith("@")){
+			// tell shortcut
+			event.setCancelled(true);
+			final String cmd;
+			if (message.startsWith("@ ")) cmd = "/tell "+message.substring(2);
+			else cmd = "/tell "+message.substring(1);
+			final PlayerCommandPreprocessEvent tellEvent = new PlayerCommandPreprocessEvent(player, cmd);
+			getServer().getPluginManager().callEvent(tellEvent); // will be replaced by THIS plugin.
+			return;
+		}
+		
+		
+		// Muted
 		if (isMuted(player)){
 			event.setCancelled(true);
 			return;
 		}
 		
+		// Announcements
 		String msgCol = null; // this.msgCol;
 		boolean forceBroadcast = false;
+		boolean isAnnounce = false;
 		if ( message.startsWith("!") && player.hasPermission("contextmanager.chat.announce")){
+			isAnnounce = true;
 			msgCol = broadCastCol;
 			int n = 1;
 			if ( message.startsWith("!!")){
@@ -287,19 +338,47 @@ public class ContextManager extends JavaPlugin implements Listener{
 			message = message.substring(n,message.length());
 			if ( useEvent) event.setMessage(message);
 		}
-		Set<Player> recipients = event.getRecipients();
-		if ( !forceBroadcast) adjustRecipients(player, recipients);
+		
+		// History:
+		final String playerName = player.getName();
+		PlayerData data = getPlayerData(playerName);
+		boolean isParty = isPartyChat(player);
+		ContextType type;
+		if (forceBroadcast) type = ContextType.BROADCAST;
+		else if (isAnnounce){
+			if (data.channel == null) type = ContextType.GLOBAL;
+			else type = ContextType.CHANNEL;
+		}
+		else if (isParty) type = ContextType.PARTY;
+		else if (!data.recipients.isEmpty()) type = ContextType.PRIVATE;
+		else if (data.channel == null) type = ContextType.GLOBAL;
+		else type = ContextType.CHANNEL;
+		addToHistory(new HistoryElement(type, playerName, data.extraFormat, message, isAnnounce));
+		
+		// recipients
+		Set<Player> recipients;
+		boolean useEvent = this.useEvent;
+		if (isAnnounce){
+			// force recipients to prevent other plugins messing around.
+			recipients = new HashSet<Player>();
+			for (Player other :  getServer().getOnlinePlayers()){
+				recipients.add(other);
+			}
+			useEvent = false;
+		}
+		else recipients = event.getRecipients();
+		if ( !forceBroadcast) adjustRecipients(player, recipients, isAnnounce);
 		
 		// TODO: filters for who wants to hear (or must) and who should hear / forces to hear
 		
-		// assemble message
+		// Assemble message
 		String format;
-		if (forceBroadcast) format = getNormalFormat(player.getName(), msgCol);
-		else format = getFormat(player, msgCol);
+		if (isAnnounce) format = getNormalFormat(playerName, msgCol, isAnnounce);
+		else format = getFormat(player, msgCol, isAnnounce);
 		if (useEvent) event.setFormat(format);
 		else {
 			event.setCancelled(true);
-			String sendMsg = format.replace("%1$s", player.getName()).replace("%2$s", message);
+			String sendMsg = format.replace("%1$s", playerName).replace("%2$s", message);
 			if (forceBroadcast) getServer().broadcastMessage(sendMsg);
 			else{
 				for ( Player other : recipients){
@@ -335,7 +414,7 @@ public class ContextManager extends JavaPlugin implements Listener{
 		return false;
 	}
 
-	private boolean isPartyChat(Player player){
+	boolean isPartyChat(Player player){
 		try{
 			if (com.gmail.nossr50.Users.getProfile(player).getPartyChatMode()) return true;
 		} catch( Throwable t){
@@ -357,21 +436,21 @@ public class ContextManager extends JavaPlugin implements Listener{
 		return true;
 	}
 
-	public final String getFormat(final Player player, final String msgCol){
+	public final String getFormat(final Player player, final String msgCol, boolean isAnnounce){
 		final String playerName = player.getName();
 		// TODO: context dependent ...
-		if ( isPartyChat(player)) return getPartyFormat(playerName, msgCol);
-		else return getNormalFormat(playerName, msgCol);
+		if ( !isAnnounce && isPartyChat(player)) return getPartyFormat(playerName, msgCol);
+		else return getNormalFormat(playerName, msgCol, isAnnounce);
 	}
 	
-	public final String getNormalFormat(String playerName, String msgCol){
+	public final String getNormalFormat(String playerName, String msgCol, boolean isAnnounce){
 		if (msgCol == null) msgCol = this.msgCol;
 		String[] decorated = PexUtil.findDecoration(playerName);
 		if (decorated[0] == null) decorated[0] = "";
 		else decorated[0] = Messaging.withChatColors(decorated[0]);
 		if (decorated[1] == null) decorated[1] = "";
 		else decorated[1] = Messaging.withChatColors(decorated[1]);
-		return msgCol+"<"+decorated[0]+"%1$s"+decorated[1]+msgCol+"> %2$s";
+		return msgCol+"<"+decorated[0]+"%1$s"+decorated[1]+msgCol+(isAnnounce?"":getPlayerData(playerName).extraFormat)+msgCol+"> %2$s";
 	}
 	
 	public final String getPartyFormat(String playerName, String msgCol){
@@ -383,9 +462,9 @@ public class ContextManager extends JavaPlugin implements Listener{
 	 * @param player
 	 * @param recipients
 	 */
-	public final void adjustRecipients(Player player, Set<Player> recipients) {
+	public final void adjustRecipients(Player player, Set<Player> recipients, boolean isAnnounce) {
 		PlayerData data = getPlayerData(player.getName());
-		if ( isPartyChat(player)){
+		if ( !isAnnounce && isPartyChat(player)){
 			// TODO: these might be already set by mcmmo, on the other hand this allows for others.
 			List<Player> add = new LinkedList<Player>();
 			for ( Player rec : recipients){ // TODO: get directly from mcMMO
@@ -396,11 +475,9 @@ public class ContextManager extends JavaPlugin implements Listener{
 		}
 		else{
 			List<Player> rem = new LinkedList<Player>();
-			// General checks:
-			rem.clear();
 			for (Player other : recipients){
 				PlayerData otherData = getPlayerData(other.getName());
-				if (!otherData.canHear(data)) rem.add(other);
+				if (!otherData.canHear(data, isAnnounce)) rem.add(other);
 			}
 			if (!rem.isEmpty()) recipients.removeAll(rem);
 		}
@@ -414,5 +491,23 @@ public class ContextManager extends JavaPlugin implements Listener{
 	public static final void tryMessage(final String playerName, String msg) {
 		Player player = Bukkit.getServer().getPlayerExact(playerName);
 		if (player != null) player.sendMessage(msg);
+	}
+
+	public String getAvailableChannel(String name) {
+		String chan = channels.get(name.trim().toLowerCase());
+		if (chan == null){
+			try{
+				int i = Integer.parseInt(name);
+				if (i>=0 && i<channelsOrdered.size()) chan = channelsOrdered.get(i);
+			} catch (NumberFormatException e){		
+			}
+		}
+		if (name.equalsIgnoreCase("global")) return null;
+		else return chan;
+	}
+	
+	public void addToHistory(HistoryElement element){
+		history.add(element);
+		while (history.size() > histSize && !history.isEmpty()) history.remove(0);
 	}
 }

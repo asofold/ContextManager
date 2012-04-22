@@ -29,5 +29,18 @@ commands:
     description: 'Set your chat context.'
     aliases:
     - cx
-    usage: '/context ... or /cx ... for: | /cx channel <name> | /cx recipients <rec1> ... | /cx ignore <player1> ... | /cx reset [ignore|all] | /cx info | Use - (-) as prefix to remove an entry!'
-
+    usage: '/context ... or /cx ... for: | /cx channel <name> | /cx recipients <rec1> ... | /cx ignore <player1> ... | /cx reset [ignore|all|recipients] | /cx info | /cx history | Use - (-) as prefix to remove an entry!'
+  cxc:
+    description: 'Show or select channel.'
+    aliases:
+    - cxch
+  cxr:
+    description: 'Show or select recipients.'
+    aliases:
+    - cxrec
+  cxign:
+    description: 'Show or add ignored players.'
+  cxinf:
+    description: 'Show context info.'
+  cxcl:
+    description: 'Reset context.'

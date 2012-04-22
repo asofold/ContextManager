@@ -10,7 +10,11 @@ Purpose variable chat manager, nice API, other contexts too
 
 !(add) Tag for global shout ?
 
-*** OPT
+record + cx inspect ?
+
+!(add) hear all switch ? 
+! replace global by a preset or even configurable name !
+
 !(add) World aliases (translate just the format part)
 !(add) Map context to integers ! For fastest comparison !
 
@@ -18,14 +22,37 @@ Purpose variable chat manager, nice API, other contexts too
 ! (add) context world ! [for mods: also other worlds! ]
 ! (add) context with [to switch to the same context]
 
+
 ! (add) context channel [with permissions!, from config]
 
-! (add) contexts recipients
+
 
 ! (add) Message on empty recipients !
 
+
+! (add) mute for a certain context !
+
+
+***
+- ! add better party details on history, maybe list recipients
+
+
+- !(add) cx with ?
+
+- ? add silent flag ?
+
+***
+
+
+
 (0.4.0)
+- (add) shortcut commands for context ...
+- (add) Chat history + viewing.
+- (bugfix) Local shout is always channel wide (also from party chat or if recipients are set).
+- (add) Contexts: channels , recipients
+- (add) Replace tell completely + @ <player> shortcut.
 - (add) canHear method in PlayerData.
+- (add) bypass permission for ignore and canSee on tell
 
 (0.3.0)
 - (add) Ignore feature.
