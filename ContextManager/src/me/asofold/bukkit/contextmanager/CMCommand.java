@@ -1,9 +1,11 @@
 package me.asofold.bukkit.contextmanager;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -36,6 +38,7 @@ public class CMCommand implements CommandExecutor {
 		{"cxr", "cxrec"},
 		{"history", "hist", "h"},
 		{"default", "def"},
+		{"greedy", "greed", "gre"},
 	};
 	
 	private ContextManager man;
@@ -273,6 +276,40 @@ public class CMCommand implements CommandExecutor {
 			player.sendMessage(msgs);
 			return true;
 		}
+		else if (cmd.equals("greedy")){
+			if (!ContextManager.checkPerm(player, "contextmanager.cmd.greedy")) return true;
+			if (data.greedy == null){
+				final ContextType[] availableGreedy = new ContextType[]{ContextType.CHANNEL, ContextType.PRIVATE};
+				Set<ContextType> greedy = new HashSet<ContextType>();
+				if (len>1){
+					for (int i = 1; i< args.length; i++){
+						String ref = args[i].trim().toUpperCase();
+						if (ref.isEmpty()) continue;
+						for (ContextType type : availableGreedy){
+							// TODO: maybe something more efficient ?
+							if (type.toString().startsWith(ref) && ContextManager.hasPermission(player, "contextmanager.greedy."+type.toString().toLowerCase())) greedy.add(type);
+						}
+						// TODO: maybe message if nothing found.
+					}
+				} else{
+					for (ContextType type : availableGreedy){
+						if (ContextManager.hasPermission(player, "contextmanager.greedy."+type.toString().toLowerCase())) greedy.add(type);
+					}
+				}
+				if (greedy.isEmpty()){
+					player.sendMessage(ChatColor.YELLOW + "[Context] No greedy entries available!");
+				} else{
+					player.sendMessage(ChatColor.YELLOW + "[Context] Greedy list set (see below).");
+					data.greedy = greedy;
+				}
+			} 
+			else{
+				data.greedy = null;
+				player.sendMessage(ChatColor.YELLOW + "[Context] Greedy list cleared.");
+			}
+			sendInfo(player, data);
+			return true;
+		}
 		return false;
 	}
 	
@@ -282,10 +319,12 @@ public class CMCommand implements CommandExecutor {
 	}
 
 	private void sendInfo(Player player, PlayerData data) {
+		// TODO: refactor to work as complete info for another player.
 		if (man.isMuted(player)) player.sendMessage(ChatColor.DARK_GRAY+"[Context] "+ChatColor.RED+"You are muted!");
 		if (!data.ignored.isEmpty()) player.sendMessage(ChatColor.DARK_GRAY+"[Ignored] "+ContextManager.join(data.ignored, " | "));
 		player.sendMessage(ChatColor.GRAY+"[Channel] "+(data.channel==null?(man.getDefaultChannelDisplayName()):data.channel));
 		if (!data.recipients.isEmpty()) player.sendMessage(ChatColor.GRAY+"[Recipients] "+ContextManager.join(data.recipients, " | "));
+		if (data.greedy != null) player.sendMessage(ChatColor.YELLOW+"[Greedy] "+ContextManager.joinObjects(data.greedy, " | "));
 		if (man.isPartyChat(player)) player.sendMessage(ChatColor.YELLOW+"[Party] "+ChatColor.GREEN+"On");
 	}
 

@@ -44,22 +44,38 @@ record + cx inspect ?
 - ! say (server) log it
 ***
 
+! group invitations ?
+
+! add flag for: listen to party, private but not to main chatter
+! add history -> browser ? + certain types only (not tell for instance)
+
+
 ! (add) ping player [+ deactivatable] + ping mods or so
+! keep track of mods and make them pingable (cx mod) + ping task (permission => ping)
+! warn on new players 
+
+! listening instead of players (channel info)
+! add greedy chat -> hear all channels
+
+? (add) permission for getting heard from channels out
 
 
-! (add) global to channels
+? prefixing concept =? your name mentioned ...
+
+! subscribe feature for channels (different types: announcement, region dependent announcement, distance-dependent announcements) maybe schedule message with random delay.
 
 
-!(bugfix) Players cant hear each other after reload ? 
-!(bugfix) history doe not work (after reload).
-- ?(add) Make global channel name configurable.
+! (add) greedy for tell too ? TODO: Use extra ENUM for greedy ! (small-channel, all_channels, private, tell , etc.)
 
-
-
-! improve / shorten tell message !
 
 CHANGELOG
 -----------------------------------
+
+(0.5.0)
+- (add) /cx greedy
+- (adjust) history: message color to white.
+- (add) warn on empty recipients [TODO: maybe limit number of messages, or add to ping messsages -> msg + expiration timestamp, generic]
+
 
 (0.4.4)
 - (adjust) Tell message.

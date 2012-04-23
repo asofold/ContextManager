@@ -172,6 +172,14 @@ public class ContextManager extends JavaPlugin implements Listener{
 		return builder.toString();
 	}
 	
+	public static final String joinObjects(Collection<?> parts, String link){
+		LinkedList<String> ref = new LinkedList<String>();
+		for (Object o : parts){
+			ref.add(o.toString());
+		}
+		return join(ref, link);
+	}
+	
 
 
 
@@ -390,7 +398,10 @@ public class ContextManager extends JavaPlugin implements Listener{
 			useEvent = false;
 		}
 		else recipients = event.getRecipients();
-		if ( !forceBroadcast) adjustRecipients(player, recipients, isAnnounce);
+		if ( !forceBroadcast){
+			adjustRecipients(player, recipients, isAnnounce);
+			if (recipients.size() == 0 || recipients.size()==1 && recipients.contains(player)) player.sendMessage(ChatColor.RED+"[Chat] There are no players that can hear your message!");
+		}
 		
 		// TODO: filters for who wants to hear (or must) and who should hear / forces to hear
 		

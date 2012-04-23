@@ -22,6 +22,7 @@ public class HistoryElement {
 	
 	public String toString(){
 		String bc = (isAnnounce?ChatColor.YELLOW:ChatColor.GRAY).toString();
+		String mc = (isAnnounce?ChatColor.YELLOW:ChatColor.WHITE).toString();
 		StringBuilder b = new StringBuilder(120);
 		b.append(ChatColor.AQUA + "[");
 		b.append(Utils.timeStr(ts));
@@ -34,7 +35,7 @@ public class HistoryElement {
 			b.append(details);
 			b.append(ChatColor.GRAY+")");
 		}
-		b.append(" "+bc);
+		b.append(" "+mc);
 		b.append(message);
 		return b.toString();
 	}

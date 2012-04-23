@@ -62,6 +62,8 @@ public class PlayerData {
 		setExtraFormat();
 	}
 	
+	public Set<ContextType> greedy = null;
+	
 	/**
 	 * Add the recipients, i.e. check if +- is used in front !
 	 * @param args
@@ -100,18 +102,34 @@ public class PlayerData {
 	 */
 	public final boolean canHear(final PlayerData other, boolean isAnnounce){
 		// TODO: maybe make more efficient ways ...
+		
+		// greedy flag
+		final boolean isGreedy = greedy != null;
+		// ignore check
 		if (!isAnnounce && ignored.contains(other.lcName)) return false; // allow to ignore oneself.
+		
 		if (other == this) return true; // important check.
+	
 		if (!isAnnounce){
+			// recipients checks:
 			boolean orne = !other.recipients.isEmpty(); 
 			boolean rne = !recipients.isEmpty();
-			if (orne && !other.recipients.contains(lcName)) return false;
-			if (rne && !recipients.contains(other.lcName)) return false;
+			if (orne && !other.recipients.contains(lcName)){
+				if (!isGreedy) return false;
+				else if (!greedy.contains(ContextType.PRIVATE)) return false;
+			}
+			if (rne && !recipients.contains(other.lcName)){
+				if (!isGreedy) return false;
+			}
 			if (orne && rne) return true; // always allow to hear
 		}
+		
+		// channel:
 		if (channel == null){
+			if (isGreedy && (greedy.contains(ContextType.CHANNEL) || greedy.contains(ContextType.DEFAULT))) return true;
 			if (other.channel != null) return false;
 		} else{
+			if (isGreedy && greedy.contains(ContextType.CHANNEL)) return true;
 			if (other.channel == null) return false;
 			else if (!channel.equals(other.channel)) return false;
 		}
