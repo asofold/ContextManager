@@ -278,7 +278,8 @@ public class CMCommand implements CommandExecutor {
 		}
 		else if (cmd.equals("greedy")){
 			if (!ContextManager.checkPerm(player, "contextmanager.cmd.greedy")) return true;
-			if (data.greedy == null){
+			if (data.greedy == null || len>1){
+				data.greedy = null;
 				final ContextType[] availableGreedy = new ContextType[]{ContextType.CHANNEL, ContextType.PRIVATE};
 				Set<ContextType> greedy = new HashSet<ContextType>();
 				if (len>1){
