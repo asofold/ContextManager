@@ -71,6 +71,9 @@ record + cx inspect ?
 CHANGELOG
 -----------------------------------
 
+(0.5.1)
+- (adjust) /cx greedy: allow to reset with args always (no uneecessary clearing). + adjust description
+
 (0.5.0)
 - (add) /cx greedy
 - (adjust) history: message color to white.

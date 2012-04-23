@@ -29,7 +29,7 @@ commands:
     description: 'Set your chat context.'
     aliases:
     - cx
-    usage: '/context ... or /cx ... for: | /cx channel <name> | /cx recipients <rec1> ... | /cx ignore <player1> ... | /cx reset [ignore|all|recipients] | /cx info | /cx history | Use - (-) as prefix to remove an entry!'
+    usage: '/context ... or /cx ... for: | /cx channel <name> | /cx recipients <rec1> ... | /cx ignore <player1> ... | /cx reset [ignore|all|recipients] | /cx info | /cx history | /cx greedy ...| Use - (-) as prefix to remove an entry!'
   cxc:
     description: 'Show or select channel.'
     aliases:
