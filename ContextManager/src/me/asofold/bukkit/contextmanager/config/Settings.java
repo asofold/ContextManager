@@ -22,14 +22,14 @@ public class Settings {
 	
 	public Set<String> mutePreventCommands = new HashSet<String>();
 	
-	public Channels channels = new Channels();
+	public ChannelSettings channels = new ChannelSettings();
 	
 	public int histSize = 100;
 	
 	public boolean useEvent = true;
 	
 	public Settings(){
-		channels.channelsOrdered.add(Channels.defaultChannelName);
+		channels.channelsOrdered.add(ChannelSettings.defaultChannelName);
 	}
 	
 	public static MemoryConfiguration getDefaultSettings(){

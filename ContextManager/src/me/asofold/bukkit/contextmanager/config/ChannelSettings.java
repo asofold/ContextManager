@@ -19,7 +19,7 @@ import org.bukkit.entity.Player;
  * @author mc_dev
  *
  */
-public class Channels {
+public class ChannelSettings {
 	
 	/**
 	 * TODO: is a hack ?
@@ -57,7 +57,7 @@ public class Channels {
 		String[] out = new String[channelsOrdered.size()+1];
 		out[0] = ChatColor.YELLOW + "[ContextManager" +
 				"] Available channels: ";
-		out[1] = getChannelListEntry(0, getDefaultChannelDisplayName(), userCount.get(Channels.defaultChannelName));
+		out[1] = getChannelListEntry(0, getDefaultChannelDisplayName(), userCount.get(ChannelSettings.defaultChannelName));
 		for (int i = 1; i< channelsOrdered.size(); i++){
 			String ch = channelsOrdered.get(i);
 			out[i+1] = getChannelListEntry(i, ch, userCount.get(ch));
@@ -71,7 +71,7 @@ public class Channels {
 			PlayerData data = core.getPlayerData(player.getName());
 			String ch;
 			if (!data.recipients.isEmpty()) continue; // regard as if not there
-			if (data.channel == null) ch = Channels.defaultChannelName;
+			if (data.channel == null) ch = ChannelSettings.defaultChannelName;
 			else ch = data.channel;
 			Integer c = counts.get(ch);
 			if ( c == null){
@@ -93,8 +93,8 @@ public class Channels {
 		
 
 	public String getDefaultChannelDisplayName() {
-		if (Channels.defaultChannelName.isEmpty()) return "default";
-		else return Channels.defaultChannelName;
+		if (ChannelSettings.defaultChannelName.isEmpty()) return "default";
+		else return ChannelSettings.defaultChannelName;
 	}
 	
 	public String getAvailableChannel(String name) {
@@ -104,21 +104,21 @@ public class Channels {
 			try{
 				int i = Integer.parseInt(name);
 				if (i>=0 && i<channelsOrdered.size()){
-					if (i == 0) return Channels.defaultChannelName;
+					if (i == 0) return ChannelSettings.defaultChannelName;
 					chan = channelsOrdered.get(i);
 				}
 			} catch (NumberFormatException e){		
 			}
 		}
-		if (name.equalsIgnoreCase("global") || (name.equalsIgnoreCase("default") || name.equalsIgnoreCase(Channels.defaultChannelName))) return Channels.defaultChannelName;
+		if (name.equalsIgnoreCase("global") || (name.equalsIgnoreCase("default") || name.equalsIgnoreCase(ChannelSettings.defaultChannelName))) return ChannelSettings.defaultChannelName;
 		else return chan;
 	}
 
 	public void applyConfig(Configuration cfg, CMCore core) {
-		Channels.defaultChannelName = cfg.getString("channels.default-channel-name", "default").trim();
+		ChannelSettings.defaultChannelName = cfg.getString("channels.default-channel-name", "default").trim();
 	    channels.clear();
 		channelsOrdered.clear();
-		channelsOrdered.add(Channels.defaultChannelName);
+		channelsOrdered.add(ChannelSettings.defaultChannelName);
 		List<String> ch = cfg.getStringList("contexts.channels.names");
 		if (ch != null){
 			for (String c : ch){

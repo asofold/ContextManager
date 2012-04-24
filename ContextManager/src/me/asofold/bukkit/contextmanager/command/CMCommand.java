@@ -9,7 +9,7 @@ import java.util.Set;
 
 import me.asofold.bukkit.contextmanager.ContextManager;
 import me.asofold.bukkit.contextmanager.chat.HistoryElement;
-import me.asofold.bukkit.contextmanager.config.Channels;
+import me.asofold.bukkit.contextmanager.config.ChannelSettings;
 import me.asofold.bukkit.contextmanager.core.CMCore;
 import me.asofold.bukkit.contextmanager.core.ContextType;
 import me.asofold.bukkit.contextmanager.core.PlayerData;
@@ -220,7 +220,7 @@ public class CMCommand implements CommandExecutor {
 		}
 		else if (cmd.equals("channel")){
 			if (len == 2){
-				if (getMappedCommandLabel(args[1]).equals(Channels.defaultChannelName)) data.resetChannel();
+				if (getMappedCommandLabel(args[1]).equals(ChannelSettings.defaultChannelName)) data.resetChannel();
 				else{
 					String channel = core.getAvailableChannel(args[1]);
 					if (channel == null){

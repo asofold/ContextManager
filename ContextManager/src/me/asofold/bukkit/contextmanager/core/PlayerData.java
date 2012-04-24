@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import me.asofold.bukkit.contextmanager.ContextManager;
-import me.asofold.bukkit.contextmanager.config.Channels;
+import me.asofold.bukkit.contextmanager.config.ChannelSettings;
 import me.asofold.bukkit.contextmanager.util.Utils;
 
 import org.bukkit.ChatColor;
@@ -90,7 +90,7 @@ public class PlayerData {
 	
 	
 	public void setChannel(String channel){
-		if (channel.equals(Channels.defaultChannelName)) channel = null;
+		if (channel.equals(ChannelSettings.defaultChannelName)) channel = null;
 		this.channel = channel;
 		setExtraFormat(); // also resets format.
 	}
@@ -144,7 +144,7 @@ public class PlayerData {
 	private String evaluateExtraFormat(){
 		if (!recipients.isEmpty()) return ChatColor.DARK_GRAY + "@"+ ChatColor.DARK_PURPLE + Utils.join(recipients, ",");
 		if (channel!=null) return ChatColor.DARK_GRAY + "@" + channel;
-		if (!Channels.defaultChannelName.isEmpty()) return ChatColor.DARK_GRAY + "@"+Channels.defaultChannelName;
+		if (!ChannelSettings.defaultChannelName.isEmpty()) return ChatColor.DARK_GRAY + "@"+ChannelSettings.defaultChannelName;
 		else return "";
 	}
 
