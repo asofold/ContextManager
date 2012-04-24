@@ -1,6 +1,6 @@
 name: ContextManager
 main: me.asofold.bukkit.contextmanager.ContextManager
-version: 0.5.0
+version: 0.6.0
 depend:
 - PluginLibSharedLibrary
 - PermissionsEx
