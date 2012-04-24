@@ -1,7 +1,11 @@
-package me.asofold.bukkit.contextmanager;
+package me.asofold.bukkit.contextmanager.core;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import me.asofold.bukkit.contextmanager.ContextManager;
+import me.asofold.bukkit.contextmanager.config.Channels;
+import me.asofold.bukkit.contextmanager.util.Utils;
 
 import org.bukkit.ChatColor;
 
@@ -9,9 +13,9 @@ public class PlayerData {
 	/**
 	 * Lower case name.
 	 */
-	String lcName;
+	public final String lcName;
 	
-	String extraFormat = "";
+	private  String extraFormat = "";
 	
 	public PlayerData(String lcName){
 		this.lcName = lcName;
@@ -51,13 +55,13 @@ public class PlayerData {
 	}
 
 	public void resetRecipients(){
-		if (!recipients.isEmpty()) ContextManager.tryMessage(lcName, ChatColor.DARK_GRAY+ContextManager.plgLabel+" Resetting recipients.");
+		if (!recipients.isEmpty()) Utils.tryMessage(lcName, ChatColor.DARK_GRAY+ContextManager.plgLabel+" Resetting recipients.");
 		recipients.clear();
 		setExtraFormat();
 	}
 
 	public void resetChannel() {
-		if (channel != null) ContextManager.tryMessage(lcName, ChatColor.DARK_GRAY+ContextManager.plgLabel+" Leaving channel: "+channel);
+		if (channel != null) Utils.tryMessage(lcName, ChatColor.DARK_GRAY+ContextManager.plgLabel+" Leaving channel: "+channel);
 		channel = null;
 		setExtraFormat();
 	}
@@ -86,7 +90,7 @@ public class PlayerData {
 	
 	
 	public void setChannel(String channel){
-		if (channel.equals(ContextManager.defaultChannelName)) channel = null;
+		if (channel.equals(Channels.defaultChannelName)) channel = null;
 		this.channel = channel;
 		setExtraFormat(); // also resets format.
 	}
@@ -137,15 +141,19 @@ public class PlayerData {
 		return true;
 	}
 	
-	public String getExtraFormat(){
-		if (!recipients.isEmpty()) return ChatColor.DARK_GRAY + "@"+ ChatColor.DARK_PURPLE + ContextManager.join(recipients, ",");
+	private String evaluateExtraFormat(){
+		if (!recipients.isEmpty()) return ChatColor.DARK_GRAY + "@"+ ChatColor.DARK_PURPLE + Utils.join(recipients, ",");
 		if (channel!=null) return ChatColor.DARK_GRAY + "@" + channel;
-		if (!ContextManager.defaultChannelName.isEmpty()) return ChatColor.DARK_GRAY + "@"+ContextManager.defaultChannelName;
+		if (!Channels.defaultChannelName.isEmpty()) return ChatColor.DARK_GRAY + "@"+Channels.defaultChannelName;
 		else return "";
 	}
 
-	public void setExtraFormat() {
-		extraFormat = getExtraFormat();
+	private void setExtraFormat() {
+		extraFormat = evaluateExtraFormat();
+	}
+	
+	public String getExtraFormat(){
+		return extraFormat;
 	}
 	
 }

@@ -67,9 +67,13 @@ record + cx inspect ?
 
 ! (add) greedy for tell too ? TODO: Use extra ENUM for greedy ! (small-channel, all_channels, private, tell , etc.)
 
+!(add) Better context handling: keep sets with players that are in certain channels and for greedy, so that getting the players can be made much faster.
 
 CHANGELOG
 -----------------------------------
+
+(0.6.0)
+- (refactor) Set up some internal package structure (Split off code to different classes...).
 
 (0.5.1)
 - (adjust) /cx greedy: allow to reset with args always (no uneecessary clearing). + adjust description

@@ -1,4 +1,4 @@
-package me.asofold.bukkit.contextmanager;
+package me.asofold.bukkit.contextmanager.core;
 
 public enum ContextType {
 	/**

@@ -1,4 +1,6 @@
-package me.asofold.bukkit.contextmanager;
+package me.asofold.bukkit.contextmanager.chat;
+
+import me.asofold.bukkit.contextmanager.core.ContextType;
 
 import org.bukkit.ChatColor;
 
