@@ -62,7 +62,7 @@ public class CMCore  implements Listener{
 		}
 	}
 
-	public ContextManager getPlugin() {
+	public static ContextManager getPlugin() {
 		// TODO: maybe store it.
 		return (ContextManager) Bukkit.getServer().getPluginManager().getPlugin("ContextManager");
 	}
