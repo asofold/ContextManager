@@ -332,7 +332,7 @@ public class ChestShopHook implements Listener, ServiceHook{
 		ItemSpec spec = ItemSpec.match(input);
 		if (spec != null) sendFindItem(sender , spec);
 		else{
-			sender.sendMessage("[ShopService] No shops found.");
+			boolean found = false;
 			if (sender instanceof Player){
 				// TODO find region + show distance !
 				Player player = (Player) sender;
@@ -344,9 +344,11 @@ public class ChestShopHook implements Listener, ServiceHook{
 					if (r != null){
 						double d = getDistanceToCenter(player.getLocation(), r);
 						player.sendMessage("[ShopService] Distance to center of "+r.getId()+": "+((int) Math.round(d)));
+						found = true;
 					}
 				}
 			}
+			if (!found) sender.sendMessage("[ShopService] No shops found.");
 		}
 	}
 
