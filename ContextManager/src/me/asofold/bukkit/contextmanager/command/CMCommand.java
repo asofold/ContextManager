@@ -146,6 +146,10 @@ public class CMCommand implements CommandExecutor {
 			return true;
 		}
 		else if (label.equals("context")){
+			if (len>0){
+				// check service hooks:
+				if (core.checkHookCommand(sender, args)) return true;
+			}
 			if (!Utils.checkPlayer(sender)) return true;
 			return contextCommand((Player) sender, args);
 		}

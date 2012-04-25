@@ -73,10 +73,15 @@ record + cx inspect ?
 *** 0.6.0
 
 
+- !(add) /cx services 
+- !(add) persistence for hooks (setFile);
+
 CHANGELOG
 -----------------------------------
 
 (0.6.0)
+- (add) Simple ChesShop hook
+- (add) Simple ServiceHook architecture.
 - (refactor) Set up some internal package structure (Split off code to different classes...).
 
 (0.5.1)

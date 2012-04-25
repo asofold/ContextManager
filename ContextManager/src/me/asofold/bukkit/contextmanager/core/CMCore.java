@@ -12,10 +12,13 @@ import java.util.Set;
 import me.asofold.bukkit.contextmanager.ContextManager;
 import me.asofold.bukkit.contextmanager.chat.HistoryElement;
 import me.asofold.bukkit.contextmanager.config.Settings;
+import me.asofold.bukkit.contextmanager.hooks.ServiceHook;
+import me.asofold.bukkit.contextmanager.hooks.chestshop.ChestShopHook;
 import me.asofold.bukkit.contextmanager.util.Utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -39,6 +42,8 @@ public class CMCore  implements Listener{
     private Map<String, Long> muted = new LinkedHashMap<String, Long>();
 	
 	private List<HistoryElement> history = new ArrayList<HistoryElement>();
+	
+	private Map<String, ServiceHook> serviceHooks = new HashMap<String, ServiceHook>();
 	
 	public void loadSettings() {
 		ContextManager cm = getPlugin();
@@ -81,7 +86,28 @@ public class CMCore  implements Listener{
 	}
 	
 	/**
-	 * Obtain PalyerData, create if not existent.
+	 * Be sure to call only once per onEnable call (uses this plugin to register).
+	 * @param hook
+	 */
+	public void addServiceHook(ServiceHook hook){
+		for (String label : hook.getCommandLabels()){
+			serviceHooks.put(label.toLowerCase(), hook);
+		}
+		Listener listener = hook.getListener();
+		if (listener != null) Bukkit.getPluginManager().registerEvents(listener, getPlugin()); 
+	}
+	
+	public void addStandardServiceHooks(){
+		try{
+			addServiceHook( new ChestShopHook());
+			System.out.println("[ContextManager] Added ChestShop hook.");
+		} catch (Throwable t){
+			// TODO: log ?
+		}
+	}
+	
+	/**
+	 * Obtain PlayerData, create if not existent.
 	 * @param playerName
 	 * @return
 	 */
@@ -382,5 +408,27 @@ public class CMCore  implements Listener{
 		}
 	}
 
+	/**
+	 * Check the map for the labels
+	 * @param sender
+	 * @param args length >= 1
+	 * @return If used by a hook.
+	 */
+	public boolean checkHookCommand(CommandSender sender, String[] args){
+		final String lcLabel = args[0].toLowerCase();
+		ServiceHook hook = serviceHooks.get(lcLabel);
+		if (hook == null) return false;
+		String[] newArgs = new String[args.length -1];
+		for (int i = 1; i<args.length; i++){
+			newArgs[i-1] = args[i];
+		}
+		try{
+			hook.onCommand(sender, lcLabel, newArgs);
+		} catch (Throwable t){
+			Bukkit.getLogger().warning("[ContextManager] Hook failed for command '"+lcLabel+"':");
+			t.printStackTrace(); // TODO log on warning
+		}
+		return true;
+	}
 
 }

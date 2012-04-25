@@ -25,6 +25,7 @@ public class ContextManager extends JavaPlugin{
 			// TODO: Most probably unnecessary !
 			getCommand(cmd).setExecutor(cmdExe);
 		}
+		core.addStandardServiceHooks();
 		System.out.println(plgLabel+getDescription().getFullName()+ "enabled.");
 	}
 

@@ -6,6 +6,8 @@ depend:
 - PermissionsEx
 softdepend:
 - mcMMO
+- WorldGuard
+- ChestShop
 commands:
   cmreload:
     description: reload settings
