@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 
 import com.Acrobot.ChestShop.Items.Items;
@@ -40,16 +41,22 @@ public class ShopSpec {
 			b = "";
 		}
 		else{
-			b = f.format(priceBuy)+" B";
+			b = ChatColor.YELLOW+f.format(priceBuy)+ChatColor.GREEN+" B"+ChatColor.GRAY;
 		}
 		final String s;
 		if (priceSell<0){
 			s = "";
 		}
 		else{
-			s = f.format(priceSell)+" S";
+			s =  ChatColor.YELLOW+f.format(priceSell)+ChatColor.RED+" S"+ChatColor.GRAY;
 			if (priceBuy>=0) l = " : ";
 		}
-		return Items.getName(stack, true)+"["+b+l+s+"]";
+		String d = "";
+		int data = 0;
+		final String base = Items.getName(stack, true);
+		if (stack.getType().isBlock()) data = stack.getData().getData();
+		else data = stack.getDurability();
+		if (data != 0 && (base.indexOf(':') == -1)) d = ChatColor.GRAY+":"+ChatColor.BLUE+data;
+		return ChatColor.AQUA+base+d+ChatColor.GRAY+"["+b+l+s+"]";
 	}
 }

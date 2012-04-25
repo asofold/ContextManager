@@ -98,7 +98,6 @@ public class ChestShopHook implements Listener, ServiceHook{
 		// TODO: split here if desied to add signChange event ? [would change concept though]
 		
 		if (!uSign.isValid(lines)) return;
-		System.out.println("CS clicked");
 		final Player player = event.getPlayer();
 		final String playerName = player.getName();
 		// TODO: maybe better heck or leave it out:

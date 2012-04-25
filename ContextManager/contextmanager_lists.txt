@@ -70,14 +70,21 @@ record + cx inspect ?
 !(add) Better context handling: keep sets with players that are in certain channels and for greedy, so that getting the players can be made much faster.
 
 
-*** 0.6.0
+*** 0.7.0
 
-
+- !(add) saving command !
+- !(add) ChestShop: expiration timestamps ?
+- !(add) ChestSgop: colors !
+- !(add) Shopfinder: +add statistics or reliability values.
 - !(add) /cx services 
 - !(add) persistence for hooks (setFile);
 
 CHANGELOG
 -----------------------------------
+
+(0.6.1)
+- (adjust) Some messages / color for items.
+- (bugfix) remove debug message
 
 (0.6.0)
 - (add) Simple ChesShop hook
