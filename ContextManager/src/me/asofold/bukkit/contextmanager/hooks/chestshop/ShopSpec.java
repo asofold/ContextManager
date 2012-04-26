@@ -54,7 +54,7 @@ public class ShopSpec {
 			s = "";
 		}
 		else{
-			s =  ChatColor.YELLOW+f.format(priceSell)+ChatColor.RED+" S"+ChatColor.GRAY;
+			s =  ChatColor.YELLOW+f.format(priceSell)+ChatColor.LIGHT_PURPLE+" S"+ChatColor.GRAY;
 			if (priceBuy>=0) l = " : ";
 		}
 		String d = "";
