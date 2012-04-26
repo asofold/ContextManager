@@ -404,25 +404,45 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		
 		// shop / shops:
 		if (len == 0) sendUsage(sender);
+		else if (cmd.equals("reload")){
+			if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.reload")) return;
+			if (len == 2 && args[1].equalsIgnoreCase("data")){
+				loadData();
+				sender.sendMessage("[ServiceHook/ChestShop3] Reloaded settings (kept data).");
+			}
+			if (len == 2 && args[1].equalsIgnoreCase("all")){
+				loadSettings();
+				loadData();
+				sender.sendMessage("[ServiceHook/ChestShop3] Reloaded settings and data.");
+			}
+			else{
+				loadSettings();
+				sender.sendMessage("[ServiceHook/ChestShop3] Reloaded settings (kept data).");
+			}
+		}
+		else if (cmd.equals("save")){
+			if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.save")) return;
+			saveData();
+			sender.sendMessage("[ServiceHook/ChestShop3] Saved data.");
+		}
+		else if (len == 2 && cmd.equals("clear") && args[1].equalsIgnoreCase("data")){
+			if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.reload")) return;
+			clearData();
+			sender.sendMessage("[ServiceHook/ChestShop3] Cleared data.");
+		}
 		else if (len == 1 && cmd.equals("info")) sendInfo(sender);
 		else if (len == 2 && cmd.equals("find")) onFind(sender, args[1]);
 		else if (len == 2 && (cmd.equals("list") || cmd.equals("info"))) onList(sender, null, args[1]);
 		else if (len == 3 && (cmd.equals("list") || cmd.equals("info"))) onList(sender, args[1], args[2]);
 		else if (len == 1){
 			// remaining commands:
-			if (cmd.equals("reload")){
-				if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.reload")) return;
-				loadSettings();
-				sender.sendMessage("[ServiceHook/ChestShop3] Reloaded settings (kept data).");
-			}
-			else if (cmd.equals("save")){
-				if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.save")) return;
-				saveData();
-				sender.sendMessage("[ServiceHook/ChestShop3] Saved data.");
-			}
-			else onList(sender, null, args[0]); // no command, attempt list.
+			onList(sender, null, args[0]); 
 		}
-		else if (len == 2) onList(sender, args[0], args[1]);
+		else if (len == 2){
+			// remaining commands:
+			 onList(sender, args[0], args[1]);
+		}
+		else sendUsage(sender); // hmm
 		// TODO: list
 		
 	}
