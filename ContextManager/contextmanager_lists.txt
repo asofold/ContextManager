@@ -80,6 +80,7 @@ record + cx inspect ?
 - !(add) CommandAliasMapper (for convenient setup with a String[][] presets)
 
 * FEATURE:
+?(add) ChestShop3: only process valid transactions ?
 !(add) option to add admin shops
 - ?(add) AccessMap3d for shop positions -> shop list return Set of shops within 50 blocks?
 - !(add) Shopfinder: +add statistics or reliability values.
@@ -105,6 +106,10 @@ record + cx inspect ?
 
 CHANGELOG
 -----------------------------------
+
+(0.8.1)
+- (add) ChestShop3: Exclude "wrong clicks" (which button)
+- (add) ChestShop3: long name support.
 
 (0.8.0)
 - (add) shop hook: save + reload + clear (settings, data)

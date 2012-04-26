@@ -157,9 +157,20 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		if (priceBuy >= 0){
 			// TODO: check if out of stock.
 		}
+		else{
+			// ignore buying
+			if (reverseButtons && action == Action.LEFT_CLICK_BLOCK) return;
+			else if (!reverseButtons && action == Action.RIGHT_CLICK_BLOCK) return;
+		}
+		
 		
 		if (priceSell >= 0){
 			// TODO: Check if chest has space.
+		}
+		else{
+			// ignore selling
+			if (!reverseButtons && action == Action.LEFT_CLICK_BLOCK) return;
+			else if (reverseButtons && action == Action.RIGHT_CLICK_BLOCK) return;
 		}
 		
 		update(block, shopOwner, stack, amount, priceBuy, priceSell);
