@@ -415,7 +415,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 				loadSettings();
 				sender.sendMessage("[ServiceHook/ChestShop3] Reloaded settings (kept data).");
 			}
-			if (cmd.equals("save")){
+			else if (cmd.equals("save")){
 				if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.save")) return;
 				saveData();
 				sender.sendMessage("[ServiceHook/ChestShop3] Saved data.");
