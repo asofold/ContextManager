@@ -624,7 +624,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		final int x = cfg.getInt(keyBase+"x");
 		final int y = cfg.getInt(keyBase+"y");
 		final int z = cfg.getInt(keyBase+"z");
-		final String shopOwner = getShopOwner(cfg.getString("o", null));
+		final String shopOwner = getShopOwner(cfg.getString(keyBase + "o", null));
 		FBlockPos pos = new FBlockPos(w, x, y, z);
 		Block block = world.getBlockAt(x, y, z);
 		final double pb = cfg.getDouble(keyBase+"pb", -1.0);
