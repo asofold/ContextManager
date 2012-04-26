@@ -10,7 +10,6 @@ import java.util.Set;
 
 import me.asofold.bukkit.contextmanager.core.CMCore;
 import me.asofold.bukkit.contextmanager.hooks.AbstractServiceHook;
-import me.asofold.bukkit.contextmanager.hooks.ServiceHook;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,7 +39,11 @@ import com.Acrobot.ChestShop.Utils.uSign;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
-
+/**
+ * This hook gets added in onEnable.
+ * @author mc_dev
+ *
+ */
 public class ChestShopHook extends AbstractServiceHook implements Listener{
 	
 	private final static String[] labels = new String[]{"shops", "shop"};
@@ -72,12 +75,6 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	boolean addUnowned = false;
 	
 	boolean useFilter = true;
-	
-	public ChestShopHook(){
-		addFilter("mainworld", "maintown"); // TODO: HARD CODED EXAMPLE _ REMOVE / MAKE CONFIGURABLE
-		loadSettings();
-		loadData();
-	}
 
 	public void addFilter(String world, String region){
 		String lcWorld = world.toLowerCase();
@@ -415,6 +412,40 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	private void sendGeneralInfo(CommandSender sender) {
 		sender.sendMessage("[ShopService] General info: | "+idMap.size()+" Total item types | "+blockMap.size()+" total shops |");
 	}
+	
+	@Override
+	public void onEnable(Plugin plugin) {
+		loadSettings();
+		loadData();
+	}
+	
+	@Override
+	public void onDisable() {
+		saveData();
+		cleanup();
+	}
+
+	@Override
+	public void onRemove() {
+		cleanup();
+	}
+
+	private void cleanup() {
+		// not sure this is really needed, might make de referencing fatser, for later.
+		for (Map<String, RegionSpec> map : regionMap.values()){
+			for (RegionSpec rSpec : map.values()){
+				rSpec.shops.clear();
+			}
+		}
+		regionMap.clear();
+		idMap.clear();
+		filter.clear();
+		for (ShopSpec spec : blockMap.values()){
+			spec.regions.clear();
+			spec.stack = null;
+		}
+		blockMap.clear();
+	}
 
 	private File getDataFolder(){
 		File out = new File(new File(CMCore.getPlugin().getDataFolder(), "hooks"),"chestshop");
@@ -448,26 +479,6 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		// TODO: read shops, add to internals !
 	}
 
-	@Override
-	public void onEnable(Plugin plugin) {
-		// TODO Auto-generated method stub
-		
-	}
 
-	@Override
-	public void onAdd() {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void onDisable() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onRemove() {
-		// TODO Auto-generated method stub
-	}
 	
 }
