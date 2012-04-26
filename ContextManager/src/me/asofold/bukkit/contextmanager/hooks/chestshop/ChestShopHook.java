@@ -1,6 +1,7 @@
 package me.asofold.bukkit.contextmanager.hooks.chestshop;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -30,9 +31,13 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
 import asofold.pluginlib.shared.Blocks;
+import asofold.pluginlib.shared.Logging;
 import asofold.pluginlib.shared.Utils;
 import asofold.pluginlib.shared.blocks.FBlockPos;
 import asofold.pluginlib.shared.items.ItemSpec;
+import asofold.pluginlib.shared.mixin.configuration.compatlayer.CompatConfig;
+import asofold.pluginlib.shared.mixin.configuration.compatlayer.CompatConfigFactory;
+import asofold.pluginlib.shared.mixin.configuration.compatlayer.ConfigUtil;
 
 import com.Acrobot.ChestShop.Utils.uBlock;
 import com.Acrobot.ChestShop.Utils.uSign;
@@ -457,16 +462,51 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		return new File (getDataFolder(), "settings.yml");
 	}
 	
+	private File getFilterFile() {
+		return new File (getDataFolder(), "filter.yml");
+	}
+	
 	private File getDataFile() {
 		return new File (getDataFolder(), "shops.yml");
 	}
 	
-	private void loadSettings() {
-		File file = getSettingsFile();
-		// TODO: erase filters
-		// TODO: read filter !
+	private static CompatConfig getDefaultConfig(){
+		CompatConfig cfg = CompatConfigFactory.getConfig(null);
+		cfg.set("use-filter", true);
+		cfg.set("add-unowned", false);
+		return cfg;
 	}
 	
+	private void loadSettings() {
+		File file = getSettingsFile();
+		CompatConfig cfg = CompatConfigFactory.getConfig(file);
+		cfg.load();
+		if (ConfigUtil.forceDefaults(getDefaultConfig(), cfg)) cfg.save();
+		useFilter = cfg.getBoolean("use-filter", true);
+		addUnowned = cfg.getBoolean("add-unowned", false);
+		loadFilter();
+	}
+	
+	private void loadFilter() {
+		filter.clear();
+		File file = getFilterFile();
+		if (!file.exists()){
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				Logging.warn("[ServiceHook/ChestShop] Could not create filter file", e);
+			}
+			return;
+		}
+		CompatConfig cfg = CompatConfigFactory.getConfig(file);
+		cfg.load();
+		for (String world : cfg.getStringKeys("allow-regions")){
+			for (String rid : cfg.getStringList("regions."+world, new LinkedList<String>())){
+				addFilter(world, rid);
+			}
+		}
+	}
+
 	private void loadData() {
 		File file = getDataFile();
 		// TODO: erase internals
