@@ -105,13 +105,15 @@ record + cx inspect ?
 
 
 
-! add store region strings for item description ? [lazy calculation !]
+
 
 
 CHANGELOG
 -----------------------------------
 
-
+(0.8.0)
+- (add) Shortcut for list.
+- (add) ChestShop3: Sorted price display, pre calculate string.
 - (bugfix) ChestShop3: make price display relative to one item.
 
 (0.7.1)

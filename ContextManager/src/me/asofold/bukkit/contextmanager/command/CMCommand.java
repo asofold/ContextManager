@@ -57,36 +57,19 @@ public class CMCommand implements CommandExecutor {
 	
 	private CMCore core;
 	
-	Map<String, String> commandAliases = new HashMap<String, String>();
+	private AliasMap aliasMap;
 	
 	public CMCommand(CMCore core){
 		this.core = core;
 		// map aliases to label.
-		for ( String[] ref : presetCommandAliases){
-			String label = ref[0];
-			for ( String n : ref){
-				commandAliases.put(n, label);
-			}
-		}
-	}
-	
-	/**
-	 * Get lower case version, possibly mapped from an abreviation.
-	 * @param input
-	 * @return
-	 */
-	public String getMappedCommandLabel(String input){
-		input = input.trim().toLowerCase();
-		String out = commandAliases.get(input);
-		if (out == null) return input;
-		else return out;
+		aliasMap = new AliasMap(presetCommandAliases);
 	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command,
 			String label, String[] args) {
 		core.lightChecks();
-		label = getMappedCommandLabel(label);
+		label = aliasMap.getMappedCommandLabel(label);
 		int len = args.length;
 		
 		if (label.equals("cxc")) return onCommand(sender, null, "context", inflate(args, "channel"));
@@ -175,7 +158,7 @@ public class CMCommand implements CommandExecutor {
 	 */
 	private boolean generalContextCommand(CommandSender sender, String[] args) {
 		int len = args.length;
-		String cmd = getMappedCommandLabel(args[0]);
+		String cmd = aliasMap.getMappedCommandLabel(args[0]);
 		if (cmd.equals("history")){
 			// shows 50 at a time , max.
 			if (!Utils.checkPerm(sender,"contextmanager.admin.cmd.history")) return true;
@@ -238,7 +221,7 @@ public class CMCommand implements CommandExecutor {
 	 */
 	private boolean playerContextCommand(Player player, String[] args) {
 		int len = args.length;
-		String cmd = getMappedCommandLabel(args[0]);
+		String cmd = aliasMap.getMappedCommandLabel(args[0]);
 		// TODO: permissions
 		PlayerData data = core.getPlayerData(player.getName());
 		if (cmd.equals("reset")){
@@ -246,7 +229,7 @@ public class CMCommand implements CommandExecutor {
 				data.resetContexts();
 				Utils.send(player, ChatColor.YELLOW+ContextManager.plgLabel+" Contexts reset.");
 			} else if (len==2){
-				String target = getMappedCommandLabel(args[1]);
+				String target = aliasMap.getMappedCommandLabel(args[1]);
 				if (target.equals("ignore")){
 					data.resetIgnored();
 					Utils.send(player, ChatColor.YELLOW+ContextManager.plgLabel+" Ignored players reset.");
@@ -288,7 +271,7 @@ public class CMCommand implements CommandExecutor {
 		}
 		else if (cmd.equals("channel")){
 			if (len == 2){
-				if (getMappedCommandLabel(args[1]).equals(ChannelSettings.defaultChannelName)) data.resetChannel();
+				if (aliasMap.getMappedCommandLabel(args[1]).equals(ChannelSettings.defaultChannelName)) data.resetChannel();
 				else{
 					String channel = core.getAvailableChannel(args[1]);
 					if (channel == null){
