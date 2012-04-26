@@ -638,6 +638,9 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		if (mat.isBlock()) stack = new ItemStack(mat, 0, (short) 0, (byte) d);
 		else stack = new ItemStack(mat, 0, (short) d, (byte) 0);
 		checkAddShopSpec(pos, block, shopOwner, stack, amount, pb, ps);
+		// set timestamp if added: [WORKAROUND]
+		ShopSpec spec = blockMap.get(pos);
+		if (spec != null) spec.tsAccess = tsA;
 	}
 
 	/**
