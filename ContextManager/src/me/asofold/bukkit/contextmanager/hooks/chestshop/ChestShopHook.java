@@ -414,14 +414,8 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	private final String getItemsStr(final String world, final String rid) {
 		// TODO: use digested versions and save them somewhere with timestamps !
 		final RegionSpec rSpec = getRegionSpec(world.toLowerCase(), rid.toLowerCase(), false);
-		if (rSpec == null) return "<not found>";
-		StringBuilder b = new StringBuilder();
-		for (final FBlockPos pos : rSpec.shops){
-			final ShopSpec spec = blockMap.get(pos);
-			b.append(spec.toString());
-			b.append(" | ");
-		}
-		return b.toString();
+		if (rSpec == null) return "<not available>";
+		return rSpec.getItemString(blockMap);
 	}
 
 	/**

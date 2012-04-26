@@ -104,11 +104,15 @@ record + cx inspect ?
 * test removal of shop sign [maybe of chest too]
 
 
-! design: make shop specs mostly final ? remove + re add on changes ?
-! (bugfix) Sign removal does not work properly (npe) !
+
+! add store region strings for item description ? [lazy calculation !]
+
 
 CHANGELOG
 -----------------------------------
+
+
+- (bugfix) ChestShop3: make price display relative to one item.
 
 (0.7.1)
 - (bugfix) ChestShop3: Removing signs
