@@ -484,4 +484,19 @@ public class CMCore  implements Listener{
 		}
 	}
 
+	/**
+	 * List of ServiceHooks.
+	 * @return
+	 */
+	public String getServicesStr() {
+		String out = ChatColor.GRAY+"[Context] Services:";
+		for (ServiceHook hook : registeredServiceHooks.values()){
+			out += " | " + hook.getHookName();
+			String[] cmds = hook.getCommandLabels();
+			if (cmds.length > 0) out += "("+ChatColor.YELLOW+cmds[0]+ChatColor.GRAY+")";
+		}
+		out += " |";
+		return out;
+	}
+
 }

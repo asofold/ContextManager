@@ -223,6 +223,9 @@ public class CMCommand implements CommandExecutor {
 			msgs[1+candidates.size()] = ChatColor.YELLOW+"[Chat] History ("+startIndex+"..."+endIndex+" / "+history.size()+") - "+candidates.size() + " viewable, done.";
 			sender.sendMessage(msgs); // TODO: Utils.send ?
 			return true;
+		} else if (cmd.equalsIgnoreCase("services")){
+			sender.sendMessage(core.getServicesStr());
+			return true;
 		}
 		return false;
 	}
