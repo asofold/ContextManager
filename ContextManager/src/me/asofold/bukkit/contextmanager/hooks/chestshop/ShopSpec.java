@@ -23,6 +23,8 @@ public class ShopSpec {
 	
 	final List<RegionSpec> regions = new LinkedList<RegionSpec>();
 	
+	long tsAccess;
+	
 	public ShopSpec(ItemStack stack, int amount,  double priceBuy, double priceSell){
 		update(stack, amount, priceBuy, priceSell);
 	}
@@ -32,6 +34,7 @@ public class ShopSpec {
 		this.amount = amount;
 		this.priceBuy = priceBuy;
 		this.priceSell = priceSell;
+		tsAccess = System.currentTimeMillis();
 	}
 	
 	public final String toString(){

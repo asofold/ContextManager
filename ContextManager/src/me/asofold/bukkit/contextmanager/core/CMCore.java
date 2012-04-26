@@ -43,7 +43,10 @@ public class CMCore  implements Listener{
 	
 	private List<HistoryElement> history = new ArrayList<HistoryElement>();
 	
-	private Map<String, ServiceHook> serviceHooks = new HashMap<String, ServiceHook>();
+	private Map<String, ServiceHook> serviceHookCommandMap = new HashMap<String, ServiceHook>();
+	
+	private Map<String, ServiceHook> registerdServiceHooks = new HashMap<String, ServiceHook>();
+	
 	
 	public void loadSettings() {
 		ContextManager cm = getPlugin();
@@ -86,21 +89,43 @@ public class CMCore  implements Listener{
 	}
 	
 	/**
-	 * Be sure to call only once per onEnable call (uses this plugin to register).
+	 * Be sure to call only once per onEnable call if using a Listener (uses this plugin to register).
 	 * @param hook
 	 */
 	public void addServiceHook(ServiceHook hook){
+		String name = hook.getHookName();
+		removeHook(name);
 		for (String label : hook.getCommandLabels()){
-			serviceHooks.put(label.toLowerCase(), hook);
+			serviceHookCommandMap.put(label.toLowerCase(), hook);
 		}
 		Listener listener = hook.getListener();
 		if (listener != null) Bukkit.getPluginManager().registerEvents(listener, getPlugin()); 
+		hook.onAdd();
+		System.out.println("[ContextManager] Added ServiceHook : "+hook.getHookName());
 	}
 	
+	public boolean removeHook(String name) {
+		if (!registerdServiceHooks.containsKey(name)) return false;
+		ServiceHook hook = registerdServiceHooks.remove(name);
+		// also remove command mappings:
+		List<String> rem = new LinkedList<String>();
+		for (String cmd : hook.getCommandLabels()){
+			String key = cmd.toLowerCase();
+			ServiceHook ref = serviceHookCommandMap.get(key);
+			if (hook == ref) rem.add(key);
+		}
+		for (String key : rem){
+			serviceHookCommandMap.remove(key);
+		}
+		hook.onRemove();
+		System.out.println("[ContextManager] Removed ServiceHook : "+hook.getHookName());
+		return true;
+	}
+
 	public void addStandardServiceHooks(){
 		try{
-			addServiceHook( new ChestShopHook());
-			System.out.println("[ContextManager] Added ChestShop hook.");
+			ServiceHook hook = new ChestShopHook();
+			addServiceHook(hook);
 		} catch (Throwable t){
 			// TODO: log ?
 		}
@@ -416,7 +441,7 @@ public class CMCore  implements Listener{
 	 */
 	public boolean checkHookCommand(CommandSender sender, String[] args){
 		final String lcLabel = args[0].toLowerCase();
-		ServiceHook hook = serviceHooks.get(lcLabel);
+		ServiceHook hook = serviceHookCommandMap.get(lcLabel);
 		if (hook == null) return false;
 		String[] newArgs = new String[args.length -1];
 		for (int i = 1; i<args.length; i++){
@@ -429,6 +454,10 @@ public class CMCore  implements Listener{
 			t.printStackTrace(); // TODO log on warning
 		}
 		return true;
+	}
+
+	public void onEnable(ContextManager contextManager) {
+		
 	}
 
 }

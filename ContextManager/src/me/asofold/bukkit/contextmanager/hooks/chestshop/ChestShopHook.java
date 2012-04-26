@@ -1,5 +1,6 @@
 package me.asofold.bukkit.contextmanager.hooks.chestshop;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -7,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import me.asofold.bukkit.contextmanager.core.CMCore;
+import me.asofold.bukkit.contextmanager.hooks.AbstractServiceHook;
 import me.asofold.bukkit.contextmanager.hooks.ServiceHook;
 
 import org.bukkit.Location;
@@ -24,6 +27,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
 import asofold.pluginlib.shared.Blocks;
@@ -37,7 +41,7 @@ import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 
-public class ChestShopHook implements Listener, ServiceHook{
+public class ChestShopHook extends AbstractServiceHook implements Listener{
 	
 	private final static String[] labels = new String[]{"shops", "shop"};
 	
@@ -71,8 +75,10 @@ public class ChestShopHook implements Listener, ServiceHook{
 	
 	public ChestShopHook(){
 		addFilter("mainworld", "maintown"); // TODO: HARD CODED EXAMPLE _ REMOVE / MAKE CONFIGURABLE
+		loadSettings();
+		loadData();
 	}
-	
+
 	public void addFilter(String world, String region){
 		String lcWorld = world.toLowerCase();
 		String lcRid = region.toLowerCase();
@@ -82,6 +88,11 @@ public class ChestShopHook implements Listener, ServiceHook{
 			filter.put(lcWorld, rs);
 		}
 		rs.add(lcRid);
+	}
+	
+	@Override
+	public String getHookName() {
+		return "ChestShop3";
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -405,6 +416,58 @@ public class ChestShopHook implements Listener, ServiceHook{
 		sender.sendMessage("[ShopService] General info: | "+idMap.size()+" Total item types | "+blockMap.size()+" total shops |");
 	}
 
+	private File getDataFolder(){
+		File out = new File(new File(CMCore.getPlugin().getDataFolder(), "hooks"),"chestshop");
+		if (!out.exists()) out.mkdirs();
+		return out;
+	}
 
+	private File getSettingsFile() {
+		return new File (getDataFolder(), "settings.yml");
+	}
+	
+	private File getDataFile() {
+		return new File (getDataFolder(), "shops.yml");
+	}
+	
+	private void loadSettings() {
+		File file = getSettingsFile();
+		// TODO: erase filters
+		// TODO: read filter !
+	}
+	
+	private void loadData() {
+		File file = getDataFile();
+		// TODO: erase internals
+		// TODO: read shops, add to internals !
+	}
+	
+	private void saveData() {
+		File file = getDataFile();
+		// TODO: erase internals
+		// TODO: read shops, add to internals !
+	}
+
+	@Override
+	public void onEnable(Plugin plugin) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdd() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onDisable() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onRemove() {
+		// TODO Auto-generated method stub
+	}
 	
 }

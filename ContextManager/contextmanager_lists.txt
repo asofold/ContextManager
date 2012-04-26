@@ -72,12 +72,16 @@ record + cx inspect ?
 
 *** 0.7.0
 
+- ?(add) AccessMap3d for shop positions -> shop list return Set of shops within 50 blocks?
+
 - !(add) saving command !
 - !(add) ChestShop: expiration timestamps ?
 - !(add) ChestSgop: colors !
 - !(add) Shopfinder: +add statistics or reliability values.
 - !(add) /cx services 
 - !(add) persistence for hooks (setFile);
+
+- !(add) CommandAliasMapper (for convenient setup with a String[][] presets)
 
 CHANGELOG
 -----------------------------------
