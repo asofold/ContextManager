@@ -444,6 +444,7 @@ public class CMCore  implements Listener{
 	 * @return If used by a hook.
 	 */
 	public boolean checkHookCommand(CommandSender sender, String[] args){
+		if (args.length == 0) return false;
 		final String lcLabel = args[0].toLowerCase();
 		ServiceHook hook = serviceHookCommandMap.get(lcLabel);
 		if (hook == null) return false;
