@@ -157,7 +157,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	final void onBlockBreak(BlockBreakEvent event){
 		if (event.isCancelled()) return;
 		Block block = event.getBlock();
-		if (block.getType() != Material.SIGN) return;
+		if (block.getType() != Material.WALL_SIGN) return;
 		// TODO: maybe this is fastest, maybe not.
 		update(block, null, null, 0, -1.0, -1.0);
 	}
@@ -172,14 +172,19 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		}
 		else{
 			// TODO: update might be more specialized later on.
-			spec.update(shopOwner, stack, amount, priceBuy, priceSell);
-			if (spec.priceBuy < 0 && spec.priceSell < 0){
+			if (priceBuy < 0 && priceSell < 0){
 				// Do remove this shop.
 				removeShopSpec(pos, spec);
 			}
+			else{
+				// TODO: 
+				final int id = spec.stack.getTypeId();
+				spec.update(shopOwner, stack, amount, priceBuy, priceSell);
+				if (id != stack.getTypeId()) checkId(spec.regions, id);
+			}
 		}	
 	}
-	
+
 	/**
 	 * convenience method for simple removal.
 	 * @param pos
@@ -199,24 +204,69 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	 */
 	private void removeShopSpec(FBlockPos pos, ShopSpec spec) {
 		blockMap.remove(pos);
+		final int id = spec.stack.getTypeId();
+		Set<RegionSpec> rs = idMap.get(id);
+		// TODO: 
 		for (RegionSpec rSpec : spec.regions){
-			rSpec.shops.remove(spec);
+			rSpec.shops.remove(pos);
+			boolean has = false;
+			
+			
 			if (rSpec.shops.isEmpty()){
 				removeRegionSpec(rSpec);
-				final int id = spec.stack.getTypeId();
-				Set<RegionSpec> rs = idMap.get(id);
+			}
+			else{
+				// TODO: might still have to remove the id mapping !
+				for (final FBlockPos refPos : rSpec.shops){
+					final ShopSpec refSpec = blockMap.get(refPos);
+					if (refSpec.stack.getTypeId() == id){
+						has = true;
+						break;
+					}
+				}
+			}
+			if (!has){
+				
 				if (rs!=null){
 					rs.remove(rSpec);
 					if (rs.isEmpty()) idMap.remove(id);
 				}
 			}
-			else{
-				// TODO: might still have to remove the id mapping !
-			}
 		}
 		// "cleanup":
 		spec.regions.clear();
 		spec.stack = null;
+	}
+	
+	/**
+	 * check if the id is still in the region, and remove mappings otherwise.
+	 * @param regions
+	 * @param id
+	 */
+	private final void checkId(final List<RegionSpec> regions, final int id) {
+		final Set<RegionSpec> rs = idMap.get(id);
+		if (rs == null) return;
+		for (RegionSpec rSpec : regions){
+			 if (rs.contains(rSpec)){
+				 boolean has = false;
+				 for (FBlockPos pos : rSpec.shops){
+					 ShopSpec spec = blockMap.get(pos);
+					 if (spec == null) continue;
+					 if (spec.stack.getTypeId() == id){
+						 has = true;
+						 break;
+					 }
+				 }
+				 if (!has){
+					 rs.remove(rSpec);
+					 if (rs.isEmpty()){
+						 idMap.remove(id);
+						 break;
+					 }
+				 }
+			 }
+		}
+		
 	}
 	
 	/**

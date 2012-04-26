@@ -80,33 +80,39 @@ record + cx inspect ?
 - !(add) CommandAliasMapper (for convenient setup with a String[][] presets)
 
 * FEATURE:
+!(add) option to add admin shops
 - ?(add) AccessMap3d for shop positions -> shop list return Set of shops within 50 blocks?
 - !(add) Shopfinder: +add statistics or reliability values.
 
 * MANAGEMENT:
-- !(add) commands to manage adding filters (ShOP)
-- !(add) ChestShop: expiration timestamps ?
-- !(add) management commands: clear
-
--
 
 
+!(add) option to test if shops really exist on chunkload (older than xy shops).
+!(add) exclude-filter option (exclude region from adding).
 
 
 *** 
 
+- ? more shortcuts (/cx shop <regionname> !)
+- !(add) map info to list if arguments are given ?
+- !(add) management commands: clear
+- !(add) commands to manage adding filters (ShOP)
  !(add) /cx services 
 !(add) shop hook: save + reload (settings, data ?)
 
-!(add) option to add admin shops
-!(add) exclude-filter option (exclude region from adding).
 
 * test removal of shop sign [maybe of chest too]
 
 
+! design: make shop specs mostly final ? remove + re add on changes ?
+! (bugfix) Sign removal does not work properly (npe) !
+
 CHANGELOG
 -----------------------------------
 
+(0.7.1)
+- (bugfix) ChestShop3: Removing signs
+ 
 (0.7.0)
 - (add) Saving / loading for Chestshop3 hook.
 - (refactor) Refine ServiceHook architecture.
