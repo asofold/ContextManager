@@ -16,6 +16,7 @@ import com.Acrobot.ChestShop.Items.Items;
  */
 public class ShopSpec {
 	private static final DecimalFormat f = new DecimalFormat("#.###");
+	String owner;
 	ItemStack stack;
 	double priceBuy;
 	double priceSell;
@@ -25,11 +26,13 @@ public class ShopSpec {
 	
 	long tsAccess;
 	
-	public ShopSpec(ItemStack stack, int amount,  double priceBuy, double priceSell){
-		update(stack, amount, priceBuy, priceSell);
+	
+	public ShopSpec(String owner, ItemStack stack, int amount,  double priceBuy, double priceSell){
+		update(owner, stack, amount, priceBuy, priceSell);
 	}
 	
-	public void update(ItemStack stack, int amount,  double priceBuy, double priceSell){
+	public void update(String owner, ItemStack stack, int amount,  double priceBuy, double priceSell){
+		this.owner = owner;
 		this.stack = stack;
 		this.amount = amount;
 		this.priceBuy = priceBuy;

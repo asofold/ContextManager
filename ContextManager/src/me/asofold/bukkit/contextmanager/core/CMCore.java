@@ -45,7 +45,7 @@ public class CMCore  implements Listener{
 	
 	private Map<String, ServiceHook> serviceHookCommandMap = new HashMap<String, ServiceHook>();
 	
-	private Map<String, ServiceHook> registerdServiceHooks = new HashMap<String, ServiceHook>();
+	private Map<String, ServiceHook> registeredServiceHooks = new HashMap<String, ServiceHook>();
 	
 	
 	public void loadSettings() {
@@ -95,6 +95,7 @@ public class CMCore  implements Listener{
 	public void addServiceHook(ServiceHook hook){
 		String name = hook.getHookName();
 		removeServiceHook(name);
+		registeredServiceHooks.put(name, hook);
 		for (String label : hook.getCommandLabels()){
 			serviceHookCommandMap.put(label.toLowerCase(), hook);
 		}
@@ -105,8 +106,8 @@ public class CMCore  implements Listener{
 	}
 	
 	public boolean removeServiceHook(String name) {
-		if (!registerdServiceHooks.containsKey(name)) return false;
-		ServiceHook hook = registerdServiceHooks.remove(name);
+		if (!registeredServiceHooks.containsKey(name)) return false;
+		ServiceHook hook = registeredServiceHooks.remove(name);
 		// also remove command mappings:
 		List<String> rem = new LinkedList<String>();
 		for (String cmd : hook.getCommandLabels()){
@@ -123,7 +124,7 @@ public class CMCore  implements Listener{
 	}
 	
 	public ServiceHook getServiceHook(String name){
-		return registerdServiceHooks.get(name);
+		return registeredServiceHooks.get(name);
 	}
 
 	public void addStandardServiceHooks(){
@@ -462,7 +463,7 @@ public class CMCore  implements Listener{
 	}
 
 	public void onEnable(ContextManager plugin) {
-		for (ServiceHook hook : registerdServiceHooks.values()){
+		for (ServiceHook hook : registeredServiceHooks.values()){
 			try{
 				hook.onEnable(plugin);
 			} 
@@ -473,7 +474,7 @@ public class CMCore  implements Listener{
 	}
 
 	public void onDisable() {
-		for (ServiceHook hook : registerdServiceHooks.values()){
+		for (ServiceHook hook : registeredServiceHooks.values()){
 			try{
 				hook.onDisable();
 			} 

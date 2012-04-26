@@ -12,6 +12,7 @@ import java.util.Set;
 import me.asofold.bukkit.contextmanager.core.CMCore;
 import me.asofold.bukkit.contextmanager.hooks.AbstractServiceHook;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -72,6 +73,12 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	 */
 	Map<String, Set<String>> filter = new HashMap<String, Set<String>>();
 	
+	/**
+	 * Lower case names to lower case names.
+	 */
+	Map<String, String> shopOwners = new HashMap<String, String>();
+
+	
 	// TODO: sort in to filter ! -> available item types.
 	
 	/**
@@ -80,6 +87,11 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	boolean addUnowned = false;
 	
 	boolean useFilter = true;
+	
+	
+	static final long msDay = 1000*60*60*24;
+	
+	long durExpire = 14 * msDay;
 
 	public void addFilter(String world, String region){
 		String lcWorld = world.toLowerCase();
@@ -114,8 +126,8 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		final Player player = event.getPlayer();
 		final String playerName = player.getName();
 		// TODO: maybe better heck or leave it out:
-		final String seller = lines[0].trim();
-		if (playerName.equalsIgnoreCase(seller)) return; // ignore the shop owner.
+		final String shopOwner = getShopOwner(lines[0]);
+		if (playerName.equalsIgnoreCase(shopOwner)) return; // ignore the shop owner.
 		final String priceSpec = lines[2];
 		Chest chest = uBlock.findChest(sign);
 		if (chest == null){
@@ -138,7 +150,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			// TODO: Check if chest has space.
 		}
 		
-		update(block, seller, stack, amount, priceBuy, priceSell);
+		update(block, shopOwner, stack, amount, priceBuy, priceSell);
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
@@ -150,24 +162,41 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		update(block, null, null, 0, -1.0, -1.0);
 	}
 	
-	public final void update(final Block block, String seller, final ItemStack stack, final int amount, final double priceBuy, final double priceSell) {
+	public final void update(final Block block, String shopOwner, final ItemStack stack, final int amount, final double priceBuy, final double priceSell) {
 		final FBlockPos pos = Blocks.FBlockPos(block);
 		final ShopSpec spec = blockMap.get(pos);
 		if (spec == null){
 			if (priceBuy > 0 || priceSell > 0){
-				checkAddShopSpec(pos, block, seller, stack, amount, priceBuy, priceSell);
+				checkAddShopSpec(pos, block, shopOwner, stack, amount, priceBuy, priceSell);
 			}
 		}
 		else{
 			// TODO: update might be more specialized later on.
-			spec.update(stack, amount, priceBuy, priceSell);
+			spec.update(shopOwner, stack, amount, priceBuy, priceSell);
 			if (spec.priceBuy < 0 && spec.priceSell < 0){
 				// Do remove this shop.
 				removeShopSpec(pos, spec);
 			}
 		}	
 	}
+	
+	/**
+	 * convenience method for simple removal.
+	 * @param pos
+	 * @return
+	 */
+	private boolean removeShop(FBlockPos pos){
+		ShopSpec spec = blockMap.get(pos);
+		if (spec == null) return false;
+		removeShopSpec(pos, spec);
+		return true;
+	}
 
+	/**
+	 * Call this to remove a spec.
+	 * @param pos
+	 * @param spec
+	 */
 	private void removeShopSpec(FBlockPos pos, ShopSpec spec) {
 		blockMap.remove(pos);
 		for (RegionSpec rSpec : spec.regions){
@@ -208,39 +237,23 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	 * This is to create a new ShjopSpec for the position, or deny creation.
 	 * @param pos
 	 * @param block
-	 * @param seller
+	 * @param shopOwner
 	 * @param stack
 	 * @param amount
 	 * @param priceBuy
 	 * @param priceSell
 	 * @return
 	 */
-	public final boolean checkAddShopSpec(FBlockPos pos, final Block block, final String seller, final ItemStack stack, final int amount,
+	public final boolean checkAddShopSpec(final FBlockPos pos, final Block block, final String shopOwner, final ItemStack stack, final int amount,
 			final double priceBuy, final double priceSell) {
-		final World world = block.getWorld();
-		final String lcWorld = world.getName().toLowerCase();
-		final Set<String> rids = filter.get(lcWorld);
-		if (rids == null) return false;
-		final ApplicableRegionSet set = Utils.getWorldGuard().getRegionManager(world).getApplicableRegions(block.getLocation());
-		if (useFilter){
-			boolean matchedFilter = false;
-			for (final ProtectedRegion r : set){
-				final String lcId = r.getId().toLowerCase();
-				if (rids.contains(lcId)){
-					matchedFilter = true;
-					break;
-				}
-			}
-			if (!matchedFilter) return false;
-		}
-		final List<String> valid = new LinkedList<String>();
-		for (final ProtectedRegion r : set){
-			final String lcId = r.getId().toLowerCase();
-			if (addUnowned || r.isOwner(seller) || r.isMember(seller)) valid.add(lcId);
-		}
-		if (valid.isEmpty()) return false;
+		final Location loc = block.getLocation();
+		
+		// Check if passes filter / regions:
+		final List<String> valid = getValidRids(loc, shopOwner);
+		if (valid == null || valid.isEmpty()) return false;
+		
 		// Do add !
-		final ShopSpec spec = new ShopSpec(stack, amount, priceBuy, priceSell);
+		final ShopSpec spec = new ShopSpec(shopOwner, stack, amount, priceBuy, priceSell);
 		// block map
 		blockMap.put(pos, spec);
 		// id mapping set:
@@ -251,6 +264,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			idMap.put(id, rs);
 		}
 		// Add region spec entries:
+		final String lcWorld = loc.getWorld().getName().toLowerCase();
 		for (final String lcId : valid){
 			final RegionSpec rSpec = getRegionSpec(lcWorld, lcId, true);
 			rs.add(rSpec);
@@ -258,6 +272,31 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			spec.regions.add(rSpec);
 		}
 		return true;
+	}
+
+	public final List<String> getValidRids(final Location loc, final String shopOwner) {
+		final World world = loc.getWorld();
+		final String lcWorld = world.getName().toLowerCase();
+		final Set<String> rids = filter.get(lcWorld);
+		if (useFilter && rids == null) return null;
+		final ApplicableRegionSet set = Utils.getWorldGuard().getRegionManager(world).getApplicableRegions(loc);
+		if (useFilter){
+			boolean matchedFilter = false;
+			for (final ProtectedRegion r : set){
+				final String lcId = r.getId().toLowerCase();
+				if (rids.contains(lcId)){
+					matchedFilter = true;
+					break;
+				}
+			}
+			if (!matchedFilter) return null;
+		}
+		final List<String> valid = new LinkedList<String>();
+		for (final ProtectedRegion r : set){
+			final String lcId = r.getId().toLowerCase();
+			if (addUnowned || shopOwner == null || r.isOwner(shopOwner) || r.isMember(shopOwner)) valid.add(lcId);
+		}
+		return valid;
 	}
 
 	/**
@@ -427,15 +466,17 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	@Override
 	public void onDisable() {
 		saveData();
-		cleanup();
+		clear();
 	}
 
 	@Override
 	public void onRemove() {
-		cleanup();
+		clear();
 	}
-
-	private void cleanup() {
+	
+	private void clearData() {
+		idMap.clear();
+		shopOwners.clear();
 		// not sure this is really needed, might make de referencing fatser, for later.
 		for (Map<String, RegionSpec> map : regionMap.values()){
 			for (RegionSpec rSpec : map.values()){
@@ -443,13 +484,16 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			}
 		}
 		regionMap.clear();
-		idMap.clear();
-		filter.clear();
 		for (ShopSpec spec : blockMap.values()){
 			spec.regions.clear();
 			spec.stack = null;
 		}
 		blockMap.clear();
+	}
+
+	private void clear() {
+		clearData();
+		filter.clear();
 	}
 
 	private File getDataFolder(){
@@ -474,6 +518,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		CompatConfig cfg = CompatConfigFactory.getConfig(null);
 		cfg.set("use-filter", true);
 		cfg.set("add-unowned", false);
+		cfg.set("expiration-duration", 14);
 		return cfg;
 	}
 	
@@ -484,6 +529,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		if (ConfigUtil.forceDefaults(getDefaultConfig(), cfg)) cfg.save();
 		useFilter = cfg.getBoolean("use-filter", true);
 		addUnowned = cfg.getBoolean("add-unowned", false);
+		durExpire = cfg.getLong("expiration-duration")*msDay;
 		loadFilter();
 	}
 	
@@ -501,24 +547,114 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		CompatConfig cfg = CompatConfigFactory.getConfig(file);
 		cfg.load();
 		for (String world : cfg.getStringKeys("allow-regions")){
-			for (String rid : cfg.getStringList("regions."+world, new LinkedList<String>())){
+			for (String rid : cfg.getStringList("allow-regions."+world, new LinkedList<String>())){
 				addFilter(world, rid);
 			}
 		}
 	}
-
-	private void loadData() {
-		File file = getDataFile();
-		// TODO: erase internals
-		// TODO: read shops, add to internals !
+	
+	private final void saveData() {
+		final File file = getDataFile();
+		final CompatConfig cfg = CompatConfigFactory.getConfig(file);
+		int i = 0;
+		final long ts = System.currentTimeMillis();
+		final List<FBlockPos> rem = new LinkedList<FBlockPos>();
+		for (final FBlockPos pos : blockMap.keySet()){
+			ShopSpec spec = blockMap.get(pos);
+			if (spec == null) continue; // overly ...
+			if (spec.priceBuy <0 && spec.priceSell < 0) continue; // overly ...
+			if (ts - spec.tsAccess > durExpire){
+				rem.add(pos);
+				continue;
+			}
+			i++;
+			final String keyBase = "s"+i+".";
+			cfg.set(keyBase+"w", pos.w);
+			cfg.set(keyBase+"x", pos.x);
+			cfg.set(keyBase+"y", pos.y);
+			cfg.set(keyBase+"z", pos.z);
+			cfg.set(keyBase+"id", spec.stack.getTypeId());
+			if (spec.owner != null) cfg.set(keyBase+"o", spec.owner);
+			if (spec.amount != 1) cfg.set(keyBase + "n", spec.amount);
+			final int d;
+			if (spec.stack.getType().isBlock()) d = spec.stack.getData().getData();
+			else d = spec.stack.getDurability();
+			if (d != 0) cfg.set(keyBase+"d", d);
+			if (spec.priceBuy>=0) cfg.set(keyBase+"pb", spec.priceBuy);
+			if (spec.priceSell>=0) cfg.set(keyBase+"ps", spec.priceSell);
+			cfg.set(keyBase+"ts", spec.tsAccess);
+		}
+		cfg.save();
+		for (final FBlockPos pos : rem){
+			removeShop(pos);
+		}
 	}
 	
-	private void saveData() {
-		File file = getDataFile();
-		// TODO: erase internals
-		// TODO: read shops, add to internals !
+	private final void loadData() {
+		clearData();
+		final File file = getDataFile();
+		final CompatConfig cfg = CompatConfigFactory.getConfig(file);
+		cfg.load();
+		final long ts = System.currentTimeMillis();
+		final List<String> keys = cfg.getStringKeys();
+		for (final String key : keys){
+			// TODO: try catch !
+			try{
+				readShopSpec(cfg, key, ts);
+			}
+			catch(Throwable t){
+				Logging.warn("[ServiceHook/ChestShop3] Bad shop spec at: "+key, t);
+			}
+		}
 	}
 
+	/**
+	 * Read from config + add to internals
+	 * @param cfg
+	 * @param key
+	 * @param ts
+	 */
+	private final void readShopSpec(final CompatConfig cfg, final String key, final long ts) {
+		final String keyBase = key + ".";
+		final long tsA = cfg.getLong(keyBase+"ts", 0L);
+		if (ts - tsA > durExpire) return; // ignore expired entries.
+		final String w = cfg.getString(keyBase+"w");
+		final World world = Bukkit.getWorld(w);
+		if (world == null) return;
+		final int x = cfg.getInt(keyBase+"x");
+		final int y = cfg.getInt(keyBase+"y");
+		final int z = cfg.getInt(keyBase+"z");
+		final String shopOwner = getShopOwner(cfg.getString("o", null));
+		FBlockPos pos = new FBlockPos(w, x, y, z);
+		Block block = world.getBlockAt(x, y, z);
+		final double pb = cfg.getDouble(keyBase+"pb", -1.0);
+		final double ps = cfg.getDouble(keyBase+"ps", -1.0);
+		final int id = cfg.getInt(keyBase+"id", 0);
+		final int amount = cfg.getInt(keyBase+"n", 1);
+		if (id == 0) return;
+		int d = cfg.getInt(keyBase+"d", 0);
+		final Material mat = Material.getMaterial(id);
+		final ItemStack stack;
+		if (mat.isBlock()) stack = new ItemStack(mat, 0, (short) 0, (byte) d);
+		else stack = new ItemStack(mat, 0, (short) d, (byte) 0);
+		checkAddShopSpec(pos, block, shopOwner, stack, amount, pb, ps);
+	}
 
+	/**
+	 * Get standard lower case name, ensure that references are used internally.
+	 * @param name
+	 * @return
+	 */
+	private final String getShopOwner(final String name) {
+		// TODO: add entries for long name mapping from chestshop ?
+		if (name == null) return null; // admin shop
+		final String lcn = name.trim().toLowerCase();
+		final String ref = shopOwners.get(lcn);
+		if (ref == null){
+			shopOwners.put(lcn, lcn);
+			return lcn;
+		}
+		return ref;
+	}
 	
 }
