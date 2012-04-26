@@ -27,13 +27,13 @@ public class ContextManager extends JavaPlugin{
 		}
 		core.addStandardServiceHooks();
 		core.onEnable(this);
-		System.out.println(plgLabel+getDescription().getFullName()+ " enabled.");
+		System.out.println(plgLabel+" "+getDescription().getFullName()+ " enabled.");
 	}
 
 	@Override
 	public void onDisable() {
 		core.onDisable();
-		System.out.println(plgLabel+getDescription().getFullName()+ " disabled.");
+		System.out.println(plgLabel+" "+getDescription().getFullName()+ " disabled.");
 	}
 	
 	
