@@ -32,7 +32,7 @@ public class CMCommand implements CommandExecutor {
 		{"mute", "cmmute"},
 		{"unmute", "demute", "cmunmute"},
 		{"muted"},
-		{"context", "cx"},
+		{"context", "cont", "cx"},
 		// sub commands:
 		{"channel", "chan", "ch", "c", "channels"},
 		{"world", "wor", "w"},
@@ -47,6 +47,7 @@ public class CMCommand implements CommandExecutor {
 		{"history", "hist", "h"},
 		{"default", "def"},
 		{"greedy", "greed", "gre"},
+		{"services", "service", "serv", "ser"},
 	};
 	
 	private static final String[] allCommands = new String[]{
@@ -146,16 +147,17 @@ public class CMCommand implements CommandExecutor {
 			return true;
 		}
 		else if (label.equals("context")){
-			if (len>0){
-				// check service hooks:
-				if (core.checkHookCommand(sender, args)) return true;
+			if (len==0) return false;
+			if (sender instanceof Player){
+				if (playerContextCommand((Player) sender, args)) return true;
 			}
-			if (!Utils.checkPlayer(sender)) return true;
-			return contextCommand((Player) sender, args);
+			if (generalContextCommand(sender, args)) return true;
+			if (core.checkServiceHookCommand(sender, args)) return true;
+			return false;
 		}
 		return false;
 	}
-	
+
 	private String[] inflate(String[] args, String cmd) {
 		String[] out = new String[args.length+1];
 		out[0] = cmd;
@@ -164,16 +166,75 @@ public class CMCommand implements CommandExecutor {
 		}
 		return out;
 	}
+	
+	/**
+	 * Handle a general context command (player + console).
+	 * @param sender
+	 * @param args
+	 * @return
+	 */
+	private boolean generalContextCommand(CommandSender sender, String[] args) {
+		int len = args.length;
+		String cmd = getMappedCommandLabel(args[0]);
+		if (cmd.equals("history")){
+			// shows 50 at a time , max.
+			if (!Utils.checkPerm(sender,"contextmanager.admin.cmd.history")) return true;
+			int startIndex = 0;
+			if (len>=2){
+				try{
+					int i = Integer.parseInt(args[1].trim());
+					if (i<0) return badNumber(sender, args[1]);
+					startIndex = i;
+				} catch (NumberFormatException e){
+					return badNumber(sender, args[1]);
+				}
+			} 			
+			int endIndex = Math.max(0, startIndex + 50);
+			
+			// collect permissions:
+			Map<ContextType, Boolean> perms = new HashMap<ContextType, Boolean>();
+			boolean hasSomePerm = false;
+			for ( ContextType type : ContextType.values()){
+				boolean has = Utils.hasPermission(sender, "contextmanager.history.display."+type.toString().toLowerCase());
+				hasSomePerm |= has;
+				perms.put(type, has);
+			}
+			if (!hasSomePerm){
+				Utils.send(sender, ChatColor.DARK_RED+ContextManager.plgLabel+" You are lacking the permissions to view any entries.");
+				return true;
+			}
+			// collect candidates: TODO: 
+			List<HistoryElement> candidates = new LinkedList<HistoryElement>();
+			List<HistoryElement> history = core.getHistory();
+			int i = history.size()-1;
+			for (HistoryElement element : history){
+				if (i<startIndex) break;
+				else if (i>endIndex);
+				else if (perms.get(element.type)) candidates.add(element);
+				i --;
+			}
+			String[] msgs = new String[2+candidates.size()]; 
+			msgs[0] = ChatColor.YELLOW+"[Chat] History ("+endIndex+"..."+startIndex+"):";
+			i = 1;
+			for (HistoryElement element : candidates){
+				msgs[i] = element.toString();
+				i++;
+			}
+			msgs[1+candidates.size()] = ChatColor.YELLOW+"[Chat] History ("+startIndex+"..."+endIndex+" / "+history.size()+") - "+candidates.size() + " viewable, done.";
+			sender.sendMessage(msgs); // TODO: Utils.send ?
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Handling a "context" command for a player.
 	 * @param player
-	 * @param args
+	 * @param args len>0
 	 * @return
 	 */
-	private boolean contextCommand(Player player, String[] args) {
+	private boolean playerContextCommand(Player player, String[] args) {
 		int len = args.length;
-		if (len == 0) return false; // send usage info.
 		String cmd = getMappedCommandLabel(args[0]);
 		// TODO: permissions
 		PlayerData data = core.getPlayerData(player.getName());
@@ -244,54 +305,6 @@ public class CMCommand implements CommandExecutor {
 		else if(cmd.equals("info")){
 			// send a bunch of info
 			sendInfo(player, data);
-			return true;
-		}
-		else if (cmd.equals("history")){
-			// shows 50 at a time , max.
-			if (!Utils.checkPerm(player,"contextmanager.admin.cmd.history")) return true;
-			int startIndex = 0;
-			if (len>=2){
-				try{
-					int i = Integer.parseInt(args[1].trim());
-					if (i<0) return badNumber(player, args[1]);
-					startIndex = i;
-				} catch (NumberFormatException e){
-					return badNumber(player, args[1]);
-				}
-			} 			
-			int endIndex = Math.max(0, startIndex + 50);
-			
-			// collect permissions:
-			Map<ContextType, Boolean> perms = new HashMap<ContextType, Boolean>();
-			boolean hasSomePerm = false;
-			for ( ContextType type : ContextType.values()){
-				boolean has = Utils.hasPermission(player, "contextmanager.history.display."+type.toString().toLowerCase());
-				hasSomePerm |= has;
-				perms.put(type, has);
-			}
-			if (!hasSomePerm){
-				Utils.send(player, ChatColor.DARK_RED+ContextManager.plgLabel+" You are lacking the permissions to view any entries.");
-				return true;
-			}
-			// collect candidates: TODO: 
-			List<HistoryElement> candidates = new LinkedList<HistoryElement>();
-			List<HistoryElement> history = core.getHistory();
-			int i = history.size()-1;
-			for (HistoryElement element : history){
-				if (i<startIndex) break;
-				else if (i>endIndex);
-				else if (perms.get(element.type)) candidates.add(element);
-				i --;
-			}
-			String[] msgs = new String[2+candidates.size()]; 
-			msgs[0] = ChatColor.YELLOW+"[Chat] History ("+endIndex+"..."+startIndex+"):";
-			i = 1;
-			for (HistoryElement element : candidates){
-				msgs[i] = element.toString();
-				i++;
-			}
-			msgs[1+candidates.size()] = ChatColor.YELLOW+"[Chat] History ("+startIndex+"..."+endIndex+" / "+history.size()+") - "+candidates.size() + " viewable, done.";
-			player.sendMessage(msgs);
 			return true;
 		}
 		else if (cmd.equals("greedy")){
