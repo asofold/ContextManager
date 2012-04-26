@@ -47,14 +47,18 @@ public class ShopSpec {
 			b = "";
 		}
 		else{
-			b = ChatColor.YELLOW+f.format(priceBuy)+ChatColor.GREEN+" B"+ChatColor.GRAY;
+			final double refPrice;
+			refPrice = (amount == 1)?priceBuy:priceBuy/amount;
+			b = ChatColor.YELLOW+f.format(refPrice)+ChatColor.GREEN+" B"+ChatColor.GRAY;
 		}
 		final String s;
 		if (priceSell<0){
 			s = "";
 		}
 		else{
-			s =  ChatColor.YELLOW+f.format(priceSell)+ChatColor.LIGHT_PURPLE+" S"+ChatColor.GRAY;
+			final double refPrice;
+			refPrice = (amount == 1)?priceSell:priceSell/amount;
+			s =  ChatColor.YELLOW+f.format(refPrice)+ChatColor.LIGHT_PURPLE+" S"+ChatColor.GRAY;
 			if (priceBuy>=0) l = " : ";
 		}
 		String d = "";
