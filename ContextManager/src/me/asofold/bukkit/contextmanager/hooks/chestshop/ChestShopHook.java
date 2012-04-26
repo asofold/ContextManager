@@ -52,7 +52,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
  */
 public class ChestShopHook extends AbstractServiceHook implements Listener{
 	
-	private final static String[] labels = new String[]{"shops", "shop"};
+	private final static String[] labels = new String[]{"shop", "shops"};
 	
 	// TODO: filter by another region, if desired.
 	
@@ -392,12 +392,17 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		// ignore label, currently
 		
 		// shop / shops:
-		if (len == 0) sender.sendMessage("[ShopService] Options  (/cx shop ...): info | find <item> | find <region> | list <region> | list <world> <region> |");
+		if (len == 0) sendUsage(sender);
 		else if (len == 1 && args[0].equalsIgnoreCase("info")) sendInfo(sender);
 		else if (len == 2 && args[0].equalsIgnoreCase("find")) onFind(sender, args[1]);
 		else if (len == 2 && args[0].equalsIgnoreCase("list")) onList(sender, null, args[1]);
 		else if (len == 3 && args[0].equalsIgnoreCase("list")) onList(sender, args[1], args[2]);
 		// TODO: list
+		
+	}
+
+	private void sendUsage(CommandSender sender) {
+		sender.sendMessage("[ShopService] Options  (/cx shop ...): info | find <item> | find <region> | list <region> | list <world> <region> |");
 	}
 
 	private void onList(CommandSender sender, String world, String rid) {
@@ -613,20 +618,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			}
 			i++;
 			final String keyBase = "s"+i+".";
-			cfg.set(keyBase+"w", pos.w);
-			cfg.set(keyBase+"x", pos.x);
-			cfg.set(keyBase+"y", pos.y);
-			cfg.set(keyBase+"z", pos.z);
-			cfg.set(keyBase+"id", spec.stack.getTypeId());
-			if (spec.owner != null) cfg.set(keyBase+"o", spec.owner);
-			if (spec.amount != 1) cfg.set(keyBase + "n", spec.amount);
-			final int d;
-			if (spec.stack.getType().isBlock()) d = spec.stack.getData().getData();
-			else d = spec.stack.getDurability();
-			if (d != 0) cfg.set(keyBase+"d", d);
-			if (spec.priceBuy>=0) cfg.set(keyBase+"pb", spec.priceBuy);
-			if (spec.priceSell>=0) cfg.set(keyBase+"ps", spec.priceSell);
-			cfg.set(keyBase+"ts", spec.tsAccess);
+			writeShopSpec(cfg, keyBase, pos, spec);
 		}
 		cfg.save();
 		for (final FBlockPos pos : rem){
@@ -650,6 +642,23 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 				Logging.warn("[ServiceHook/ChestShop3] Bad shop spec at: "+key, t);
 			}
 		}
+	}
+	
+	private final void writeShopSpec(final CompatConfig cfg, final String keyBase, FBlockPos pos, final ShopSpec spec){
+		cfg.set(keyBase+"w", pos.w);
+		cfg.set(keyBase+"x", pos.x);
+		cfg.set(keyBase+"y", pos.y);
+		cfg.set(keyBase+"z", pos.z);
+		cfg.set(keyBase+"id", spec.stack.getTypeId());
+		if (spec.owner != null) cfg.set(keyBase+"o", spec.owner);
+		if (spec.amount != 1) cfg.set(keyBase + "n", spec.amount);
+		final int d;
+		if (spec.stack.getType().isBlock()) d = spec.stack.getData().getData();
+		else d = spec.stack.getDurability();
+		if (d != 0) cfg.set(keyBase+"d", d);
+		if (spec.priceBuy>=0) cfg.set(keyBase+"pb", spec.priceBuy);
+		if (spec.priceSell>=0) cfg.set(keyBase+"ps", spec.priceSell);
+		cfg.set(keyBase+"ts", spec.tsAccess);
 	}
 
 	/**
