@@ -94,7 +94,7 @@ public class CMCore  implements Listener{
 	 */
 	public void addServiceHook(ServiceHook hook){
 		String name = hook.getHookName();
-		removeHook(name);
+		removeServiceHook(name);
 		for (String label : hook.getCommandLabels()){
 			serviceHookCommandMap.put(label.toLowerCase(), hook);
 		}
@@ -104,7 +104,7 @@ public class CMCore  implements Listener{
 		System.out.println("[ContextManager] Added ServiceHook : "+hook.getHookName());
 	}
 	
-	public boolean removeHook(String name) {
+	public boolean removeServiceHook(String name) {
 		if (!registerdServiceHooks.containsKey(name)) return false;
 		ServiceHook hook = registerdServiceHooks.remove(name);
 		// also remove command mappings:
@@ -120,6 +120,10 @@ public class CMCore  implements Listener{
 		hook.onRemove();
 		System.out.println("[ContextManager] Removed ServiceHook : "+hook.getHookName());
 		return true;
+	}
+	
+	public ServiceHook getServiceHook(String name){
+		return registerdServiceHooks.get(name);
 	}
 
 	public void addStandardServiceHooks(){
@@ -456,8 +460,26 @@ public class CMCore  implements Listener{
 		return true;
 	}
 
-	public void onEnable(ContextManager contextManager) {
-		
+	public void onEnable(ContextManager plugin) {
+		for (ServiceHook hook : registerdServiceHooks.values()){
+			try{
+				hook.onEnable(plugin);
+			} 
+			catch (Throwable t){
+				asofold.pluginlib.shared.Logging.warn("[ContextManager] ServiceHook.onEnable ("+hook.getHookName()+"):",t);
+			}
+		}
+	}
+
+	public void onDisable() {
+		for (ServiceHook hook : registerdServiceHooks.values()){
+			try{
+				hook.onDisable();
+			} 
+			catch (Throwable t){
+				asofold.pluginlib.shared.Logging.warn("[ContextManager] ServiceHook.onDisable ("+hook.getHookName()+"):",t);
+			}
+		}
 	}
 
 }
