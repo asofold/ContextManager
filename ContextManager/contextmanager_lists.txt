@@ -93,18 +93,13 @@ record + cx inspect ?
 
 *** 
 
-- ? more shortcuts (/cx shop <regionname> !)
-- !(add) map info to list if arguments are given ?
 - !(add) management commands: clear
-- !(add) commands to manage adding filters (ShOP)
- !(add) /cx services 
+- !(add) commands to manage adding filters (shop)
+
+***
+
+!(add) greedy: channel+default vs ALL_CHANNELS 
 !(add) shop hook: save + reload (settings, data ?)
-
-
-* test removal of shop sign [maybe of chest too]
-
-
-
 
 
 
@@ -112,7 +107,9 @@ CHANGELOG
 -----------------------------------
 
 (0.8.0)
-- (add) Shortcut for list.
+- (add) Display nuber of shop regions
+- (add) /cx services
+- (add) ChestShop3: Shortcut for list, more flexible command interpretation.
 - (add) ChestShop3: Sorted price display, pre calculate string.
 - (bugfix) ChestShop3: make price display relative to one item.
 

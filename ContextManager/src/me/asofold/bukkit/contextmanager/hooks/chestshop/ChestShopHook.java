@@ -406,9 +406,18 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		if (len == 0) sendUsage(sender);
 		else if (len == 1 && cmd.equals("info")) sendInfo(sender);
 		else if (len == 2 && cmd.equals("find")) onFind(sender, args[1]);
-		else if (len == 2 && cmd.equals("list")) onList(sender, null, args[1]);
-		else if (len == 3 && cmd.equals("list")) onList(sender, args[1], args[2]);
-		else if (len == 1) onList(sender, null, args[0]); // no command, attempt list.
+		else if (len == 2 && (cmd.equals("list") || cmd.equals("info"))) onList(sender, null, args[1]);
+		else if (len == 3 && (cmd.equals("list") || cmd.equals("info"))) onList(sender, args[1], args[2]);
+		else if (len == 1){
+			// remaining commands:
+			if (cmd.equals("reload")){
+				// TODO
+			}
+			if (cmd.equals("save")){
+				// TODO
+			}
+			else onList(sender, null, args[0]); // no command, attempt list.
+		}
 		else if (len == 2) onList(sender, args[0], args[1]);
 		// TODO: list
 		
@@ -510,9 +519,17 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			String rid = r.getId();
 			RegionSpec rSpec = getRegionSpec(lcWorld, rid.toLowerCase(), false);
 			if (rSpec == null) continue;
-			player.sendMessage(rid+": "+rSpec.shops.size()+" chest shops.");
+			player.sendMessage(rid+": "+rSpec.shops.size()+" chest shops on "+getRegionCount()+" regions.");
 		}
 		if (set.size() > 0) player.sendMessage("To list items for a region, use: /cx shop list <region>");
+	}
+
+	private int getRegionCount() {
+		int n = 0;
+		for (Map<String, RegionSpec> set : regionMap.values()){
+			n += set.size();
+		}
+		return n;
 	}
 
 	private void sendGeneralInfo(CommandSender sender) {
