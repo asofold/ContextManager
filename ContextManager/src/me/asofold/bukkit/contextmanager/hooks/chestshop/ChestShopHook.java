@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import me.asofold.bukkit.contextmanager.command.AliasMap;
 import me.asofold.bukkit.contextmanager.core.CMCore;
 import me.asofold.bukkit.contextmanager.hooks.AbstractServiceHook;
 
@@ -92,6 +93,14 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	static final long msDay = 1000*60*60*24;
 	
 	long durExpire = 14 * msDay;
+	
+	private final AliasMap aliasMap = new AliasMap(
+			new String[][]{
+					{"find", "f"},
+					{"list", "lst", "ls", "l"},
+					{"info", "inf", "i"},
+			}
+			);
 
 	public void addFilter(String world, String region){
 		String lcWorld = world.toLowerCase();
@@ -390,13 +399,15 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	public void onCommand(CommandSender sender, String label, String[] args) {
 		int len = args.length;
 		// ignore label, currently
+		String cmd = null;
+		if (len>0) cmd = aliasMap.getMappedCommandLabel(args[0]);
 		
 		// shop / shops:
 		if (len == 0) sendUsage(sender);
-		else if (len == 1 && args[0].equalsIgnoreCase("info")) sendInfo(sender);
-		else if (len == 2 && args[0].equalsIgnoreCase("find")) onFind(sender, args[1]);
-		else if (len == 2 && args[0].equalsIgnoreCase("list")) onList(sender, null, args[1]);
-		else if (len == 3 && args[0].equalsIgnoreCase("list")) onList(sender, args[1], args[2]);
+		else if (len == 1 && cmd.equals("info")) sendInfo(sender);
+		else if (len == 2 && cmd.equals("find")) onFind(sender, args[1]);
+		else if (len == 2 && cmd.equals("list")) onList(sender, null, args[1]);
+		else if (len == 3 && cmd.equals("list")) onList(sender, args[1], args[2]);
 		else if (len == 1) onList(sender, null, args[0]); // no command, attempt list.
 		else if (len == 2) onList(sender, args[0], args[1]);
 		// TODO: list
