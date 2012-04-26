@@ -99,7 +99,7 @@ record + cx inspect ?
 ***
 
 !(add) greedy: channel+default vs ALL_CHANNELS 
-!(add) shop hook: save + reload (settings, data ?)
+
 
 
 
@@ -107,6 +107,7 @@ CHANGELOG
 -----------------------------------
 
 (0.8.0)
+- (add) shop hook: save + reload (settings, data ?)
 - (add) Display nuber of shop regions
 - (add) /cx services
 - (add) ChestShop3: Shortcut for list, more flexible command interpretation.

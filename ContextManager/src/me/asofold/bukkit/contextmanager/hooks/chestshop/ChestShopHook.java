@@ -411,10 +411,14 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		else if (len == 1){
 			// remaining commands:
 			if (cmd.equals("reload")){
-				// TODO
+				if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.reload")) return;
+				loadSettings();
+				sender.sendMessage("[ServiceHook/ChestShop3] Reloaded settings (kept data).");
 			}
 			if (cmd.equals("save")){
-				// TODO
+				if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.save")) return;
+				saveData();
+				sender.sendMessage("[ServiceHook/ChestShop3] Saved data.");
 			}
 			else onList(sender, null, args[0]); // no command, attempt list.
 		}
@@ -612,6 +616,9 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		loadFilter();
 	}
 	
+	/**
+	 * (Part of loadData.)
+	 */
 	private void loadFilter() {
 		filter.clear();
 		File file = getFilterFile();
