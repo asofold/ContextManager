@@ -42,6 +42,7 @@ import asofold.pluginlib.shared.mixin.configuration.compatlayer.CompatConfigFact
 import asofold.pluginlib.shared.mixin.configuration.compatlayer.ConfigUtil;
 
 import com.Acrobot.ChestShop.Utils.uBlock;
+import com.Acrobot.ChestShop.Utils.uLongName;
 import com.Acrobot.ChestShop.Utils.uSign;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -88,6 +89,8 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	boolean addUnowned = false;
 	
 	boolean useFilter = true;
+	
+	boolean reverseButtons = false;
 	
 	
 	static final long msDay = 1000*60*60*24;
@@ -621,7 +624,8 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		CompatConfig cfg = CompatConfigFactory.getConfig(null);
 		cfg.set("use-filter", true);
 		cfg.set("add-unowned", false);
-		cfg.set("expiration-duration", 14);
+		cfg.set("expiration-duration", 31);
+		cfg.set("reverse-buttons", false);
 		return cfg;
 	}
 	
@@ -632,7 +636,8 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		if (ConfigUtil.forceDefaults(getDefaultConfig(), cfg)) cfg.save();
 		useFilter = cfg.getBoolean("use-filter", true);
 		addUnowned = cfg.getBoolean("add-unowned", false);
-		durExpire = cfg.getLong("expiration-duration")*msDay;
+		durExpire = cfg.getLong("expiration-duration", 31L)*msDay;
+		reverseButtons = cfg.getBoolean("reverse-buttons", false);
 		loadFilter();
 	}
 	
@@ -761,7 +766,10 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	private final String getShopOwner(final String name) {
 		// TODO: add entries for long name mapping from chestshop ?
 		if (name == null) return null; // admin shop
-		final String lcn = name.trim().toLowerCase();
+		final String longName = uLongName.getName(name);
+		final String lcn;
+		if (longName != null) lcn = longName.trim().toLowerCase();
+		else lcn = name.trim().toLowerCase();
 		final String ref = shopOwners.get(lcn);
 		if (ref == null){
 			shopOwners.put(lcn, lcn);
