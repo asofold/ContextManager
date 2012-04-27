@@ -557,7 +557,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			String rid = r.getId();
 			RegionSpec rSpec = getRegionSpec(lcWorld, rid.toLowerCase(), false);
 			if (rSpec == null) continue;
-			player.sendMessage(rid+": "+rSpec.shops.size()+" chest shops on "+getRegionCount()+" regions.");
+			player.sendMessage(rid+": "+rSpec.shops.size()+" chest shops.");
 		}
 		if (set.size() > 0) player.sendMessage("To list items for a region, use: /cx shop list <region>");
 	}
@@ -571,7 +571,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	}
 
 	private void sendGeneralInfo(CommandSender sender) {
-		sender.sendMessage("[ShopService] General info: | "+idMap.size()+" Total item types | "+blockMap.size()+" total shops |");
+		sender.sendMessage("[ShopService] General info: | "+idMap.size()+" Total item types | "+blockMap.size()+" total chest shops on "+getRegionCount()+" regions.");
 	}
 	
 	@Override

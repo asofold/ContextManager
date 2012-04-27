@@ -107,6 +107,9 @@ record + cx inspect ?
 CHANGELOG
 -----------------------------------
 
+(0.8.2)
+- (bugfix) Show number of regions in general info .
+
 (0.8.1)
 - (add) ChestShop3: Exclude "wrong clicks" (which button)
 - (add) ChestShop3: long name support.
