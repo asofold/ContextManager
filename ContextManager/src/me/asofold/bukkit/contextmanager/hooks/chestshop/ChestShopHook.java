@@ -18,7 +18,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -28,11 +28,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
 import asofold.pluginlib.shared.Blocks;
+import asofold.pluginlib.shared.Inventories;
 import asofold.pluginlib.shared.Logging;
 import asofold.pluginlib.shared.Utils;
 import asofold.pluginlib.shared.blocks.FBlockPos;
@@ -41,7 +43,6 @@ import asofold.pluginlib.shared.mixin.configuration.compatlayer.CompatConfig;
 import asofold.pluginlib.shared.mixin.configuration.compatlayer.CompatConfigFactory;
 import asofold.pluginlib.shared.mixin.configuration.compatlayer.ConfigUtil;
 
-import com.Acrobot.ChestShop.Utils.uBlock;
 import com.Acrobot.ChestShop.Utils.uLongName;
 import com.Acrobot.ChestShop.Utils.uSign;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
@@ -118,7 +119,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	
 	@Override
 	public String getHookName() {
-		return "ChestShop3";
+		return "ShopService(ChestShop3)";
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -141,21 +142,30 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		final String shopOwner = getShopOwner(lines[0]);
 		if (playerName.equalsIgnoreCase(shopOwner)) return; // ignore the shop owner.
 		final String priceSpec = lines[2];
-		Chest chest = uBlock.findChest(sign);
-		if (chest == null){
+		// Chest:
+		final Block ref = block.getRelative(BlockFace.DOWN);
+		List<Inventory> inventories = Inventories.getChestInventories(ref);
+		if (inventories.isEmpty()){
+			// only allow standard chest setup.
 			update(block, null, null, 0, -1.0, -1.0);
 			return;
 		}
+		// Price etc:
 		double priceBuy = uSign.buyPrice(priceSpec);
 		double priceSell= uSign.sellPrice(priceSpec);
-		int amount = uSign.itemAmount(lines[1]);
+		final int amount = uSign.itemAmount(lines[1]);
 		ItemStack stack = com.Acrobot.ChestShop.Items.Items.getItemStack(lines[3]);
 		if(stack == null){
 			update(block, null, null, 0, -1.0, -1.0);
 			return;
 		}
+		final int id = stack.getTypeId();
+		final int data;
+		if (stack.getType().isBlock()) data = stack.getData().getData();
+		else data = stack.getDurability();
 		if (priceBuy >= 0){
-			// TODO: check if out of stock.
+			// Invalidate if out of stock.
+			if (!Inventories.hasItems(inventories, id, data, amount)) priceBuy = -1.0;
 		}
 		else{
 			// ignore buying
@@ -165,7 +175,8 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		
 		
 		if (priceSell >= 0){
-			// TODO: Check if chest has space.
+			// Invalidate if chest has not enough space.
+			if (!Inventories.hasSpace(inventories, id, data, amount)) priceSell = -1.0;
 		}
 		else{
 			// ignore selling
@@ -417,69 +428,108 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		if (len>0) cmd = aliasMap.getMappedCommandLabel(args[0]);
 		
 		// shop / shops:
-		if (len == 0) sendUsage(sender);
+		if (len == 0){
+			sendUsage(sender);
+			return;
+		}
 		else if (cmd.equals("reload")){
 			if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.reload")) return;
 			if (len == 2 && args[1].equalsIgnoreCase("data")){
 				loadData();
-				sender.sendMessage("[ServiceHook/ChestShop3] Reloaded settings (kept data).");
+				sender.sendMessage("[ShopService] Reloaded settings (kept data).");
 			}
 			if (len == 2 && args[1].equalsIgnoreCase("all")){
 				loadSettings();
 				loadData();
-				sender.sendMessage("[ServiceHook/ChestShop3] Reloaded settings and data.");
+				sender.sendMessage("[ShopService] Reloaded settings and data.");
 			}
 			else{
 				loadSettings();
-				sender.sendMessage("[ServiceHook/ChestShop3] Reloaded settings (kept data).");
+				sender.sendMessage("[ShopService] Reloaded settings (kept data).");
 			}
+			return;
 		}
 		else if (cmd.equals("save")){
 			if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.save")) return;
 			saveData();
-			sender.sendMessage("[ServiceHook/ChestShop3] Saved data.");
+			sender.sendMessage("[ShopService] Saved data.");
+			return;
 		}
 		else if (len == 2 && cmd.equals("clear") && args[1].equalsIgnoreCase("data")){
 			if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.reload")) return;
 			clearData();
-			sender.sendMessage("[ServiceHook/ChestShop3] Cleared data.");
+			sender.sendMessage("[ShopService] Cleared data.");
+			return;
 		}
-		else if (len == 1 && cmd.equals("info")) sendInfo(sender);
-		else if (len == 2 && cmd.equals("find")) onFind(sender, args[1]);
-		else if (len == 2 && (cmd.equals("list") || cmd.equals("info"))) onList(sender, null, args[1]);
-		else if (len == 3 && (cmd.equals("list") || cmd.equals("info"))) onList(sender, args[1], args[2]);
+		else if (len == 1 && cmd.equals("info")){
+			sendInfo(sender);
+			return;
+		}
+		else if (len == 2 && cmd.equals("find")){
+			onFindOrList(sender, null, args[1]);
+			return;
+		}
+		else if (len == 3 && cmd.equals("find")){
+			onFindOrList(sender, args[1], args[2]);
+			return;
+		}
+		else if (len == 2 && (cmd.equals("list") || cmd.equals("info"))) onListOrFind(sender, null, args[1]);
+		else if (len == 3 && (cmd.equals("list") || cmd.equals("info"))) onListOrFind(sender, args[1], args[2]);
 		else if (len == 1){
 			// remaining commands:
-			onList(sender, null, args[0]); 
+			onListOrFind(sender, null, args[0]); 
 		}
 		else if (len == 2){
 			// remaining commands:
-			 onList(sender, args[0], args[1]);
+			onListOrFind(sender, args[0], args[1]);
 		}
 		else sendUsage(sender); // hmm
 		// TODO: list
 		
 	}
 
+	private void onFindOrList(CommandSender sender, String world,
+			String input) {
+		if (onFind(sender, world, input)) return;
+		if (!onList(sender, world, input )) sender.sendMessage("[ShopService] No matches found.");
+	}
+
+	private void onListOrFind(CommandSender sender, String world,
+			String input) {
+		if (onList(sender, world, input)) return;
+		if (!onFind(sender, world, input )) sender.sendMessage("[ShopService] No matches found.");
+ 	}
+
 	private void sendUsage(CommandSender sender) {
 		sender.sendMessage("[ShopService] Options  (/cx shop ...): info | find <item> | find <region> | list <region> | list <world> <region> |");
 	}
 
-	private void onList(CommandSender sender, String world, String rid) {
+	private boolean onList(CommandSender sender, String world, String rid) {
 		if ((sender instanceof Player) && world == null) world = ((Player)sender).getWorld().getName();
-		sender.sendMessage("[ShopService] Items for "+rid+" (world: "+((world==null)?"<all>":world)+"):");
+		List<String> msgs = new LinkedList<String>();
 		if (world == null){
 			for (String worldName : regionMap.keySet()){
-				sender.sendMessage("("+worldName+"): "+getItemsStr(worldName, rid));
+				String msg = getItemsStr(worldName, rid);
+				if (msg != null) msgs.add("("+worldName+"): "+msg);
 			}
 		}
-		else sender.sendMessage(getItemsStr(world, rid));
+		else{
+			String msg = getItemsStr(world, rid);
+			if (msg != null) msgs.add(msg);
+		}
+		
+		if (msgs.isEmpty()) return false;
+		else{
+			msgs.add(0, "[ShopService] Items for "+rid+" (world: "+((world==null)?"<all>":world)+"):");
+			sender.sendMessage(msgs.toArray(new String[msgs.size()]));
+			return true;
+		}
 	}
 
 	private final String getItemsStr(final String world, final String rid) {
 		// TODO: use digested versions and save them somewhere with timestamps !
 		final RegionSpec rSpec = getRegionSpec(world.toLowerCase(), rid.toLowerCase(), false);
-		if (rSpec == null) return "<not available>";
+		if (rSpec == null) return null;
 		return rSpec.getItemString(blockMap);
 	}
 
@@ -488,9 +538,11 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	 * @param sender
 	 * @param input
 	 */
-	private void onFind(CommandSender sender, String input) {
+	private boolean onFind(CommandSender sender, String worldName, String input) {
 		ItemSpec spec = ItemSpec.match(input);
-		if (spec != null) sendFindItem(sender , spec);
+		if (spec != null){
+			return sendFindItem(sender , worldName, spec);
+		}
 		else{
 			boolean found = false;
 			if (sender instanceof Player){
@@ -508,7 +560,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 					}
 				}
 			}
-			if (!found) sender.sendMessage("[ShopService] No shops found.");
+			return found;
 		}
 	}
 
@@ -518,15 +570,14 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		return location.toVector().distance(center);
 	}
 
-	private void sendFindItem(CommandSender sender, ItemSpec spec) {
+	private boolean sendFindItem(CommandSender sender, String world, ItemSpec spec) {
 		Set<RegionSpec> specs = idMap.get(spec.id);
+		if (world != null) world = world.toLowerCase(); 
 		if ( specs == null){
-			sender.sendMessage("[ShopService] No shops found.");
-			return;
+			return false;
 		}
 		else{
-			String world = null;
-			if (sender instanceof Player){
+			if (world == null && sender instanceof Player){
 				world = ((Player) sender).getWorld().getName().toLowerCase();
 				// TODO: restrict to when players are on a filter region ?
 			}
@@ -542,6 +593,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			}	 
 			sender.sendMessage(b.toString());
 		}
+		return true;
 	}
 
 	private void sendInfo(CommandSender sender) {
@@ -662,7 +714,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			try {
 				file.createNewFile();
 			} catch (IOException e) {
-				Logging.warn("[ServiceHook/ChestShop] Could not create filter file", e);
+				Logging.warn("[ShopService] Could not create filter file", e);
 			}
 			return;
 		}
@@ -712,7 +764,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 				readShopSpec(cfg, key, ts);
 			}
 			catch(Throwable t){
-				Logging.warn("[ServiceHook/ChestShop3] Bad shop spec at: "+key, t);
+				Logging.warn("[ShopService] Bad shop spec at: "+key, t);
 			}
 		}
 	}
