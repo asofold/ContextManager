@@ -27,6 +27,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
+import com.gmail.nossr50.mcMMO;
+
 import asofold.pluginlib.shared.Messaging;
 import asofold.pluginlib.shared.permissions.pex.PexUtil;
 
@@ -198,8 +200,9 @@ public class CMCore  implements Listener{
 
 	public boolean isPartyChat(Player player){
 		try{
-			if (com.gmail.nossr50.Users.getProfile(player).getPartyChatMode()) return true;
-		} catch( Throwable t){
+			return com.gmail.nossr50.mcMMO.p.getPlayerProfile(player).getPartyChatMode();
+		}
+		catch (Throwable t){
 		}
 		return false;
 	}

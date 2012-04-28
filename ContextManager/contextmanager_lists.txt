@@ -100,14 +100,17 @@ record + cx inspect ?
 !(add) greedy: channel+default vs ALL_CHANNELS 
 
 (0.9.0)
+- ? add onReload for hooks ?
 - ?(add) recheck data command ?
 - ?(add) Browsing functionality to contextmanager ?
-- ?(add) browsing shops + return values for methods if used (spare usage / error till the last moment !) ?
 - !(add) commands to manage adding filters (shop)
 
 
 CHANGELOG
 -----------------------------------
+
+(0.9.1)
+- (adjust) To changed mcMMo API.
 
 (0.9.0)
 - (add) ChestShop3: Check chests for space / stock. More flexible command handling.
