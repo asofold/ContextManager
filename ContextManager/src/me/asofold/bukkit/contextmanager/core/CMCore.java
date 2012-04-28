@@ -27,8 +27,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-import com.gmail.nossr50.mcMMO;
-
 import asofold.pluginlib.shared.Messaging;
 import asofold.pluginlib.shared.permissions.pex.PexUtil;
 
