@@ -43,7 +43,7 @@ import asofold.pluginlib.shared.mixin.configuration.compatlayer.CompatConfig;
 import asofold.pluginlib.shared.mixin.configuration.compatlayer.CompatConfigFactory;
 import asofold.pluginlib.shared.mixin.configuration.compatlayer.ConfigUtil;
 
-import com.Acrobot.ChestShop.Utils.uLongName;
+import com.Acrobot.ChestShop.Utils.uName;
 import com.Acrobot.ChestShop.Utils.uSign;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -829,7 +829,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	private final String getShopOwner(final String name) {
 		// TODO: add entries for long name mapping from chestshop ?
 		if (name == null) return null; // admin shop
-		final String longName = uLongName.getName(name);
+		final String longName = uName.getName(name);
 		final String lcn;
 		if (longName != null) lcn = longName.trim().toLowerCase();
 		else lcn = name.trim().toLowerCase();

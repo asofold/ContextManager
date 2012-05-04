@@ -97,6 +97,8 @@ record + cx inspect ?
 
 ***
 
+? (add) Player prefixing + online list service.
+
 !(add) greedy: channel+default vs ALL_CHANNELS 
 
 (0.9.0)
@@ -110,7 +112,8 @@ CHANGELOG
 -----------------------------------
 
 (0.9.1)
-- (adjust) To changed mcMMo API.
+- (adjust) ... changed ChestShop API
+- (adjust) ... changed mcMMo API.
 
 (0.9.0)
 - (add) ChestShop3: Check chests for space / stock. More flexible command handling.
