@@ -116,7 +116,8 @@ CHANGELOG
 -----------------------------------
 
 (0.10.0)
-- (add) Infra structure for /cx find to deleagte to service hooks.
+- (add) delegateFind for chestshop hook.
+- (add) Infrastructure for /cx find to deleagte to service hooks.
 
 (0.9.1)
 - (adjust) ... changed ChestShop API

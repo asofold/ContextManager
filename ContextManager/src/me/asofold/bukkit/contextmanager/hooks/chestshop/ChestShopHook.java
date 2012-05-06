@@ -485,7 +485,24 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		}
 		else sendUsage(sender); // hmm
 		// TODO: list
-		
+	}
+	
+	@Override
+	public boolean delegateFind(CommandSender sender, String[] args) {
+		String world = null;
+		String query;
+		if (args.length == 3){
+			world = args[1];
+			query = args[2];
+		}
+		else if (args.length == 2){
+			if (sender instanceof Player) world = ((Player) sender).getWorld().getName();
+			query = args[1];
+		}
+		else return false;
+		if (onFind(sender, world, query)) return true;
+		else if (onList(sender, world, query)) return true;
+		else return false;
 	}
 
 	private void onFindOrList(CommandSender sender, String world,
@@ -840,5 +857,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		}
 		return ref;
 	}
+	
+	
 	
 }
