@@ -48,11 +48,14 @@ public class CMCommand implements CommandExecutor {
 		{"default", "def"},
 		{"greedy", "greed", "gre"},
 		{"services", "service", "serv", "ser"},
+		{"find" , "fin", "fi", "f"},
+		{"cxfind", "cxfin", "cxfi", "cxf"},
 	};
 	
 	private static final String[] allCommands = new String[]{
 		"cmreload",	"cmmute", "cmunmute", "mute", "unmute", "demute", "muted",
 		"context", "cxc", "cxch", "cxr", "cxrec", "cxign", "cxcl", "cxinf",
+		"cxfind", "cxfin", "cxfi", "cxf",
 	};
 	
 	private CMCore core;
@@ -77,6 +80,7 @@ public class CMCommand implements CommandExecutor {
 		else if (label.equals("cxign")) return onCommand(sender, null, "context", inflate(args, "ignore"));
 		else if (label.equals("cxcl")) return onCommand(sender, null, "context", inflate(args, "reset"));
 		else if (label.equals("cxinf")) return onCommand(sender, null, "context", inflate(args, "info"));
+		else if (label.equals("cxfind")) return onCommand(sender, null, "context", inflate(args, "find"));
 		else if ( label.equals("cmreload")){
 			if( !Utils.checkPerm(sender, "contextmanager.admin.cmd.reload")) return true;
 			core.loadSettings();
@@ -208,6 +212,10 @@ public class CMCommand implements CommandExecutor {
 			return true;
 		} else if (cmd.equalsIgnoreCase("services")){
 			sender.sendMessage(core.getServicesStr());
+			return true;
+		} else if (cmd.equals("find")){
+			if (args.length == 1) return false;
+			core.onContextFind(sender, args);
 			return true;
 		}
 		return false;

@@ -101,15 +101,22 @@ record + cx inspect ?
 
 !(add) greedy: channel+default vs ALL_CHANNELS 
 
-(0.9.0)
+***
 - ? add onReload for hooks ?
 - ?(add) recheck data command ?
 - ?(add) Browsing functionality to contextmanager ?
 - !(add) commands to manage adding filters (shop)
 
+? (add) BlockBreak: signs
+
+
+! (add) cx find + boolean delegateFind for ServiceHook 
 
 CHANGELOG
 -----------------------------------
+
+(0.10.0)
+- (add) Infra structure for /cx find to deleagte to service hooks.
 
 (0.9.1)
 - (adjust) ... changed ChestShop API

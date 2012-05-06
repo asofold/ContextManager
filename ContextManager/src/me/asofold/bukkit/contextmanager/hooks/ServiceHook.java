@@ -55,4 +55,12 @@ public interface ServiceHook {
 	 */
 	public void onDisable();
 	
+	/**
+	 * 
+	 * @param sender
+	 * @param args args[0] will be "find" or arbitrary, should be ignored.
+	 * @return If something was found (and messaged to the sender). The finding process might end with one true result.
+	 */
+	public boolean delegateFind(CommandSender sender, String[] args);
+	
 }

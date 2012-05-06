@@ -45,4 +45,11 @@ public abstract class AbstractServiceHook implements ServiceHook {
 	public void onDisable() {
 	}
 
+	@Override
+	public boolean delegateFind(CommandSender sender, String[] args) {
+		return false;
+	}
+	
+	
+
 }

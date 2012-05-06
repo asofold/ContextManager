@@ -500,4 +500,11 @@ public class CMCore  implements Listener{
 		return out;
 	}
 
+	public void onContextFind(CommandSender sender, String[] args) {
+		for (ServiceHook hook : registeredServiceHooks.values()){
+			if (hook.delegateFind(sender, args)) return;
+		}
+		sender.sendMessage(ChatColor.RED + "[ContextManager] Nothing found.");
+	}
+
 }
