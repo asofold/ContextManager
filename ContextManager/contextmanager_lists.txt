@@ -109,13 +109,13 @@ record + cx inspect ?
 
 ? (add) BlockBreak: signs
 
-
-! (add) cx find + boolean delegateFind for ServiceHook 
+?(add) region finder ServiceHook for regions that one is owner or member of.
 
 CHANGELOG
 -----------------------------------
 
 (0.10.0)
+- (add) NWSEUD spec for region finding.
 - (add) delegateFind for chestshop hook.
 - (add) Infrastructure for /cx find to deleagte to service hooks.
 

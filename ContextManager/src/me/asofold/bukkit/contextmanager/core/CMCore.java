@@ -14,6 +14,7 @@ import me.asofold.bukkit.contextmanager.chat.HistoryElement;
 import me.asofold.bukkit.contextmanager.config.Settings;
 import me.asofold.bukkit.contextmanager.hooks.ServiceHook;
 import me.asofold.bukkit.contextmanager.hooks.chestshop.ChestShopHook;
+import me.asofold.bukkit.contextmanager.hooks.regions.RegionsHook;
 import me.asofold.bukkit.contextmanager.util.Utils;
 
 import org.bukkit.Bukkit;
@@ -129,11 +130,11 @@ public class CMCore  implements Listener{
 
 	public void addStandardServiceHooks(){
 		try{
-			ServiceHook hook = new ChestShopHook();
-			addServiceHook(hook);
+			addServiceHook(new ChestShopHook());
 		} catch (Throwable t){
 			// TODO: log ?
 		}
+		addServiceHook(new RegionsHook());
 	}
 	
 	/**

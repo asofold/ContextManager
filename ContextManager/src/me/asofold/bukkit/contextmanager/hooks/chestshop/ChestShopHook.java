@@ -12,6 +12,7 @@ import java.util.Set;
 import me.asofold.bukkit.contextmanager.command.AliasMap;
 import me.asofold.bukkit.contextmanager.core.CMCore;
 import me.asofold.bukkit.contextmanager.hooks.AbstractServiceHook;
+import me.asofold.bukkit.contextmanager.hooks.regions.RegionsHook;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -31,7 +32,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.util.Vector;
 
 import asofold.pluginlib.shared.Blocks;
 import asofold.pluginlib.shared.Inventories;
@@ -567,25 +567,31 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 				Player player = (Player) sender;
 				World world = player.getWorld();
 				String lcWorld = world.getName().toLowerCase();
-				Map<String, RegionSpec> rMap = regionMap.get(lcWorld);
-				if (rMap != null && rMap.containsKey(input.toLowerCase())){
-					ProtectedRegion r = Utils.getWorldGuard().getRegionManager(world).getRegion(input);
-					if (r != null){
-						double d = getDistanceToCenter(player.getLocation(), r);
-						player.sendMessage("[ShopService] Distance to center of "+r.getId()+": "+((int) Math.round(d)));
-						found = true;
+				if (lcWorld.equalsIgnoreCase(worldName)){
+					Map<String, RegionSpec> rMap = regionMap.get(lcWorld);
+					if (rMap != null && rMap.containsKey(input.toLowerCase())){
+						ProtectedRegion r = Utils.getWorldGuard().getRegionManager(world).getRegion(input);
+						if (r != null){
+							RegionsHook.sendDistance(player, r);
+//							double d = getDistanceToCenter(player.getLocation(), r);
+//							player.sendMessage("[ShopService] Distance to center of "+r.getId()+": "+((int) Math.round(d)));
+							found = true;
+						}
 					}
 				}
+
 			}
 			return found;
 		}
 	}
 
-	private double getDistanceToCenter(Location location, ProtectedRegion r) {
-		com.sk89q.worldedit.Vector middle = r.getMinimumPoint().add(r.getMaximumPoint()).multiply(0.5);
-		Vector center = new Vector(middle.getX(), middle.getY(), middle.getZ());
-		return location.toVector().distance(center);
-	}
+	
+
+//	private double getDistanceToCenter(Location location, ProtectedRegion r) {
+//		com.sk89q.worldedit.Vector middle = r.getMinimumPoint().add(r.getMaximumPoint()).multiply(0.5);
+//		Vector center = new Vector(middle.getX(), middle.getY(), middle.getZ());
+//		return location.toVector().distance(center);
+//	}
 
 	private boolean sendFindItem(CommandSender sender, String world, ItemSpec spec) {
 		Set<RegionSpec> specs = idMap.get(spec.id);
