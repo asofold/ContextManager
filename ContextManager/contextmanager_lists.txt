@@ -114,6 +114,9 @@ record + cx inspect ?
 CHANGELOG
 -----------------------------------
 
+(0.10.1)
+- (bugfix) NPE on tell.
+
 (0.10.0)
 - (add) NWSEUD spec for region finding.
 - (add) delegateFind for chestshop hook.

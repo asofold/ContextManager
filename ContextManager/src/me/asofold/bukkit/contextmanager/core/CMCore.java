@@ -323,7 +323,7 @@ public class CMCore  implements Listener{
 				}
 				Player other = Bukkit.getServer().getPlayerExact(recipient);
 				if (other != null && !player.canSee(other) && !Utils.hasPermission(player, "contextmanager.bypass.tell")){
-					if (!otherData.recipients.contains(lcName)) other = null;
+					if (otherData == null || !otherData.recipients.contains(lcName)) other = null;
 				}
 				if (other != null){
 					final String detail = "->"+other.getName();
