@@ -13,10 +13,20 @@ public class HistoryElement {
 	public final String details;
 	public final String message;
 	public final boolean isAnnounce;
+	
+	/**
+	 * 
+	 * @param type
+	 * @param name
+	 * @param details may be null.
+	 * @param message
+	 * @param isAnnounce
+	 */
 	public HistoryElement(ContextType type, String name, String details, String message, boolean isAnnounce){
 		this.type = type;
 		this.name = name;
-		this.details = details;
+		if (details == null) this.details = "";
+		else this.details = details;
 		this.message = message;
 		this.isAnnounce = isAnnounce;
 		ts = System.currentTimeMillis();
