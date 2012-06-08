@@ -15,6 +15,7 @@ import me.asofold.bukkit.contextmanager.config.Settings;
 import me.asofold.bukkit.contextmanager.hooks.ServiceHook;
 import me.asofold.bukkit.contextmanager.hooks.chestshop.ChestShopHook;
 import me.asofold.bukkit.contextmanager.hooks.regions.RegionsHook;
+import me.asofold.bukkit.contextmanager.listeners.mcMMOChatListener;
 import me.asofold.bukkit.contextmanager.util.Utils;
 
 import org.bukkit.Bukkit;
@@ -27,6 +28,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.plugin.Plugin;
 
 import asofold.pluginlib.shared.Messaging;
 import asofold.pluginlib.shared.permissions.pex.PexUtil;
@@ -48,6 +50,12 @@ public class CMCore  implements Listener{
 	
 	private Map<String, ServiceHook> registeredServiceHooks = new HashMap<String, ServiceHook>();
 	
+	public void addListeners(Plugin plugin){
+		try{
+			if (settings.mcMMOChat) Bukkit.getPluginManager().registerEvents(new mcMMOChatListener(this), plugin);
+		}
+		catch (Throwable t){}
+	}
 	
 	public void loadSettings() {
 		ContextManager cm = getPlugin();

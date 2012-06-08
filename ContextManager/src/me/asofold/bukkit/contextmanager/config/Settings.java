@@ -28,6 +28,11 @@ public class Settings {
 	
 	public boolean useEvent = true;
 	
+	/**
+	 * Can only be changed with restart / reload.
+	 */
+	public boolean mcMMOChat = true;
+	
 	public Settings(){
 		channels.channelsOrdered.add(ChannelSettings.defaultChannelName);
 	}
@@ -45,6 +50,7 @@ public class Settings {
 		cfg.set("history.size", 100);
 		cfg.set("channels.default-channel-name", "default");
 		cfg.set("channels.fetch-delay", 2500L);
+		cfg.set("events.mcmmo.party", true);
 //		List<String> load = new LinkedList<String>();
 //		for ( String plg : new String[]{
 //				"PermissionsEx", "mcMMO"
@@ -60,6 +66,7 @@ public class Settings {
 		partyBracketCol = Messaging.withChatColors(cfg.getString("chat.color.party.brackets"));
 		partyNameCol = Messaging.withChatColors(cfg.getString("chat.color.party.name"));
 		partyMsgCol = Messaging.withChatColors(cfg.getString("chat.color.party.message"));
+		mcMMOChat = cfg.getBoolean("events.mcmmo.chat", true);
 		// other
 		useEvent = cfg.getBoolean("chat.use-event");
 		histSize = cfg.getInt("history.size");

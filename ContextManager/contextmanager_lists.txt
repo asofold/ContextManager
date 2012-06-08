@@ -111,6 +111,11 @@ record + cx inspect ?
 
 ?(add) region finder ServiceHook for regions that one is owner or member of.
 
+?(add) Conversations with history ? or channel history 
+
+
+!(add) Browser central !
+
 CHANGELOG
 -----------------------------------
 
