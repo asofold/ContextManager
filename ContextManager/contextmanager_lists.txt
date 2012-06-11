@@ -116,8 +116,16 @@ record + cx inspect ?
 
 !(add) Browser central !
 
+****
+
+!(adjust) To ChestShop changes.
+
 CHANGELOG
 -----------------------------------
+
+(0.10.2)
+- (adjust) To ChestShop changes.
+- (adjust) To mcMMO changes.
 
 (0.10.1)
 - (bugfix) NPE on tell.

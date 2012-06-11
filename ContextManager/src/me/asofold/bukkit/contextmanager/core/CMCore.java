@@ -214,13 +214,22 @@ public class CMCore  implements Listener{
 		return false;
 	}
 	
-	public boolean inSameParty( Player p1, Player p2){
+	public final boolean inSameParty(Player playera, Player playerb) {
+		final String name1 = playera.getName();
 		try{
-			return com.gmail.nossr50.party.Party.getInstance().inSameParty(p1, p1);
-		} catch( Throwable t){
-			
+			final com.gmail.nossr50.datatypes.PlayerProfile pp1 =  com.gmail.nossr50.mcMMO.p.getPlayerProfile(name1);
+			if (pp1 == null) return false;
+			else if (!pp1.inParty()) return false;
+			final com.gmail.nossr50.party.Party party = pp1.getParty();
+			if (party == null) return false; // overly...
+			final String name2 = playerb.getName();
+			for (Player member : party.getOnlineMembers()){
+					if (member.getName().equals(name2)) return true;
+			}
+			return false;
+		} catch (Throwable t){
+			return false;
 		}
-		return false;
 	}
 	
 	public boolean isGlobalChat(Player player) {
@@ -354,7 +363,7 @@ public class CMCore  implements Listener{
 	}
 	
 	@EventHandler(priority=EventPriority.LOW)
-	void onPlayerChat(PlayerChatEvent event){
+	public void onPlayerChat(PlayerChatEvent event){
 		if (event.isCancelled()) return;
 		String message = event.getMessage();
 		Player player = event.getPlayer();

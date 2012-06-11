@@ -44,7 +44,6 @@ import asofold.pluginlib.shared.mixin.configuration.compatlayer.CompatConfigFact
 import asofold.pluginlib.shared.mixin.configuration.compatlayer.ConfigUtil;
 
 import com.Acrobot.ChestShop.Utils.uName;
-import com.Acrobot.ChestShop.Utils.uSign;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -135,7 +134,8 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		
 		// TODO: split here if desied to add signChange event ? [would change concept though]
 		
-		if (!uSign.isValid(lines)) return;
+//		if (!uSign.isValid(lines)) return;
+		if (!com.Acrobot.ChestShop.Signs.ChestShopSign.isValid(lines)) return;
 		final Player player = event.getPlayer();
 		final String playerName = player.getName();
 		// TODO: maybe better heck or leave it out:
@@ -151,10 +151,20 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			return;
 		}
 		// Price etc:
-		double priceBuy = uSign.buyPrice(priceSpec);
-		double priceSell= uSign.sellPrice(priceSpec);
-		final int amount = uSign.itemAmount(lines[1]);
-		ItemStack stack = com.Acrobot.ChestShop.Items.Items.getItemStack(lines[3]);
+		int amount = -1;
+		try{
+			amount = Integer.parseInt(lines[1].trim());
+		}
+		catch (Throwable t){
+		}
+		if (amount <= 0){
+			update(block, null, null, 0, -1.0, -1.0);
+			return;
+		}
+		double priceBuy = com.Acrobot.Breeze.Utils.PriceUtil.getBuyPrice(priceSpec);
+		double priceSell= com.Acrobot.Breeze.Utils.PriceUtil.getSellPrice(priceSpec);
+		
+		ItemStack stack = com.Acrobot.Breeze.Utils.MaterialUtil.getItem(lines[3]);
 		if(stack == null){
 			update(block, null, null, 0, -1.0, -1.0);
 			return;
