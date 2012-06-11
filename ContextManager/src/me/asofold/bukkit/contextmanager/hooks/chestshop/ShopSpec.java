@@ -7,8 +7,6 @@ import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 
-import com.Acrobot.ChestShop.Items.Items;
-
 /**
  * 
  * @author mc_dev
@@ -63,7 +61,13 @@ public class ShopSpec {
 		}
 		String d = "";
 		int data = 0;
-		final String base = Items.getName(stack, true);
+		String base;
+		try{
+			base = com.Acrobot.Breeze.Utils.MaterialUtil.getName(stack, true);
+		}
+		catch (Throwable t){
+			base = stack.getType().toString();
+		}
 		if (stack.getType().isBlock()) data = stack.getData().getData();
 		else data = stack.getDurability();
 		if (data != 0 && (base.indexOf(':') == -1)) d = ChatColor.GRAY+":"+ChatColor.BLUE+data;
