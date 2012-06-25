@@ -118,10 +118,13 @@ record + cx inspect ?
 
 ****
 
-!(adjust) To ChestShop changes.
+!(add) mild unmute perm
 
 CHANGELOG
 -----------------------------------
+
+(0.10.3)
+- (adjust) To latest mcMMO API.
 
 (0.10.2)
 - (adjust) To ChestShop changes.
