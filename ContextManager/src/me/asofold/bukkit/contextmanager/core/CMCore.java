@@ -264,14 +264,19 @@ public class CMCore  implements Listener{
 	 * Adjust the list of recipients according to context.
 	 * @param player
 	 * @param recipients
+	 * @return Number of recipients (including seeing state), might be lower than recipients.size(), might or might not include player.
 	 */
-	public final void adjustRecipients(Player player, Set<Player> recipients, boolean isAnnounce) {
+	public final int adjustRecipients(final Player player, final Set<Player> recipients, final boolean isAnnounce) {
+		int n = 0;
 		PlayerData data = getPlayerData(player.getName());
 		if ( !isAnnounce && isPartyChat(player)){
 			// TODO: these might be already set by mcmmo, on the other hand this allows for others.
 			List<Player> add = new LinkedList<Player>();
 			for ( Player rec : recipients){ // TODO: get directly from mcMMO
-				if (inSameParty(player, rec)) add.add(rec);
+				if (inSameParty(player, rec)){
+					add.add(rec);
+					n ++;
+				}
 			}
 			recipients.clear(); 
 			recipients.addAll(add);
@@ -281,9 +286,18 @@ public class CMCore  implements Listener{
 			for (Player other : recipients){
 				PlayerData otherData = getPlayerData(other.getName());
 				if (!otherData.canHear(data, isAnnounce)) rem.add(other);
+				else if (!player.canSee(other)){
+					// depends now on the settings:
+					if (otherData.recipients.contains(data.lcName)) n++;
+					// else keep recipient but don't count.
+				}
+				else{
+					n ++;
+				}
 			}
 			if (!rem.isEmpty()) recipients.removeAll(rem);
 		}
+		return n;
 	}
 	
 	public void addToHistory(HistoryElement element){
@@ -435,8 +449,8 @@ public class CMCore  implements Listener{
 		}
 		else recipients = event.getRecipients();
 		if ( !forceBroadcast){
-			adjustRecipients(player, recipients, isAnnounce);
-			if (recipients.size() == 0 || recipients.size()==1 && recipients.contains(player)) player.sendMessage(ChatColor.RED+"[Chat] There are no players that can hear your message!");
+			int n = adjustRecipients(player, recipients, isAnnounce);
+			if (n == 0 || n==1 && recipients.contains(player)) player.sendMessage(ChatColor.RED+"[Chat] There are no players that can hear your message!");
 		}
 		
 		// TODO: filters for who wants to hear (or must) and who should hear / forces to hear
