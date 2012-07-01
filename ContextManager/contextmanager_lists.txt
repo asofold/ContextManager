@@ -125,8 +125,11 @@ record + cx inspect ?
 
 !(bugfix) /cxr can be abused to know that players are on. 
 
-CHANGELOG
+VERSION HISTORY
 -----------------------------------
+
+(0.10.5)
+- (adjust) plshared
 
 (0.10.4)
 - (bugfix) Don't count players that can't be seen by chat sender as recipients officially.

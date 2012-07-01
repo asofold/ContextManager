@@ -1,10 +1,10 @@
 package me.asofold.bukkit.contextmanager.chat;
 
 import me.asofold.bukkit.contextmanager.core.ContextType;
+import me.asofold.bukkit.plshared.Utils;
 
 import org.bukkit.ChatColor;
 
-import asofold.pluginlib.shared.Utils;
 
 public class HistoryElement {
 	public final long ts;

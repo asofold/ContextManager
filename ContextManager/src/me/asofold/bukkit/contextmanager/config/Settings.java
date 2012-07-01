@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Set;
 
 import me.asofold.bukkit.contextmanager.core.CMCore;
+import me.asofold.bukkit.plshared.Messaging;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.MemoryConfiguration;
 
-import asofold.pluginlib.shared.Messaging;
 
 public class Settings {
 	public String msgCol = ChatColor.WHITE.toString();

@@ -17,6 +17,8 @@ import me.asofold.bukkit.contextmanager.hooks.chestshop.ChestShopHook;
 import me.asofold.bukkit.contextmanager.hooks.regions.RegionsHook;
 import me.asofold.bukkit.contextmanager.listeners.mcMMOChatListener;
 import me.asofold.bukkit.contextmanager.util.Utils;
+import me.asofold.bukkit.plshared.Messaging;
+import me.asofold.bukkit.plshared.permissions.pex.PexUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -30,8 +32,6 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.Plugin;
 
-import asofold.pluginlib.shared.Messaging;
-import asofold.pluginlib.shared.permissions.pex.PexUtil;
 
 public class CMCore  implements Listener{
 	
@@ -503,7 +503,7 @@ public class CMCore  implements Listener{
 				hook.onEnable(plugin);
 			} 
 			catch (Throwable t){
-				asofold.pluginlib.shared.Logging.warn("[ContextManager] ServiceHook.onEnable ("+hook.getHookName()+"):",t);
+				me.asofold.bukkit.plshared.Logging.warn("[ContextManager] ServiceHook.onEnable ("+hook.getHookName()+"):",t);
 			}
 		}
 	}
@@ -514,7 +514,7 @@ public class CMCore  implements Listener{
 				hook.onDisable();
 			} 
 			catch (Throwable t){
-				asofold.pluginlib.shared.Logging.warn("[ContextManager] ServiceHook.onDisable ("+hook.getHookName()+"):",t);
+				me.asofold.bukkit.plshared.Logging.warn("[ContextManager] ServiceHook.onDisable ("+hook.getHookName()+"):",t);
 			}
 		}
 	}

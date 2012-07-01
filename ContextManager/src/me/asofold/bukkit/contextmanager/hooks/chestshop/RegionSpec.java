@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import me.asofold.bukkit.plshared.Utils;
+import me.asofold.bukkit.plshared.blocks.FBlockPos;
+
 import org.bukkit.ChatColor;
 
-import asofold.pluginlib.shared.Utils;
-import asofold.pluginlib.shared.blocks.FBlockPos;
 
 public class RegionSpec {
 	final String worldName;
