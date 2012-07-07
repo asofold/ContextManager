@@ -58,27 +58,27 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	
 	// TODO: filter by another region, if desired.
 	
-	Map<FBlockPos, ShopSpec> blockMap = new HashMap<FBlockPos, ShopSpec>();
+	private final Map<FBlockPos, ShopSpec> blockMap = new HashMap<FBlockPos, ShopSpec>();
 	
 	/**
 	 * For checking ...
 	 */
-	Map<String, Map<String, RegionSpec>> regionMap = new HashMap<String, Map<String,RegionSpec>>();
+	private final Map<String, Map<String, RegionSpec>> regionMap = new HashMap<String, Map<String,RegionSpec>>();
 	
 	/**
 	 * Mapping raw id to items.
 	 */
-	Map<Integer, Set<RegionSpec>> idMap = new HashMap<Integer, Set<RegionSpec>>();
+	private final Map<Integer, Set<RegionSpec>> idMap = new HashMap<Integer, Set<RegionSpec>>();
 	
 	/**
 	 * Only if one of these regions matches, regions will be added.
 	 */
-	Map<String, Set<String>> filter = new HashMap<String, Set<String>>();
+	private final Map<String, Set<String>> filter = new HashMap<String, Set<String>>();
 	
 	/**
 	 * Lower case names to lower case names.
 	 */
-	Map<String, String> shopOwners = new HashMap<String, String>();
+	private final Map<String, String> shopOwners = new HashMap<String, String>();
 
 	
 	// TODO: sort in to filter ! -> available item types.
