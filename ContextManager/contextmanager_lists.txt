@@ -121,15 +121,25 @@ record + cx inspect ?
 !(add) mild unmute perm
 
 
+? add: staff calls (+ location) + tp ther ?
+
+
+
 ***
 
-!(bugfix) /cxr can be abused to know that players are on. 
+ChestShop: Out of stock / chest full problem: ? expiration for shops (7das or so ).
+
+
+
 
 VERSION HISTORY
 -----------------------------------
 
+(0.11.1)
+- (adjust) Made some things final in ChestShopHook. [Keep old method!]
+
 (0.11.0)
-- (add) Option to ingore visibility (ignore-cansee).
+- (add) Option to ignore visibility (ignore-cansee).
 
 (0.10.5)
 - (adjust) plshared
