@@ -32,6 +32,7 @@ public class Settings {
 	 * Can only be changed with restart / reload.
 	 */
 	public boolean mcMMOChat = true;
+	public boolean ignoreCanSee = false;
 	
 	public Settings(){
 		channels.channelsOrdered.add(ChannelSettings.defaultChannelName);
@@ -51,6 +52,7 @@ public class Settings {
 		cfg.set("channels.default-channel-name", "default");
 		cfg.set("channels.fetch-delay", 2500L);
 		cfg.set("events.mcmmo.party", true);
+		cfg.set("ignore-cansee", false);
 //		List<String> load = new LinkedList<String>();
 //		for ( String plg : new String[]{
 //				"PermissionsEx", "mcMMO"
@@ -73,6 +75,7 @@ public class Settings {
 		// channels
 		channels.applyConfig(cfg, core);
 		// mute / commands
+		ignoreCanSee = cfg.getBoolean("ignore-cansee", false);
 		mutePreventCommands.clear();
 		List<String> cmds = cfg.getStringList("mute.prevent-commands");
 		if (cmds!= null){

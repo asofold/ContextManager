@@ -289,6 +289,7 @@ public class CMCore  implements Listener{
 				else if (!player.canSee(other)){
 					// depends now on the settings:
 					if (otherData.recipients.contains(data.lcName)) n++;
+					else if (settings.ignoreCanSee) n ++;
 					// else keep recipient but don't count.
 				}
 				else{
@@ -355,7 +356,7 @@ public class CMCore  implements Listener{
 					return;
 				}
 				Player other = Bukkit.getServer().getPlayerExact(recipient);
-				if (other != null && !player.canSee(other) && !Utils.hasPermission(player, "contextmanager.bypass.tell")){
+				if (other != null && !settings.ignoreCanSee && !player.canSee(other) && !Utils.hasPermission(player, "contextmanager.bypass.tell")){
 					if (otherData == null || !otherData.recipients.contains(lcName)) other = null;
 				}
 				if (other != null){
