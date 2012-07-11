@@ -95,6 +95,11 @@ You can always use this to find regions youre owner or member of.
     Use lower case world and region names for permissions!
  
 ChestShop service:
+This only works if filters are set (filter.yml)!
+The filters contain lists of regions for each world section.
+Any region that is inside of such a filter region will
+be added to the shop finder when shops are used on it.
+So shops do need extra regions inside of the filter regins.  
 * cx shop <region name or item name>
     Show items and prices of recently bought or sold stuff.
     Or show which shops sell  or buy it.
