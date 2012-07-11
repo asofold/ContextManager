@@ -1,7 +1,125 @@
 ContextManager lists
 ------------------------------
 
-Purpose variable chat manager, nice API, other contexts too
+Purpose variable chat manager, nice API, other contexts too.
+
+FEATURES
+----------------------------
+- PermissionsEx prefixes with respecting groups weights.
+- Set recipients for chat, ignore players, chat channels, tell shortcut...
+- mcMMO party chat support
+- Annoucements with ! (channel wide) and !! global also out of mcMMO party chat
+- Region finder
+- ChestShop finder.
+
+COMMANDS
+----------------------------
+
+Normal chat:
+* @ <player> ....<message>... | @<player> ...<message>...
+    Like tell.
+    
+Administrative chat:
+* !...
+    Channel wide announcement.
+    contextmanager.chat.announce
+* !!....
+    Global announcement
+    contextmanager.chat.announce
+
+Normal Context commands:
+* context ...
+    aliases: cx
+    Various sub commands for managing or setting contexts.
+    For most sub commands there are shorter verions,
+    like rec or even r for recipients.
+
+* cx ignore ...
+    Aliases: cxign
+    Ignore players chat.
+    Add the player names, to remove a single player add a "-",
+    like: /cxign -Notch 
+    
+* cx recipients ...
+    Aliases: cxr
+    Add recipients of chat, only these people can hear you,
+    you can only hear them, they might hear others.
+    If you have permission for /cx greedy , then you can use that
+     to still here the normal chat.
+    Add names of players, or -<name> to remove one single player,
+    like: /cxr -Notch
+    
+* cx channel
+    Show available chat channels.
+* cx channel <channle name>
+    Aliases: cxc
+    Switch to the chat chanel.
+    You can only hear others inside of the channel, and vice versa.
+    You can still hear other channels if you have /cx greedy !
+
+* cx greedy | cx greedy channel
+    Still get chat of other channels even if in /cxr mode or 
+     in another channel.
+    contextmanager.cmd.greedy
+    contextmanager.greedy.default
+    contextmanager.greedy.channel
+    contextmanager.greedy.party
+    contextmanager.greedy.private
+        
+* cx reset
+    Aliases: cx clear | cx cl | cxcl
+    Reset contexts such as channels and recipients 
+* cx reset all
+    Aliases: see cx reset
+    Reset contexts and ignored players.
+* cx reset recipients
+    Aliases: see cx reset
+    Reset recipients.
+* cx reset channel
+    Reset channel to default.
+* cx reset ignore
+    Reset ignored players
+    
+* cx find ...
+    Aliases: cx f ...
+    Find stuff, this is the general shortcut, 
+    it will work for regions and for items (ChestShop).
+    
+
+Administrative context commands:
+* cx history | cx history <number>
+    Shortcut: cx h ...
+    Show chat history (last 50 or number ... number + 50).
+    contextmanager.admin.cmd.history
+    contextmanager.history.display.channel
+    contextmanager.history.display.default
+    contextmanager.history.display.private
+    contextmanager.history.display.party
+* cx services
+    Show available mix-in in services (ChestShop, region finding). 
+    
+Administrative commands:
+* cmreload 
+    Reload configuration (s).
+    contextmanager.admin.cmd.reload
+* mute <player> | mute <player> <minutes>
+    contextmanager.admin.cmd.mute
+* unmute <player>
+    contextmanager.admin.cmd.unmute
+* muted
+    List of muted players.
+    contextmanager.admin.cmd.muted
+
+
+OTHER PERMISSIONS
+----------------------------
+
+CONFIGURATION
+----------------------------
+
+
+STACK
+------------------
 
 - !(add) permissions for muting "newbies" + interfacing for playing time
 - !(add) custom context to define what to hear + /cx reset
@@ -134,6 +252,10 @@ ChestShop: Out of stock / chest full problem: ? expiration for shops (7das or so
 
 VERSION HISTORY
 -----------------------------------
+
+(0.11.2)
+- (bugfix) npe in onEnable
+- (add) Some doc in lists.
 
 (0.11.1)
 - (adjust) Made some things final in ChestShopHook. [Keep old method!]

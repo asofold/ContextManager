@@ -3,6 +3,7 @@ package me.asofold.bukkit.contextmanager;
 import me.asofold.bukkit.contextmanager.command.CMCommand;
 import me.asofold.bukkit.contextmanager.core.CMCore;
 
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ContextManager extends JavaPlugin{
@@ -23,7 +24,8 @@ public class ContextManager extends JavaPlugin{
 		getServer().getPluginManager().registerEvents(core, this);
 		for ( String cmd : cmdExe.getAllCommands()){
 			// TODO: Most probably unnecessary !
-			getCommand(cmd).setExecutor(cmdExe);
+			PluginCommand command = getCommand(cmd);
+			if (command != null) command.setExecutor(cmdExe);
 		}
 		core.addStandardServiceHooks();
 		core.addListeners(this);
