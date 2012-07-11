@@ -82,9 +82,28 @@ Normal Context commands:
     
 * cx find ...
     Aliases: cx f ...
-    Find stuff, this is the general shortcut, 
+    Find stuff, this is the general shortcut which will delegate  
+     to all available services.
     it will work for regions and for items (ChestShop).
-    
+    However there is permission setup necessary, or configuration to make these work!
+ 
+Region service:
+* cx region find <region name>
+You can always use this to find regions youre owner or member of.
+    regions.find.w.<world>.r.<region>
+    Abbreviate for a world: regions.find.w.<world>.*
+    Use lower case world and region names for permissions!
+ 
+ChestShop service:
+* cx shop <region name or item name>
+    Show items and prices of recently bought or sold stuff.
+    Or show which shops sell  or buy it.
+* cx shopp info <region name>
+    Show items (...).
+* cx shop find <item>
+    Show regions that sell the items
+* cx shop find <region name>
+    Show distance to shop, should work for all shops that match the fiters.
 
 Administrative context commands:
 * cx history | cx history <number>
