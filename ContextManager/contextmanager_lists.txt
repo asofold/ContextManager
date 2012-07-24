@@ -142,6 +142,33 @@ CONFIGURATION
 ----------------------------
 
 
+CONFIGURATION FOR ChestShop HOOK
+-----------------------------------
+under hooks/ChestShop
+
+settings.yml:
+* add-unowned
+    If false it will not add shops from unowned regions.
+* use-filter
+    If to use the WorldGuard region filter, i.e. that shops only get
+    added if they are inside of a filter region (usually the town region).
+* expiration-duration
+    Expiration time in days, for when to invalidate shop entries.
+* reverse buttons
+    Used for sell/buy if you reversed the buttons in the 
+    ChestShop configuration.
+    Not sure this is still used, have to check it ....
+
+filter.yml:
+
+This file contains the filter setup (see above: use-filter).
+In the section allow-regions you can enter a list of regions in
+a section for each world, example:
+
+allow-regions:
+  mainworld:
+  - maintown
+
 STACK
 ------------------
 
