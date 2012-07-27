@@ -1,10 +1,10 @@
-package me.asofold.bukkit.contextmanager.util;
+package me.asofold.bpl.contextmanager.util;
 
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import me.asofold.bukkit.contextmanager.ContextManager;
+import me.asofold.bpl.contextmanager.ContextManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

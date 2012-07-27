@@ -1,4 +1,4 @@
-package me.asofold.bukkit.contextmanager.command;
+package me.asofold.bpl.contextmanager.command;
 
 import java.util.HashMap;
 import java.util.Map;

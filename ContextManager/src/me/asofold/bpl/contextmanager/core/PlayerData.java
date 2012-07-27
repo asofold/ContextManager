@@ -1,11 +1,11 @@
-package me.asofold.bukkit.contextmanager.core;
+package me.asofold.bpl.contextmanager.core;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import me.asofold.bukkit.contextmanager.ContextManager;
-import me.asofold.bukkit.contextmanager.config.ChannelSettings;
-import me.asofold.bukkit.contextmanager.util.Utils;
+import me.asofold.bpl.contextmanager.ContextManager;
+import me.asofold.bpl.contextmanager.config.ChannelSettings;
+import me.asofold.bpl.contextmanager.util.Utils;
 
 import org.bukkit.ChatColor;
 

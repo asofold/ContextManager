@@ -1,4 +1,4 @@
-package me.asofold.bukkit.contextmanager.hooks.chestshop;
+package me.asofold.bpl.contextmanager.hooks.chestshop;
 
 import java.text.DecimalFormat;
 import java.util.LinkedList;

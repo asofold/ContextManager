@@ -1,7 +1,7 @@
-package me.asofold.bukkit.contextmanager;
+package me.asofold.bpl.contextmanager;
 
-import me.asofold.bukkit.contextmanager.command.CMCommand;
-import me.asofold.bukkit.contextmanager.core.CMCore;
+import me.asofold.bpl.contextmanager.command.CMCommand;
+import me.asofold.bpl.contextmanager.core.CMCore;
 
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;

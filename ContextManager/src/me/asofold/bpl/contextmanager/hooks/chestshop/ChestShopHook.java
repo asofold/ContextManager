@@ -1,4 +1,4 @@
-package me.asofold.bukkit.contextmanager.hooks.chestshop;
+package me.asofold.bpl.contextmanager.hooks.chestshop;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,19 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.asofold.bukkit.contextmanager.command.AliasMap;
-import me.asofold.bukkit.contextmanager.core.CMCore;
-import me.asofold.bukkit.contextmanager.hooks.AbstractServiceHook;
-import me.asofold.bukkit.contextmanager.hooks.regions.RegionsHook;
-import me.asofold.bukkit.plshared.Blocks;
-import me.asofold.bukkit.plshared.Inventories;
-import me.asofold.bukkit.plshared.Logging;
-import me.asofold.bukkit.plshared.Utils;
-import me.asofold.bukkit.plshared.blocks.FBlockPos;
-import me.asofold.bukkit.plshared.items.ItemSpec;
-import me.asofold.bukkit.plshared.mixin.configuration.compatlayer.CompatConfig;
-import me.asofold.bukkit.plshared.mixin.configuration.compatlayer.CompatConfigFactory;
-import me.asofold.bukkit.plshared.mixin.configuration.compatlayer.ConfigUtil;
+import me.asofold.bpl.contextmanager.command.AliasMap;
+import me.asofold.bpl.contextmanager.core.CMCore;
+import me.asofold.bpl.contextmanager.hooks.AbstractServiceHook;
+import me.asofold.bpl.contextmanager.hooks.regions.RegionsHook;
+import me.asofold.bpl.plshared.Blocks;
+import me.asofold.bpl.plshared.Inventories;
+import me.asofold.bpl.plshared.Logging;
+import me.asofold.bpl.plshared.Utils;
+import me.asofold.bpl.plshared.blocks.FBlockPos;
+import me.asofold.bpl.plshared.items.ItemSpec;
+import me.asofold.bpl.plshared.mixin.configuration.compatlayer.CompatConfig;
+import me.asofold.bpl.plshared.mixin.configuration.compatlayer.CompatConfigFactory;
+import me.asofold.bpl.plshared.mixin.configuration.compatlayer.ConfigUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -443,7 +443,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			return;
 		}
 		else if (cmd.equals("reload")){
-			if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.reload")) return;
+			if (!me.asofold.bpl.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.reload")) return;
 			if (len == 2 && args[1].equalsIgnoreCase("data")){
 				loadData();
 				sender.sendMessage("[ShopService] Reloaded settings (kept data).");
@@ -460,13 +460,13 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			return;
 		}
 		else if (cmd.equals("save")){
-			if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.save")) return;
+			if (!me.asofold.bpl.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.save")) return;
 			saveData();
 			sender.sendMessage("[ShopService] Saved data.");
 			return;
 		}
 		else if (len == 2 && cmd.equals("clear") && args[1].equalsIgnoreCase("data")){
-			if (!me.asofold.bukkit.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.reload")) return;
+			if (!me.asofold.bpl.contextmanager.util.Utils.checkPerm(sender, "contextmanager.admin.cmd.reload")) return;
 			clearData();
 			sender.sendMessage("[ShopService] Cleared data.");
 			return;

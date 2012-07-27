@@ -304,6 +304,9 @@ ChestShop: Out of stock / chest full problem: ? expiration for shops (7das or so
 VERSION HISTORY
 -----------------------------------
 
+(1.0.0)
+- (CHANGE) Packet naming.
+
 (0.11.2)
 - (bugfix) npe in onEnable
 - (add) Some doc in lists.

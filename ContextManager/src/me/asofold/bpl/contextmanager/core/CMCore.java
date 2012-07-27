@@ -1,4 +1,4 @@
-package me.asofold.bukkit.contextmanager.core;
+package me.asofold.bpl.contextmanager.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,16 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.asofold.bukkit.contextmanager.ContextManager;
-import me.asofold.bukkit.contextmanager.chat.HistoryElement;
-import me.asofold.bukkit.contextmanager.config.Settings;
-import me.asofold.bukkit.contextmanager.hooks.ServiceHook;
-import me.asofold.bukkit.contextmanager.hooks.chestshop.ChestShopHook;
-import me.asofold.bukkit.contextmanager.hooks.regions.RegionsHook;
-import me.asofold.bukkit.contextmanager.listeners.mcMMOChatListener;
-import me.asofold.bukkit.contextmanager.util.Utils;
-import me.asofold.bukkit.plshared.Messaging;
-import me.asofold.bukkit.plshared.permissions.pex.PexUtil;
+import me.asofold.bpl.contextmanager.ContextManager;
+import me.asofold.bpl.contextmanager.chat.HistoryElement;
+import me.asofold.bpl.contextmanager.config.Settings;
+import me.asofold.bpl.contextmanager.hooks.ServiceHook;
+import me.asofold.bpl.contextmanager.hooks.chestshop.ChestShopHook;
+import me.asofold.bpl.contextmanager.hooks.regions.RegionsHook;
+import me.asofold.bpl.contextmanager.listeners.mcMMOChatListener;
+import me.asofold.bpl.contextmanager.util.Utils;
+import me.asofold.bpl.plshared.Messaging;
+import me.asofold.bpl.plshared.permissions.pex.PexUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -504,7 +504,7 @@ public class CMCore  implements Listener{
 				hook.onEnable(plugin);
 			} 
 			catch (Throwable t){
-				me.asofold.bukkit.plshared.Logging.warn("[ContextManager] ServiceHook.onEnable ("+hook.getHookName()+"):",t);
+				me.asofold.bpl.plshared.Logging.warn("[ContextManager] ServiceHook.onEnable ("+hook.getHookName()+"):",t);
 			}
 		}
 	}
@@ -515,7 +515,7 @@ public class CMCore  implements Listener{
 				hook.onDisable();
 			} 
 			catch (Throwable t){
-				me.asofold.bukkit.plshared.Logging.warn("[ContextManager] ServiceHook.onDisable ("+hook.getHookName()+"):",t);
+				me.asofold.bpl.plshared.Logging.warn("[ContextManager] ServiceHook.onDisable ("+hook.getHookName()+"):",t);
 			}
 		}
 	}

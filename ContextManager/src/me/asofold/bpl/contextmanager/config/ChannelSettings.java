@@ -1,4 +1,4 @@
-package me.asofold.bukkit.contextmanager.config;
+package me.asofold.bpl.contextmanager.config;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,8 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.asofold.bukkit.contextmanager.core.CMCore;
-import me.asofold.bukkit.contextmanager.core.PlayerData;
+import me.asofold.bpl.contextmanager.core.CMCore;
+import me.asofold.bpl.contextmanager.core.PlayerData;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

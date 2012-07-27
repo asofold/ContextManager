@@ -1,4 +1,4 @@
-package me.asofold.bukkit.contextmanager.hooks.chestshop;
+package me.asofold.bpl.contextmanager.hooks.chestshop;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.asofold.bukkit.plshared.Utils;
-import me.asofold.bukkit.plshared.blocks.FBlockPos;
+import me.asofold.bpl.plshared.Utils;
+import me.asofold.bpl.plshared.blocks.FBlockPos;
 
 import org.bukkit.ChatColor;
 

@@ -1,8 +1,8 @@
-package me.asofold.bukkit.contextmanager.listeners;
+package me.asofold.bpl.contextmanager.listeners;
 
-import me.asofold.bukkit.contextmanager.chat.HistoryElement;
-import me.asofold.bukkit.contextmanager.core.CMCore;
-import me.asofold.bukkit.contextmanager.core.ContextType;
+import me.asofold.bpl.contextmanager.chat.HistoryElement;
+import me.asofold.bpl.contextmanager.core.CMCore;
+import me.asofold.bpl.contextmanager.core.ContextType;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

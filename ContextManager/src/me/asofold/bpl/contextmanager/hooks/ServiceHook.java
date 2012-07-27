@@ -1,4 +1,4 @@
-package me.asofold.bukkit.contextmanager.hooks;
+package me.asofold.bpl.contextmanager.hooks;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;

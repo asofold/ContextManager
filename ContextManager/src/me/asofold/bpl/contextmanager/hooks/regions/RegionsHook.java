@@ -1,8 +1,8 @@
-package me.asofold.bukkit.contextmanager.hooks.regions;
+package me.asofold.bpl.contextmanager.hooks.regions;
 
-import me.asofold.bukkit.contextmanager.hooks.AbstractServiceHook;
-import me.asofold.bukkit.plshared.Utils;
-import me.asofold.bukkit.plshared.permissions.pex.PexUtil;
+import me.asofold.bpl.contextmanager.hooks.AbstractServiceHook;
+import me.asofold.bpl.plshared.Utils;
+import me.asofold.bpl.plshared.permissions.pex.PexUtil;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

@@ -1,4 +1,4 @@
-package me.asofold.bukkit.contextmanager.command;
+package me.asofold.bpl.contextmanager.command;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.asofold.bukkit.contextmanager.ContextManager;
-import me.asofold.bukkit.contextmanager.chat.HistoryElement;
-import me.asofold.bukkit.contextmanager.config.ChannelSettings;
-import me.asofold.bukkit.contextmanager.core.CMCore;
-import me.asofold.bukkit.contextmanager.core.ContextType;
-import me.asofold.bukkit.contextmanager.core.PlayerData;
-import me.asofold.bukkit.contextmanager.util.Utils;
+import me.asofold.bpl.contextmanager.ContextManager;
+import me.asofold.bpl.contextmanager.chat.HistoryElement;
+import me.asofold.bpl.contextmanager.config.ChannelSettings;
+import me.asofold.bpl.contextmanager.core.CMCore;
+import me.asofold.bpl.contextmanager.core.ContextType;
+import me.asofold.bpl.contextmanager.core.PlayerData;
+import me.asofold.bpl.contextmanager.util.Utils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
