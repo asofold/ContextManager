@@ -139,10 +139,11 @@ public class CMCore  implements Listener{
 	public void addStandardServiceHooks(){
 		try{
 			addServiceHook(new ChestShopHook());
-		} catch (Throwable t){
-			// TODO: log ?
+		} catch (Throwable t){}
+		try{
+			addServiceHook(new RegionsHook());
 		}
-		addServiceHook(new RegionsHook());
+		catch (Throwable t){}
 	}
 	
 	/**
