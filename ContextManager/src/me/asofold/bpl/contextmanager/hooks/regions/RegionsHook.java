@@ -4,6 +4,7 @@ import me.asofold.bpl.contextmanager.hooks.AbstractServiceHook;
 import me.asofold.bpl.plshared.Utils;
 import me.asofold.bpl.plshared.permissions.pex.PexUtil;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -15,6 +16,10 @@ import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class RegionsHook extends AbstractServiceHook {
+	
+	public RegionsHook(){
+		if (Bukkit.getPluginManager().getPlugin("WorldGuard") == null) throw new RuntimeException("WorldGuard not present.");
+	}
 
 	@Override
 	public String getHookName() {

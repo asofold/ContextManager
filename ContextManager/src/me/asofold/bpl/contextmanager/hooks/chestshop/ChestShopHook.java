@@ -54,6 +54,10 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
  */
 public class ChestShopHook extends AbstractServiceHook implements Listener{
 	
+	public ChestShopHook(){
+		if (Bukkit.getPluginManager().getPlugin("ChestShop") == null) throw new RuntimeException("ChestShop");
+	}
+	
 	private final static String[] labels = new String[]{"shop", "shops"};
 	
 	// TODO: filter by another region, if desired.

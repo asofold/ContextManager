@@ -303,6 +303,8 @@ ChestShop: Out of stock / chest full problem: ? expiration for shops (7das or so
 
 VERSION HISTORY
 -----------------------------------
+(1.1.0)
+- (bugfix) Let service hooks fail from the start if plugins are not present.
 
 (1.0.0)
 - (CHANGE) Packet naming.
