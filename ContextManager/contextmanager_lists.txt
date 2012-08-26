@@ -6,11 +6,24 @@ Purpose variable chat manager, nice API, other contexts too.
 FEATURES
 ----------------------------
 - PermissionsEx prefixes with respecting groups weights.
-- Set recipients for chat, ignore players, chat channels, tell shortcut...
-- mcMMO party chat support
-- Annoucements with ! (channel wide) and !! global also out of mcMMO party chat
+- Set recipients for chat, ignore players, chat channels, tell shortcut.
+- mcMMO party chat is recognized and logged.
+- Annoucements with Commands or shortcut ! (channel wide) or !! (global).
+    Possible from of mcMMO party chat
+- Tell-style comamnd + shortcut (@ ...).
+- Fully asynchronous chat (tell and announce are scheduled as commands).
 - Region finder
 - ChestShop finder.
+
+UNDER REVIEW
+----------------------------
+
+Currently ContextManager is being restructured slighgtly.
+
+- mcMMO party chat is only logged, the configurartion has no effect, 
+    except for use-event.
+- Soon/later: Vault support
+- Soon/later: Support for no known prefixing plugin.
 
 COMMANDS
 ----------------------------
@@ -18,14 +31,22 @@ COMMANDS
 Normal chat:
 * @ <player> ....<message>... | @<player> ...<message>...
     Like tell.
+    Can be disabled in the shortcuts section,
+    maps to the command /tellplayer (tellp, tell).
+    NEEDS: contextmanager.cmd.tellplayer
     
 Administrative chat:
 * !...
     Channel wide announcement.
-    contextmanager.chat.announce
+    Can be disabled in the shortcuts section,
+    maps to the command /tellchannel (tellchan, tellch, tellc).
+    NEEDS: contextmanager.chat.announce
 * !!....
     Global announcement
-    contextmanager.chat.announce
+    Can be disabled in the shortcuts section,
+    maps to the command /tellall (tella).
+    NEEDS: contextmanager.chat.announce
+
 
 Normal Context commands:
 * context ...
@@ -298,11 +319,40 @@ record + cx inspect ?
 
 ChestShop: Out of stock / chest full problem: ? expiration for shops (7das or so ).
 
+? channel specific formats + flag if to show channel name !?
+? add something for restricted channels (only group x can hear) ?
+? add some default greedy states ? (admin / mod channel)
+consider: party chat : replace party chat (!).
 
+
+*** API / interfaces for other perm/group plugins ?
+
+- > VAULT support
+
+*** Tweaks / adjustments
+! Handle cmMMO admin chat
+! Handle the /me command (history + recipients) ! [configurable: if top test an extra permission for it.]
+! configurable: allow tell
+! maptotell in config (pre process).
+? distribute updateing players over time better.
+! make duration for getting infos configurable !
+! add prefix to format descriptions ?
+
+*** Completely async chat !
+
+!update lists with perms, commands, etc.
 
 
 VERSION HISTORY
 -----------------------------------
+
+(2.0.0)
+- (adjust) To fully async chat.
+- (add) Configuration if to use the shortcuts @ and !/!! (are now mapped to commands). 
+- (add) Commands for channel wide announcement, global announcement, tell a player.
+- (bugfix) Announcements out of party chat.
+- (remove) Dependency of plshared.
+
 (1.1.0)
 - (bugfix) Let service hooks fail from the start if plugins are not present.
 
