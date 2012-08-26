@@ -367,16 +367,21 @@ public class CMCore  implements Listener{
 				return;
 			}
 		}
-		
-		System.out.println("pre process: " + cmd); // TODO: remove
-	
 	}
 	
+	/**
+	 * Schedule the command with PlayerCommandPreProcess event.
+	 * @param player
+	 * @param cmd
+	 */
 	private void scheduleCommand(final Player player, final String cmd) {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(getPlugin(), new Runnable() {
 			@Override
 			public void run() {
 				if (!player.isOnline()) return;
+				final PlayerCommandPreprocessEvent event = new PlayerCommandPreprocessEvent(player, "/" + cmd);
+				Bukkit.getPluginManager().callEvent(event);
+				if (event.isCancelled()) return;
 				Bukkit.getServer().dispatchCommand(player, cmd);
 			}
 		});
@@ -483,6 +488,10 @@ public class CMCore  implements Listener{
 				final Player player = Bukkit.getPlayerExact(playerName);
 				if (player == null) return;
 				if (!player.isOnline()) return;
+				final String cmd = (global?"tellall ":"tellchannel ") + message;
+				final PlayerCommandPreprocessEvent event = new PlayerCommandPreprocessEvent(player, "/" + cmd);
+				Bukkit.getPluginManager().callEvent(event);
+				if (event.isCancelled()) return;
 				Bukkit.getServer().dispatchCommand(player, (global?"tellall ":"tellchannel ") + message);
 			}
 		});
