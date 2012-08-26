@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.asofold.bpl.plshared.Utils;
-import me.asofold.bpl.plshared.blocks.FBlockPos;
+import me.asofold.bpl.contextmanager.plshared.Utils;
+import me.asofold.bpl.contextmanager.plshared.blocks.FBlockPos;
 
 import org.bukkit.ChatColor;
 

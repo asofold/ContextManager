@@ -17,9 +17,16 @@ public final class mcMMOChatListener implements Listener {
 		this.core = core;
 	}
 	
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled=true)
+	@EventHandler(priority = EventPriority.LOW, ignoreCancelled=true)
 	final void onPartyChat(final McMMOPartyChatEvent event){
-		if (event.isCancelled()) return;
+		if (core.checkPartyAnnounce(event.getSender(), event.getMessage())){
+			event.setCancelled(true);
+			return;
+		}
+	}	
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled=true)
+	final void onPartyChatMonitor(final McMMOPartyChatEvent event){
 		core.addToHistory(new HistoryElement(ContextType.PARTY, event.getSender(), null, event.getMessage(), false));
 	}
 }

@@ -1,7 +1,7 @@
 package me.asofold.bpl.contextmanager.chat;
 
 import me.asofold.bpl.contextmanager.core.ContextType;
-import me.asofold.bpl.plshared.Utils;
+import me.asofold.bpl.contextmanager.plshared.Utils;
 
 import org.bukkit.ChatColor;
 

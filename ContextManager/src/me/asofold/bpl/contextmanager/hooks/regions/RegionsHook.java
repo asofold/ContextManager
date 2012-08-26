@@ -1,8 +1,8 @@
 package me.asofold.bpl.contextmanager.hooks.regions;
 
 import me.asofold.bpl.contextmanager.hooks.AbstractServiceHook;
-import me.asofold.bpl.plshared.Utils;
-import me.asofold.bpl.plshared.permissions.pex.PexUtil;
+import me.asofold.bpl.contextmanager.plshared.Utils;
+import me.asofold.bpl.contextmanager.plshared.permissions.pex.PexUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -10,7 +10,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
 
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;

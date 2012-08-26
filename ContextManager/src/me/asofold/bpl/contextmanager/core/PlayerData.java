@@ -17,7 +17,14 @@ public class PlayerData {
 	
 	private  String extraFormat = "";
 	
-	public PlayerData(String lcName){
+	public boolean permAnnounce = false;
+	public boolean permMuted = false;
+	
+	public String normalFormat = null;
+	public String announceFormat = null;
+	public String partyFormat = null;
+	
+	public  PlayerData(String lcName){
 		this.lcName = lcName;
 		setExtraFormat();
 	}
@@ -90,7 +97,7 @@ public class PlayerData {
 	
 	
 	public void setChannel(String channel){
-		if (channel.equals(ChannelSettings.defaultChannelName)) channel = null;
+		if (channel.equals(ChannelSettings.getDefaultChannelName())) channel = null;
 		this.channel = channel;
 		setExtraFormat(); // also resets format.
 	}
@@ -144,7 +151,7 @@ public class PlayerData {
 	private String evaluateExtraFormat(){
 		if (!recipients.isEmpty()) return ChatColor.DARK_GRAY + "@"+ ChatColor.DARK_PURPLE + Utils.join(recipients, ",");
 		if (channel!=null) return ChatColor.DARK_GRAY + "@" + channel;
-		if (!ChannelSettings.defaultChannelName.isEmpty()) return ChatColor.DARK_GRAY + "@"+ChannelSettings.defaultChannelName;
+		if (!ChannelSettings.getDefaultChannelName().isEmpty()) return ChatColor.DARK_GRAY + "@"+ChannelSettings.getDefaultChannelName();
 		else return "";
 	}
 

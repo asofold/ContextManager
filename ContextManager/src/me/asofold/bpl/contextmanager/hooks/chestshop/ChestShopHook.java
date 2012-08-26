@@ -10,18 +10,18 @@ import java.util.Map;
 import java.util.Set;
 
 import me.asofold.bpl.contextmanager.command.AliasMap;
+import me.asofold.bpl.contextmanager.config.compatlayer.CompatConfig;
+import me.asofold.bpl.contextmanager.config.compatlayer.CompatConfigFactory;
+import me.asofold.bpl.contextmanager.config.compatlayer.ConfigUtil;
 import me.asofold.bpl.contextmanager.core.CMCore;
 import me.asofold.bpl.contextmanager.hooks.AbstractServiceHook;
 import me.asofold.bpl.contextmanager.hooks.regions.RegionsHook;
-import me.asofold.bpl.plshared.Blocks;
-import me.asofold.bpl.plshared.Inventories;
-import me.asofold.bpl.plshared.Logging;
-import me.asofold.bpl.plshared.Utils;
-import me.asofold.bpl.plshared.blocks.FBlockPos;
-import me.asofold.bpl.plshared.items.ItemSpec;
-import me.asofold.bpl.plshared.mixin.configuration.compatlayer.CompatConfig;
-import me.asofold.bpl.plshared.mixin.configuration.compatlayer.CompatConfigFactory;
-import me.asofold.bpl.plshared.mixin.configuration.compatlayer.ConfigUtil;
+import me.asofold.bpl.contextmanager.plshared.Blocks;
+import me.asofold.bpl.contextmanager.plshared.Inventories;
+import me.asofold.bpl.contextmanager.plshared.Logging;
+import me.asofold.bpl.contextmanager.plshared.Utils;
+import me.asofold.bpl.contextmanager.plshared.blocks.FBlockPos;
+import me.asofold.bpl.contextmanager.plshared.items.ItemSpec;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -41,7 +41,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-
 
 import com.Acrobot.ChestShop.Utils.uName;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;

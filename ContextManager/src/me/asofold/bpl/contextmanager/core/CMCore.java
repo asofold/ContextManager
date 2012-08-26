@@ -1,6 +1,8 @@
 package me.asofold.bpl.contextmanager.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -11,14 +13,16 @@ import java.util.Set;
 
 import me.asofold.bpl.contextmanager.ContextManager;
 import me.asofold.bpl.contextmanager.chat.HistoryElement;
+import me.asofold.bpl.contextmanager.command.CMCommand;
 import me.asofold.bpl.contextmanager.config.Settings;
 import me.asofold.bpl.contextmanager.hooks.ServiceHook;
 import me.asofold.bpl.contextmanager.hooks.chestshop.ChestShopHook;
 import me.asofold.bpl.contextmanager.hooks.regions.RegionsHook;
 import me.asofold.bpl.contextmanager.listeners.mcMMOChatListener;
+import me.asofold.bpl.contextmanager.plshared.Logging;
+import me.asofold.bpl.contextmanager.plshared.Messaging;
+import me.asofold.bpl.contextmanager.plshared.permissions.pex.PexUtil;
 import me.asofold.bpl.contextmanager.util.Utils;
-import me.asofold.bpl.plshared.Messaging;
-import me.asofold.bpl.plshared.permissions.pex.PexUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -28,27 +32,31 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
 
 
 public class CMCore  implements Listener{
 	
-	Settings settings = new Settings();
+	private final Settings settings = new Settings();
 	
-	 private Map<String, PlayerData> playerData = new HashMap<String, PlayerData>();
+	/** Player data (synchronized). */
+	private final Map<String, PlayerData> playerData = Collections.synchronizedMap(new HashMap<String, PlayerData>());
 	 
-	/**
-	 * muted players
-	 */
-    private Map<String, Long> muted = new LinkedHashMap<String, Long>();
+	/** Muted players (synchronized). */
+    private final Map<String, Long> muted = Collections.synchronizedMap(new LinkedHashMap<String, Long>());
 	
-	private List<HistoryElement> history = new ArrayList<HistoryElement>();
+    /** History (synchronized). */
+	private final List<HistoryElement> history = Collections.synchronizedList(new ArrayList<HistoryElement>());
 	
-	private Map<String, ServiceHook> serviceHookCommandMap = new HashMap<String, ServiceHook>();
+	/** Map commands to service hooks. */
+	private final Map<String, ServiceHook> serviceHookCommandMap = new HashMap<String, ServiceHook>();
 	
-	private Map<String, ServiceHook> registeredServiceHooks = new HashMap<String, ServiceHook>();
+	/** All registered service hooks. */
+	private final Map<String, ServiceHook> registeredServiceHooks = new HashMap<String, ServiceHook>();
 	
 	public void addListeners(Plugin plugin){
 		try{
@@ -69,8 +77,10 @@ public class CMCore  implements Listener{
 	}
 	
 	private void checkPlayerChannels() {
-		for (PlayerData data: playerData.values()){
-			if (data.channel != null) data.setChannel(settings.channels.getAvailableChannel(data.channel));
+		synchronized(playerData){
+			for (PlayerData data: playerData.values()){
+				if (data.channel != null) data.setChannel(settings.channels.getAvailableChannel(data.channel));
+			}
 		}
 	}
 
@@ -169,13 +179,15 @@ public class CMCore  implements Listener{
 	void checkMuted(){
 		List<String> rem = new LinkedList<String>();
 		long ts = System.currentTimeMillis();
-		for (String n : getMuted().keySet()){
-			long nts = getMuted().get(n);
-			if ( nts == 0 ) continue;
-			else if (nts<ts) rem.add(n);
-		}
-		for ( String n : rem){
-			getMuted().remove(n);
+		synchronized(muted){
+			for (String n : getMuted().keySet()){
+				long nts = getMuted().get(n);
+				if ( nts == 0 ) continue;
+				else if (nts<ts) rem.add(n);
+			}
+			for ( String n : rem){
+				getMuted().remove(n);
+			}
 		}
 	}
 
@@ -186,30 +198,40 @@ public class CMCore  implements Listener{
 	 * @param player
 	 * @return
 	 */
-	public boolean isMuted(Player player) {
+	public boolean isMuted(Player player, boolean message) {
 		String lcn = player.getName().toLowerCase();
-		Long tsMute = getMuted().get(lcn);
-		if ( tsMute !=null){
-			if ( ( tsMute!=0L) && (System.currentTimeMillis() > getMuted().get(lcn))){
-				getMuted().remove(lcn);
-			}
-			else if ( Utils.hasPermission(player, "contextmanager.bypass.mute")){
-				Utils.send(player, ChatColor.YELLOW+ContextManager.plgLabel+" Removed you from muted (permission present).");
-				getMuted().remove(lcn);
-			}
-			else if ( isGlobalChat(player) ){
-				// TODO: add time descr.
-				Utils.send(player, ChatColor.RED+ContextManager.plgLabel+" You are currently muted.");
-				return true;
+		if (!muted.containsKey(lcn)) return false;
+		boolean isMuted = false;
+		synchronized (muted) {
+			Long tsMute = muted.get(lcn);
+			if ( tsMute !=null){
+				if (( tsMute!=0L) && (System.currentTimeMillis() > tsMute)){
+					muted.remove(lcn);
+				}
+				else if (getPlayerData(lcn).permMuted){
+					// The message locks longer than wanted, but it is seldom.
+					if (message) player.sendMessage(ChatColor.YELLOW+ContextManager.plgLabel+" Removed you from muted (permission present).");
+					muted.remove(lcn);
+				}
+				else if (isGlobalChat(player) ){
+					isMuted = true;
+				}
 			}
 		}
-		return false;
+		if (isMuted){
+			// TODO: add time descr.
+			if (message) player.sendMessage(ChatColor.RED+ContextManager.plgLabel+" You are currently muted.");
+			return true;
+		}
+		else 
+			return false;
 	}
 
 	public boolean isPartyChat(Player player){
 		try{
 			// TODO:
-			return com.gmail.nossr50.util.Users.getProfile(player).getPartyChatMode();
+			com.gmail.nossr50.datatypes.PlayerProfile pp = com.gmail.nossr50.util.Users.getProfile(player);
+			return pp.getParty() != null && pp.getPartyChatMode();
 //			return com.gmail.nossr50.mcMMO.p.getPlayerProfile(player).getPartyChatMode();
 		}
 		catch (Throwable t){
@@ -338,53 +360,33 @@ public class CMCore  implements Listener{
 		if (cmd.length()>1) cmd = cmd.substring(1);
 		// TODO: check set of others ?
 		final Player player = event.getPlayer();
-		if (cmd.equals("tell")){
-			// TODO: maybe log and maybe message player self.
-			event.setCancelled(true);
-			if (split.length > 1){
-				final String playerName =  player.getName(); 
-				String lcName = playerName.toLowerCase();
-				String recipient = split[1].trim().toLowerCase();
-				if (lcName.equals(recipient)) return;
-				if (recipient.isEmpty()){
-					// TODO: maybe better command parsing (stripping of space only parts).
-					player.sendMessage(ChatColor.DARK_RED+ContextManager.plgLabel+" Bad tell message.");
-					return;
-				}
-				PlayerData otherData = getPlayerData(recipient, false);
-				if (otherData != null && otherData.ignored.contains(lcName) && !Utils.hasPermission(player, "contextmanager.bypass.tell")){
-					player.sendMessage(ChatColor.DARK_RED+ContextManager.plgLabel+" You are ignored by this player.");
-					return;
-				}
-				Player other = Bukkit.getServer().getPlayerExact(recipient);
-				if (other != null && !settings.ignoreCanSee && !player.canSee(other) && !Utils.hasPermission(player, "contextmanager.bypass.tell")){
-					if (otherData == null || !otherData.recipients.contains(lcName)) other = null;
-				}
-				if (other != null){
-					final String detail = "->"+other.getName();
-					final String tellMsg = Utils.join(Utils.getCollection(split, 2), " ");
-					final String sendMsg = "(" + playerName + detail + ") " + tellMsg;
-					System.out.println("[Tell]" + sendMsg);
-					player.sendMessage(ChatColor.DARK_GRAY + sendMsg);
-					other.sendMessage(ChatColor.GRAY+ sendMsg);
-					addToHistory(new HistoryElement(ContextType.PRIVATE, playerName, detail, tellMsg, false));
-				}
-				else{
-					player.sendMessage(ChatColor.DARK_RED+"[Tell] "+recipient+" is not available.");
-				}
-				return; // TODO: consider cancelling tell always
+		
+		if (cmd.equals("me") || settings.mutePreventCommands.contains(cmd)){
+			if (isMuted(player, true)){
+				event.setCancelled(true);
+				return;
 			}
 		}
-		if (!cmd.equals("me") && !settings.mutePreventCommands.contains(cmd)) return;
-		// TODO: maybe find the fastest way to do this !
-		if (isMuted(player)) event.setCancelled(true);
+		
+		System.out.println("pre process: " + cmd); // TODO: remove
+	
+	}
+	
+	private void scheduleCommand(final Player player, final String cmd) {
+		Bukkit.getScheduler().scheduleSyncDelayedTask(getPlugin(), new Runnable() {
+			@Override
+			public void run() {
+				if (!player.isOnline()) return;
+				Bukkit.getServer().dispatchCommand(player, cmd);
+			}
+		});
 	}
 	
 	@EventHandler(priority=EventPriority.LOW)
-	public void onPlayerChat(PlayerChatEvent event){
+	final void onPlayerChat(final AsyncPlayerChatEvent event){
 		if (event.isCancelled()) return;
-		String message = event.getMessage();
-		Player player = event.getPlayer();
+		final String message = event.getMessage();
+		final Player player = event.getPlayer();
 		
 		// Tell shortcut
 		if (message.startsWith("@")){
@@ -392,87 +394,98 @@ public class CMCore  implements Listener{
 			// tell shortcut
 			event.setCancelled(true);
 			final String cmd;
-			if (message.startsWith("@ ")) cmd = "/tell "+message.substring(2);
-			else cmd = "/tell "+message.substring(1);
-			final PlayerCommandPreprocessEvent tellEvent = new PlayerCommandPreprocessEvent(player, cmd);
-			Bukkit.getServer().getPluginManager().callEvent(tellEvent); // will be replaced by THIS plugin.
+			if (message.startsWith("@ ")) cmd = "tellplayer "+message.substring(2);
+			else cmd = "tellplayer "+message.substring(1);
+			scheduleCommand(player, cmd);
 			return;
 		}
 		
-		
-		// Muted
-		if (isMuted(player)){
-			event.setCancelled(true);
-			return;
-		}
+		final String playerName = player.getName();
+		final PlayerData data = getPlayerData(playerName);
 		
 		// Announcements
-		String msgCol = null; // this.msgCol;
-		boolean forceBroadcast = false;
-		boolean isAnnounce = false;
-		if ( message.startsWith("!") && player.hasPermission("contextmanager.chat.announce")){
-			isAnnounce = true;
-			msgCol = settings.broadCastCol;
-			int n = 1;
-			if ( message.startsWith("!!")){
-				forceBroadcast = true;
-				n =2;
-			}
-			message = message.substring(n,message.length());
-			if ( settings.useEvent) event.setMessage(message);
+		if (settings.shortcutAnnounce && data.permAnnounce && checkAnnounce(playerName, message)){
+			event.setCancelled(true);
+			return;
 		}
 		
-		// History:
-		final String playerName = player.getName();
-		PlayerData data = getPlayerData(playerName);
-		boolean isParty = isPartyChat(player);
-		ContextType type;
-		if (forceBroadcast) type = ContextType.BROADCAST;
-		else if (isAnnounce){
-			if (data.channel == null) type = ContextType.DEFAULT;
-			else type = ContextType.CHANNEL;
+		// Ignore party chat for the moment: 
+		if (isPartyChat(player)) return;
+		
+		
+		// Ignore muted players:
+		if (isMuted(player, true)){
+			event.setCancelled(true);
+			return;
 		}
-		else if (isParty) type = ContextType.PARTY;
-		else if (!data.recipients.isEmpty()) type = ContextType.PRIVATE;
-		else if (data.channel == null) type = ContextType.DEFAULT;
-		else type = ContextType.CHANNEL;
-		addToHistory(new HistoryElement(type, playerName, data.getExtraFormat(), message, isAnnounce));
+		
+		// (Only normal chat should arrive here.)
 		
 		// recipients
-		Set<Player> recipients;
-		boolean useEvent = settings.useEvent;
-		if (isAnnounce){
-			// force recipients to prevent other plugins messing around.
-			recipients = new HashSet<Player>();
-			for (Player other :  Bukkit.getServer().getOnlinePlayers()){
-				recipients.add(other);
-			}
-			useEvent = false;
+		final Set<Player> recipients = event.getRecipients();;
+		int n = adjustRecipients(player, recipients, false);
+		if (n == 0 || n==1 && recipients.contains(player)){
+			// TODO: might have to schedule the message !
+			player.sendMessage(ChatColor.RED+"[Chat] There are no players that can hear your message!");
 		}
-		else recipients = event.getRecipients();
-		if ( !forceBroadcast){
-			int n = adjustRecipients(player, recipients, isAnnounce);
-			if (n == 0 || n==1 && recipients.contains(player)) player.sendMessage(ChatColor.RED+"[Chat] There are no players that can hear your message!");
-		}
-		
-		// TODO: filters for who wants to hear (or must) and who should hear / forces to hear
 		
 		// Assemble message
-		String format;
-		if (isAnnounce) format = getNormalFormat(playerName, msgCol, isAnnounce);
-		else format = getFormat(player, msgCol, isAnnounce);
-		if (useEvent) event.setFormat(format);
-		else {
-			event.setCancelled(true);
-			String sendMsg = format.replace("%1$s", playerName).replace("%2$s", message);
-			if (forceBroadcast) Bukkit.getServer().broadcastMessage(sendMsg);
-			else{
-				for ( Player other : recipients){
-					other.sendMessage(sendMsg);
-				}
-				System.out.println(sendMsg);
-			}
+		event.setFormat(data.normalFormat);
+		
+		// History:
+		final ContextType type;
+		if (!data.recipients.isEmpty()) type = ContextType.PRIVATE;
+		else if (data.channel == null) type = ContextType.DEFAULT;
+		else type = ContextType.CHANNEL;
+		addToHistory(new HistoryElement(type, playerName, data.getExtraFormat(), message, false));
+		// TODO: History probably should be done on monitor, somehow.
+	}
+	
+	/**
+	 * Check if a message is an announcement, schedule the command for it.<br>
+	 * No pre permission or config flag check (must be done elsewhere!).  
+	 * @param player
+	 * @param message
+	 * @return
+	 */
+	public final boolean checkAnnounce(final String playerName, final String message) {
+		if (!message.startsWith("!")) return false;
+		final int n;
+		final boolean global;
+		if ( message.startsWith("!!")){
+			global = true;
+			n = 2;
 		}
+		else{
+			global = false;
+			n = 1;
+		}
+		scheduleAnnounce(playerName, message.substring(n,message.length()), global);
+		return true;
+	}
+	
+	/**
+	 * Check if a message is an announcement
+	 * @param playerName
+	 * @return true if it is an annoucnement (cancel event then)
+	 */
+	public boolean checkPartyAnnounce(final String playerName, final String message) {
+		final PlayerData data = getPlayerData(playerName, false); 
+		if (data == null) return false;
+		return settings.shortcutAnnounce && data.permAnnounce && checkAnnounce(playerName, message);
+	}
+
+	private final void scheduleAnnounce(final String playerName, final String message, final boolean global){
+		// TODO: issue command.
+		Bukkit.getScheduler().scheduleSyncDelayedTask(getPlugin(), new Runnable() {
+			@Override
+			public void run() {
+				final Player player = Bukkit.getPlayerExact(playerName);
+				if (player == null) return;
+				if (!player.isOnline()) return;
+				Bukkit.getServer().dispatchCommand(player, (global?"tellall ":"tellchannel ") + message);
+			}
+		});
 	}
 
 	/**
@@ -500,12 +513,18 @@ public class CMCore  implements Listener{
 	}
 
 	public void onEnable(ContextManager plugin) {
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			@Override
+			public void run() {
+				updatePlayerInfos();
+			}
+		}, 117);
 		for (ServiceHook hook : registeredServiceHooks.values()){
 			try{
 				hook.onEnable(plugin);
 			} 
 			catch (Throwable t){
-				me.asofold.bpl.plshared.Logging.warn("[ContextManager] ServiceHook.onEnable ("+hook.getHookName()+"):",t);
+				Logging.warn("[ContextManager] ServiceHook.onEnable ("+hook.getHookName()+"):",t);
 			}
 		}
 	}
@@ -516,7 +535,7 @@ public class CMCore  implements Listener{
 				hook.onDisable();
 			} 
 			catch (Throwable t){
-				me.asofold.bpl.plshared.Logging.warn("[ContextManager] ServiceHook.onDisable ("+hook.getHookName()+"):",t);
+				Logging.warn("[ContextManager] ServiceHook.onDisable ("+hook.getHookName()+"):",t);
 			}
 		}
 	}
@@ -542,5 +561,121 @@ public class CMCore  implements Listener{
 		}
 		sender.sendMessage(ChatColor.RED + "[ContextManager] Nothing found.");
 	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	final void onPlayerJoin(PlayerJoinEvent event){
+		updatePlayerInfos(event.getPlayer());
+	}
+	
+	final void onPlayerChangedWorld(PlayerChangedWorldEvent event){
+		updatePlayerInfos(event.getPlayer());
+	}
+
+	/**
+	 * Update infos about one player.
+	 * @param player
+	 */
+	private final void updatePlayerInfos(final Player player) {
+		final String playerName = player.getName();
+		final PlayerData data = getPlayerData(playerName, true);
+		
+		// Set permissions:
+		data.permAnnounce = player.hasPermission("contextmanager.chat.announce");
+		data.permMuted = Utils.hasPermission(player, "contextmanager.bypass.mute");
+		
+		// Set formats:
+		data.normalFormat = getNormalFormat(playerName, settings.msgCol, false);
+		data.announceFormat = getNormalFormat(playerName, settings.broadCastCol, true);
+		data.partyFormat = getPartyFormat(playerName, settings.partyMsgCol);
+	}
+	
+	/**
+	 * Check all online players infos.
+	 */
+	private final void updatePlayerInfos() {
+		for  (final Player player : Bukkit.getOnlinePlayers()){
+			// TODO: Something faster for bigger servers ?
+			//       (Might be every 1, 2 ticks one name , once through check min delay, fill set of names again)
+			updatePlayerInfos(player);
+		}
+	}
+	
+	/**
+	 * Called in the main thread.
+	 * @param player
+	 * @param split Split words as with a tell command split by spaces, first element is the command label (ignored).
+	 */
+	private void processTell(Player player, String[] split) {
+		if (split.length <= 1) return;
+		// if (!player.isOnline()) return; // TODO: necessary or not ?
+		final String playerName =  player.getName(); 
+		String lcName = playerName.toLowerCase();
+		String recipient = split[1].trim().toLowerCase();
+		if (lcName.equals(recipient)) return;
+		if (recipient.isEmpty()){
+			// TODO: maybe better command parsing (stripping of space only parts).
+			player.sendMessage(ChatColor.DARK_RED+ContextManager.plgLabel+" Bad tell message.");
+			return;
+		}
+		PlayerData otherData = getPlayerData(recipient, false);
+		if (otherData != null && otherData.ignored.contains(lcName) && !Utils.hasPermission(player, "contextmanager.bypass.tell")){
+			player.sendMessage(ChatColor.DARK_RED+ContextManager.plgLabel+" You are ignored by this player.");
+			return;
+		}
+		Player other = Bukkit.getServer().getPlayerExact(recipient);
+		if (other != null && !settings.ignoreCanSee && !player.canSee(other) && !Utils.hasPermission(player, "contextmanager.bypass.tell")){
+			if (otherData == null || !otherData.recipients.contains(lcName)) other = null;
+		}
+		if (other != null){
+			final String detail = "->"+other.getName();
+			final String tellMsg = Utils.join(Utils.getCollection(split, 2), " ");
+			final String sendMsg = "(" + playerName + detail + ") " + tellMsg;
+			System.out.println("[Tell]" + sendMsg);
+			player.sendMessage(ChatColor.DARK_GRAY + sendMsg);
+			other.sendMessage(ChatColor.GRAY+ sendMsg);
+			addToHistory(new HistoryElement(ContextType.PRIVATE, playerName, detail, tellMsg, false));
+		}
+		else{
+			player.sendMessage(ChatColor.DARK_RED+"[Tell] "+recipient+" is not available.");
+		}
+		return; // TODO: consider cancelling tell always
+	}
+
+
+	/**
+	 * Args excludes the command label.
+	 * @param player
+	 * @param args
+	 */
+	public void onTell(Player player, String[] args) {
+		// TODO improve this.
+		processTell(player, CMCommand.inflate(args, "tellplayer"));
+	}
+
+	public void onAnnounce(Player player, String[] args, boolean global) {
+		String playerName = player.getName();
+		final PlayerData data = getPlayerData(playerName);
+		ContextType type;
+		if (data.channel == null) type = ContextType.DEFAULT;
+		else type = ContextType.CHANNEL;
+		String format = data.announceFormat;
+		String sendMsg = format.replace("%1$s", playerName).replace("%2$s", Utils.join(Arrays.asList(args), " "));
+		if (global) Bukkit.getServer().broadcastMessage(sendMsg);
+		else{
+			final Player[] players = Bukkit.getOnlinePlayers();
+			final Set<Player> recipients = new HashSet<Player>(players.length);
+			for (int i = 0; i < players.length; i ++){
+				recipients.add(players[i]);
+			}
+			adjustRecipients(player, recipients, true);
+			for ( Player other : recipients){
+				other.sendMessage(sendMsg);
+			}
+			System.out.println(sendMsg);
+		}
+		addToHistory(new HistoryElement(type, playerName, null, sendMsg, true));
+	}
+
+
 
 }

@@ -50,12 +50,16 @@ public class CMCommand implements CommandExecutor {
 		{"services", "service", "serv", "ser"},
 		{"find" , "fin", "fi", "f"},
 		{"cxfind", "cxfin", "cxfi", "cxf"},
+		{"tellplayer", "tellp", "tell"},
+		{"tellall", "tella"},
+		{"tellchannel", "tellchan", "tellch", "tellc"},
 	};
 	
 	private static final String[] allCommands = new String[]{
 		"cmreload",	"cmmute", "cmunmute", "mute", "unmute", "demute", "muted",
 		"context", "cxc", "cxch", "cxr", "cxrec", "cxign", "cxcl", "cxinf",
-		"cxfind", "cxfin", "cxfi", "cxf",
+		"cxfind", "cxfin", "cxfi", "cxf", "tellplayer", "tellall", "tellchannel",
+		// TODO: remove aliases form here, unless necessary.
 	};
 	
 	private CMCore core;
@@ -75,7 +79,29 @@ public class CMCommand implements CommandExecutor {
 		label = aliasMap.getMappedCommandLabel(label);
 		int len = args.length;
 		
-		if (label.equals("cxc")) return onCommand(sender, null, "context", inflate(args, "channel"));
+		
+		if (label.equals("tellplayer")){
+			if (!Utils.checkPlayer(sender)) return true;
+			if (!Utils.checkPerm(sender, "contextmanager.cmd.tellplayer")) return true;
+			if (len <= 1) return false;
+			core.onTell((Player) sender, args);
+			return true;
+		}
+		else if (label.equals("tellchannel")){
+			if (!Utils.checkPlayer(sender)) return true;
+			if (!Utils.checkPerm(sender, "contextmanager.chat.announce")) return true;
+			if (len == 0) return false;
+			core.onAnnounce((Player) sender, args, false);
+			return true;
+		}
+		else if (label.equals("tellall")){
+			if (!Utils.checkPlayer(sender)) return true;
+			if (!Utils.checkPerm(sender, "contextmanager.chat.announce")) return true;
+			if (len == 0) return false;
+			core.onAnnounce((Player) sender, args, true);
+			return true;
+		}
+		else if (label.equals("cxc")) return onCommand(sender, null, "context", inflate(args, "channel"));
 		else if (label.equals("cxr")) return onCommand(sender, null, "context", inflate(args, "recipients"));
 		else if (label.equals("cxign")) return onCommand(sender, null, "context", inflate(args, "ignore"));
 		else if (label.equals("cxcl")) return onCommand(sender, null, "context", inflate(args, "reset"));
@@ -130,7 +156,12 @@ public class CMCommand implements CommandExecutor {
 		} 
 		else if (label.equals("muted")){
 			if( !Utils.checkPerm(sender, "contextmanager.admin.cmd.muted")) return true;
-			Utils.send(sender, ChatColor.YELLOW+ContextManager.plgLabel+" Muted: "+ChatColor.GRAY+Utils.join(core.getMuted().keySet(), ChatColor.DARK_GRAY+" | "+ChatColor.GRAY));
+			Map<String, Long> muted = core.getMuted();
+			String msgMuted;
+			synchronized(muted){
+				msgMuted = Utils.join(muted.keySet(), ChatColor.DARK_GRAY+" | "+ChatColor.GRAY);
+			}
+			Utils.send(sender, ChatColor.YELLOW+ContextManager.plgLabel+" Muted: "+ChatColor.GRAY+msgMuted);
 			return true;
 		}
 		else if (label.equals("context")){
@@ -145,7 +176,7 @@ public class CMCommand implements CommandExecutor {
 		return false;
 	}
 
-	private String[] inflate(String[] args, String cmd) {
+	public static String[] inflate(String[] args, String cmd) {
 		String[] out = new String[args.length+1];
 		out[0] = cmd;
 		for ( int i = 0 ; i<args.length; i++){
@@ -279,7 +310,7 @@ public class CMCommand implements CommandExecutor {
 		}
 		else if (cmd.equals("channel")){
 			if (len == 2){
-				if (aliasMap.getMappedCommandLabel(args[1]).equals(ChannelSettings.defaultChannelName)) data.resetChannel();
+				if (aliasMap.getMappedCommandLabel(args[1]).equals(ChannelSettings.getDefaultChannelName())) data.resetChannel();
 				else{
 					String channel = core.getAvailableChannel(args[1]);
 					if (channel == null){
@@ -346,7 +377,7 @@ public class CMCommand implements CommandExecutor {
 
 	private void sendInfo(Player player, PlayerData data) {
 		// TODO: refactor to work as complete info for another player.
-		if (core.isMuted(player)) player.sendMessage(ChatColor.DARK_GRAY+"[Context] "+ChatColor.RED+"You are muted!");
+		if (core.isMuted(player, false)) player.sendMessage(ChatColor.DARK_GRAY+"[Context] "+ChatColor.RED+"You are muted!");
 		if (!data.ignored.isEmpty()) player.sendMessage(ChatColor.DARK_GRAY+"[Ignored] "+Utils.join(data.ignored, " | "));
 		player.sendMessage(ChatColor.GRAY+"[Channel] "+(data.channel==null?(core.getDefaultChannelDisplayName()):data.channel));
 		if (!data.recipients.isEmpty()) player.sendMessage(ChatColor.GRAY+"[Recipients] "+Utils.join(data.recipients, " | "));

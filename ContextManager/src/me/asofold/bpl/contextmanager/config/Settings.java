@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import me.asofold.bpl.contextmanager.core.CMCore;
-import me.asofold.bpl.plshared.Messaging;
+import me.asofold.bpl.contextmanager.plshared.Messaging;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.Configuration;
@@ -26,7 +26,9 @@ public class Settings {
 	
 	public int histSize = 100;
 	
-	public boolean useEvent = true;
+	public boolean shortcutAnnounce = true;
+	
+	public boolean shortcutTell = true;
 	
 	/**
 	 * Can only be changed with restart / reload.
@@ -35,17 +37,18 @@ public class Settings {
 	public boolean ignoreCanSee = false;
 	
 	public Settings(){
-		channels.channelsOrdered.add(ChannelSettings.defaultChannelName);
+		// Empty constructor.
 	}
 	
 	public static MemoryConfiguration getDefaultSettings(){
 		MemoryConfiguration cfg = new MemoryConfiguration();
-		cfg.set("chat.use-event", true);
 		cfg.set("chat.color.normal", "&f");
 		cfg.set("chat.color.announce", "&e");
 		cfg.set("chat.color.party.brackets", "&a");
 		cfg.set("chat.color.party.name", "&7");
 		cfg.set("chat.color.party.message", "&7");
+		cfg.set("chat.shortcut.announce", true);
+		cfg.set("chat.shortcut.tell", true);
 		cfg.set("mute.prevent-commands", new LinkedList<String>());
 		cfg.set("contexts.channels.names", new LinkedList<String>());
 		cfg.set("history.size", 100);
@@ -68,9 +71,10 @@ public class Settings {
 		partyBracketCol = Messaging.withChatColors(cfg.getString("chat.color.party.brackets"));
 		partyNameCol = Messaging.withChatColors(cfg.getString("chat.color.party.name"));
 		partyMsgCol = Messaging.withChatColors(cfg.getString("chat.color.party.message"));
+		shortcutAnnounce = cfg.getBoolean("chat.shortcut.announce");
+		shortcutTell = cfg.getBoolean("chat.shortcut.tell");
 		mcMMOChat = cfg.getBoolean("events.mcmmo.chat", true);
 		// other
-		useEvent = cfg.getBoolean("chat.use-event");
 		histSize = cfg.getInt("history.size");
 		// channels
 		channels.applyConfig(cfg, core);

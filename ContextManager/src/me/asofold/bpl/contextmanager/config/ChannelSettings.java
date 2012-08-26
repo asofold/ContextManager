@@ -22,23 +22,26 @@ import org.bukkit.entity.Player;
 public class ChannelSettings {
 	
 	/**
-	 * TODO: is a hack ?
+	 * TODO: Bit of a hack design.
 	 */
-	public static String defaultChannelName = "global";
+	private static String defaultChannelName = "global";
 	
 	/**
 	 * Lower case -> correct case.
 	 */
-	Map<String, String> channels = new LinkedHashMap<String, String>();
+	private final Map<String, String> channels = new LinkedHashMap<String, String>();
 	
-	ArrayList<String> channelsOrdered = new ArrayList<String>();
+	private final ArrayList<String> channelsOrdered = new ArrayList<String>();
 	
-	long delayChannelsString = 2500;
+	private long delayChannelsString = 2500;
 	
-	long tsSetChannelsString = 0;
+	private long tsSetChannelsString = 0;
 	
-	String[] channelsString = new String[]{ChatColor.YELLOW + "[ContextManager] Available channels: ", ChatColor.GRAY+"(0)"+ChatColor.YELLOW+" default"};
+	String[] channelsString = new String[]{ChatColor.YELLOW + "[ContextManager] Available channels: ", ChatColor.GRAY+"(0)" + ChatColor.YELLOW + getDefaultChannelDisplayName()};
 
+	public ChannelSettings(){
+		channelsOrdered.add(getDefaultChannelName());
+	}
 	
 	public String[] getChannesString(CMCore core) {
 		if (System.currentTimeMillis()- tsSetChannelsString > delayChannelsString){
@@ -57,7 +60,7 @@ public class ChannelSettings {
 		String[] out = new String[channelsOrdered.size()+1];
 		out[0] = ChatColor.YELLOW + "[ContextManager" +
 				"] Available channels: ";
-		out[1] = getChannelListEntry(0, getDefaultChannelDisplayName(), userCount.get(ChannelSettings.defaultChannelName));
+		out[1] = getChannelListEntry(0, getDefaultChannelDisplayName(), userCount.get(ChannelSettings.getDefaultChannelName()));
 		for (int i = 1; i< channelsOrdered.size(); i++){
 			String ch = channelsOrdered.get(i);
 			out[i+1] = getChannelListEntry(i, ch, userCount.get(ch));
@@ -71,7 +74,7 @@ public class ChannelSettings {
 			PlayerData data = core.getPlayerData(player.getName());
 			String ch;
 			if (!data.recipients.isEmpty()) continue; // regard as if not there
-			if (data.channel == null) ch = ChannelSettings.defaultChannelName;
+			if (data.channel == null) ch = ChannelSettings.getDefaultChannelName();
 			else ch = data.channel;
 			Integer c = counts.get(ch);
 			if ( c == null){
@@ -93,8 +96,8 @@ public class ChannelSettings {
 		
 
 	public String getDefaultChannelDisplayName() {
-		if (ChannelSettings.defaultChannelName.isEmpty()) return "default";
-		else return ChannelSettings.defaultChannelName;
+		if (ChannelSettings.getDefaultChannelName().isEmpty()) return "default";
+		else return ChannelSettings.getDefaultChannelName();
 	}
 	
 	public String getAvailableChannel(String name) {
@@ -104,21 +107,21 @@ public class ChannelSettings {
 			try{
 				int i = Integer.parseInt(name);
 				if (i>=0 && i<channelsOrdered.size()){
-					if (i == 0) return ChannelSettings.defaultChannelName;
+					if (i == 0) return ChannelSettings.getDefaultChannelName();
 					chan = channelsOrdered.get(i);
 				}
 			} catch (NumberFormatException e){		
 			}
 		}
-		if (name.equalsIgnoreCase("global") || (name.equalsIgnoreCase("default") || name.equalsIgnoreCase(ChannelSettings.defaultChannelName))) return ChannelSettings.defaultChannelName;
+		if (name.equalsIgnoreCase("global") || (name.equalsIgnoreCase("default") || name.equalsIgnoreCase(ChannelSettings.getDefaultChannelName()))) return ChannelSettings.getDefaultChannelName();
 		else return chan;
 	}
 
 	public void applyConfig(Configuration cfg, CMCore core) {
-		ChannelSettings.defaultChannelName = cfg.getString("channels.default-channel-name", "default").trim();
+		ChannelSettings.setDefaultChannelName(cfg.getString("channels.default-channel-name", "default").trim());
 	    channels.clear();
 		channelsOrdered.clear();
-		channelsOrdered.add(ChannelSettings.defaultChannelName);
+		channelsOrdered.add(ChannelSettings.getDefaultChannelName());
 		List<String> ch = cfg.getStringList("contexts.channels.names");
 		if (ch != null){
 			for (String c : ch){
@@ -129,5 +132,13 @@ public class ChannelSettings {
 		}
 		delayChannelsString = cfg.getLong("channels.fetch-delay", 2500L);
 		setChannelsString(core);
+	}
+
+	public static String getDefaultChannelName() {
+		return defaultChannelName;
+	}
+
+	public static void setDefaultChannelName(String defaultChannelName) {
+		ChannelSettings.defaultChannelName = defaultChannelName;
 	}
 }

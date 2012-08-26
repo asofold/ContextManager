@@ -51,4 +51,22 @@ commands:
     - cxfin
     - cxfi
     - cxf
+  tellplayer:
+    description: "Classical tell command."
+    usage: "tell <player> .... <message> ..."
+    aliases:
+    - tellp
+    - tell 
+  tellall:
+    description: "Global announcement."
+    usage: "tella .... <message> ..."
+    aliases:
+    - talla
+  tellchannel:
+    description: "Channel wide announcement."
+    usage: "tellc .... <message> ..."
+    aliases:
+    - tellchan
+    - tellch
+    - tellc
 
