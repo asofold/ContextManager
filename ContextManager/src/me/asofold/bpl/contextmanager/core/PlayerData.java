@@ -1,5 +1,6 @@
 package me.asofold.bpl.contextmanager.core;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,7 +35,7 @@ public class PlayerData {
 	 */
 	public String channel = null;
 	
-	public Set<String> recipients = new HashSet<String>();
+	public Set<String> recipients = Collections.synchronizedSet(new HashSet<String>());
 	
 //	/**
 //	 * 
@@ -44,7 +45,7 @@ public class PlayerData {
 	/**
 	 * Players to ignore.
 	 */
-	public Set<String> ignored = new HashSet<String>();
+	public Set<String> ignored = Collections.synchronizedSet(new HashSet<String>());
 	
 
 	public void resetAll(){

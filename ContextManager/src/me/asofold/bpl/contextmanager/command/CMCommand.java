@@ -224,12 +224,15 @@ public class CMCommand implements CommandExecutor {
 			// collect candidates: TODO: 
 			List<HistoryElement> candidates = new LinkedList<HistoryElement>();
 			List<HistoryElement> history = core.getHistory();
-			int i = history.size()-1;
-			for (HistoryElement element : history){
-				if (i<startIndex) break;
-				else if (i>endIndex);
-				else if (perms.get(element.type)) candidates.add(element);
-				i --;
+			int i;
+			synchronized(history){
+				i = history.size()-1;
+				for (HistoryElement element : history){
+					if (i<startIndex) break;
+					else if (i>endIndex);
+					else if (perms.get(element.type)) candidates.add(element);
+					i --;
+				}
 			}
 			String[] msgs = new String[2+candidates.size()]; 
 			msgs[0] = ChatColor.YELLOW+"[Chat] History ("+endIndex+"..."+startIndex+"):";
@@ -377,6 +380,7 @@ public class CMCommand implements CommandExecutor {
 
 	private void sendInfo(Player player, PlayerData data) {
 		// TODO: refactor to work as complete info for another player.
+		// TODO: if refactor: use synchronization (!), this should be non critical failure on iteration.
 		if (core.isMuted(player, false)) player.sendMessage(ChatColor.DARK_GRAY+"[Context] "+ChatColor.RED+"You are muted!");
 		if (!data.ignored.isEmpty()) player.sendMessage(ChatColor.DARK_GRAY+"[Ignored] "+Utils.join(data.ignored, " | "));
 		player.sendMessage(ChatColor.GRAY+"[Channel] "+(data.channel==null?(core.getDefaultChannelDisplayName()):data.channel));
