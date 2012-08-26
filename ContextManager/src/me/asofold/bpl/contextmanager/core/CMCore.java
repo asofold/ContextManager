@@ -394,7 +394,7 @@ public class CMCore  implements Listener{
 		final Player player = event.getPlayer();
 		
 		// Tell shortcut
-		if (message.startsWith("@")){
+		if (settings.shortcutTell && message.startsWith("@")){
 			// TODO: allow for multicast ? // TODO: tell handling alike ?
 			// tell shortcut
 			event.setCancelled(true);
