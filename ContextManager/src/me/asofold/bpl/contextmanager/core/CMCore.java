@@ -231,7 +231,7 @@ public class CMCore  implements Listener{
 		try{
 			// TODO:
 			com.gmail.nossr50.datatypes.PlayerProfile pp = com.gmail.nossr50.util.Users.getProfile(player);
-			return pp.getParty() != null && pp.getPartyChatMode();
+			return pp.getPartyChatMode() && pp.getParty() != null;
 //			return com.gmail.nossr50.mcMMO.p.getPlayerProfile(player).getPartyChatMode();
 		}
 		catch (Throwable t){
