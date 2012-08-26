@@ -15,15 +15,16 @@ FEATURES
 - Region finder
 - ChestShop finder.
 
-UNDER REVIEW
+UNDER REVIEW / ISSUES
 ----------------------------
 
-Currently ContextManager is being restructured slighgtly.
+Currently ContextManager is being restructured slightly.
 
-- mcMMO party chat is only logged, the configurartion has no effect, 
-    except for use-event.
-- Soon/later: Vault support
-- Soon/later: Support for no known prefixing plugin.
+- mcMMO party chat is only logged, the configuration has no effect, 
+    except for use-event. Announcements should work.
+- Soon/later: Vault support for prefixes.
+- Soon/later: Support for not having any plugin for prefixes.
+- mcMMO admin chat is not yet treated in any way.
 
 COMMANDS
 ----------------------------
@@ -341,7 +342,7 @@ consider: party chat : replace party chat (!).
 *** Completely async chat !
 
 !update lists with perms, commands, etc.
-
+? add greedy Party ?
 
 VERSION HISTORY
 -----------------------------------
