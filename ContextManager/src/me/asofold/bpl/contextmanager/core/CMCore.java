@@ -239,23 +239,23 @@ public class CMCore  implements Listener{
 		return false;
 	}
 	
-	public final boolean inSameParty(Player playera, Player playerb) {
-		final String name1 = playera.getName();
-		try{
-			final com.gmail.nossr50.datatypes.PlayerProfile pp1 =  com.gmail.nossr50.mcMMO.p.getPlayerProfile(name1);
-			if (pp1 == null) return false;
-			else if (!pp1.inParty()) return false;
-			final com.gmail.nossr50.party.Party party = pp1.getParty();
-			if (party == null) return false; // overly...
-			final String name2 = playerb.getName();
-			for (Player member : party.getOnlineMembers()){
-					if (member.getName().equals(name2)) return true;
-			}
-			return false;
-		} catch (Throwable t){
-			return false;
-		}
-	}
+//	public final boolean inSameParty(Player playera, Player playerb) {
+//		final String name1 = playera.getName();
+//		try{
+//			final com.gmail.nossr50.datatypes.PlayerProfile pp1 =  com.gmail.nossr50.mcMMO.p.getPlayerProfile(name1);
+//			if (pp1 == null) return false;
+//			else if (!pp1.inParty()) return false;
+//			final com.gmail.nossr50.party.Party party = pp1.getParty();
+//			if (party == null) return false; // overly...
+//			final String name2 = playerb.getName();
+//			for (Player member : party.getOnlineMembers()){
+//					if (member.getName().equals(name2)) return true;
+//			}
+//			return false;
+//		} catch (Throwable t){
+//			return false;
+//		}
+//	}
 	
 	public boolean isGlobalChat(Player player) {
 		if (isPartyChat(player)) return false;
@@ -292,35 +292,35 @@ public class CMCore  implements Listener{
 	public final int adjustRecipients(final Player player, final Set<Player> recipients, final boolean isAnnounce) {
 		int n = 0;
 		PlayerData data = getPlayerData(player.getName());
-		if ( !isAnnounce && isPartyChat(player)){
-			// TODO: these might be already set by mcmmo, on the other hand this allows for others.
-			List<Player> add = new LinkedList<Player>();
-			for ( Player rec : recipients){ // TODO: get directly from mcMMO
-				if (inSameParty(player, rec)){
-					add.add(rec);
-					n ++;
-				}
+//		if ( !isAnnounce && isPartyChat(player)){
+//			// TODO: these might be already set by mcmmo, on the other hand this allows for others.
+//			List<Player> add = new LinkedList<Player>();
+//			for ( Player rec : recipients){ // TODO: get directly from mcMMO
+//				if (inSameParty(player, rec)){
+//					add.add(rec);
+//					n ++;
+//				}
+//			}
+//			recipients.clear(); 
+//			recipients.addAll(add);
+//		}
+//		else{
+		List<Player> rem = new LinkedList<Player>();
+		for (Player other : recipients){
+			PlayerData otherData = getPlayerData(other.getName());
+			if (!otherData.canHear(data, isAnnounce)) rem.add(other);
+			else if (!player.canSee(other)){
+				// depends now on the settings:
+				if (otherData.recipients.contains(data.lcName)) n++;
+				else if (settings.ignoreCanSee) n ++;
+				// else keep recipient but don't count.
 			}
-			recipients.clear(); 
-			recipients.addAll(add);
-		}
-		else{
-			List<Player> rem = new LinkedList<Player>();
-			for (Player other : recipients){
-				PlayerData otherData = getPlayerData(other.getName());
-				if (!otherData.canHear(data, isAnnounce)) rem.add(other);
-				else if (!player.canSee(other)){
-					// depends now on the settings:
-					if (otherData.recipients.contains(data.lcName)) n++;
-					else if (settings.ignoreCanSee) n ++;
-					// else keep recipient but don't count.
-				}
-				else{
-					n ++;
-				}
+			else{
+				n ++;
 			}
-			if (!rem.isEmpty()) recipients.removeAll(rem);
 		}
+		if (!rem.isEmpty()) recipients.removeAll(rem);
+//		}
 		return n;
 	}
 	
