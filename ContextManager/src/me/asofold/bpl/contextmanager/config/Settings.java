@@ -20,6 +20,8 @@ public class Settings {
 	public String partyMsgCol = ChatColor.GRAY.toString();
 	public String broadCastCol = ChatColor.YELLOW.toString();
 	
+	public String msgAlone = ChatColor.RED+"[Chat] There are no players that can hear your message!";
+	
 	public Set<String> mutePreventCommands = new HashSet<String>();
 	
 	public ChannelSettings channels = new ChannelSettings();
@@ -42,6 +44,7 @@ public class Settings {
 	
 	public static MemoryConfiguration getDefaultSettings(){
 		MemoryConfiguration cfg = new MemoryConfiguration();
+		Settings ref = new Settings();
 		cfg.set("chat.color.normal", "&f");
 		cfg.set("chat.color.announce", "&e");
 		cfg.set("chat.color.party.brackets", "&a");
@@ -49,6 +52,7 @@ public class Settings {
 		cfg.set("chat.color.party.message", "&7");
 		cfg.set("chat.shortcut.announce", true);
 		cfg.set("chat.shortcut.tell", true);
+		cfg.set("messages.alone", ref.msgAlone.replace("§", "&"));
 		cfg.set("mute.prevent-commands", new LinkedList<String>());
 		cfg.set("contexts.channels.names", new LinkedList<String>());
 		cfg.set("history.size", 100);
@@ -73,6 +77,7 @@ public class Settings {
 		partyMsgCol = Messaging.withChatColors(cfg.getString("chat.color.party.message"));
 		shortcutAnnounce = cfg.getBoolean("chat.shortcut.announce");
 		shortcutTell = cfg.getBoolean("chat.shortcut.tell");
+		msgAlone = Messaging.withChatColors(cfg.getString("messages.alone"));
 		mcMMOChat = cfg.getBoolean("events.mcmmo.chat", true);
 		// other
 		histSize = cfg.getInt("history.size");
