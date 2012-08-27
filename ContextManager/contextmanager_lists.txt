@@ -352,10 +352,8 @@ consider: party chat : replace party chat (!).
 VERSION HISTORY
 -----------------------------------
 
-(2.1.1)
-- (bugfix) Correctly schedule the ask for updating the players permissions and prefixes.
-
 (2.1.0)
+- (bugfix) Correctly schedule the task for updating the players permissions and prefixes.
 - (add) Message for talking to oneself is configurable now.
 
 (2.0.0)
