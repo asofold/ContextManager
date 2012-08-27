@@ -336,17 +336,27 @@ consider: party chat : replace party chat (!).
 ! configurable: allow tell
 ! maptotell in config (pre process).
 ? distribute updateing players over time better.
-! make duration for getting infos configurable !
+! make duration for getting infos configurable ! (something more sophisticated?)
 ! add prefix to format descriptions ?
 ? OPT: avoid synchronized stuff for hotspots, use setting the whole set/map on changes instead. 
+? add reply command (tell or recipients? + timestamp)
 
 *** Completely async chat !
-
-!update lists with perms, commands, etc.
+? add stats especially for async chat, but maybe for commands too?
 ? add greedy Party ?
+
+!add ranged mode (how ? rec + send?)
+
+!configurable messages: "You are talking to yourself!"
 
 VERSION HISTORY
 -----------------------------------
+
+(2.1.1)
+- (bugfix) Correctly schedule the ask for updating the players permissions and prefixes.
+
+(2.1.0)
+- (add) Message for talking to oneself is configurable now.
 
 (2.0.0)
 - (adjust) To fully async chat.
