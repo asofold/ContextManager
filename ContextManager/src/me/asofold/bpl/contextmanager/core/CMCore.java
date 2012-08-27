@@ -431,7 +431,7 @@ public class CMCore  implements Listener{
 		int n = adjustRecipients(player, recipients, false);
 		if (n == 0 || n==1 && recipients.contains(player)){
 			// TODO: might have to schedule the message !
-			player.sendMessage(ChatColor.RED+"[Chat] There are no players that can hear your message!");
+			player.sendMessage(settings.msgAlone);
 		}
 		
 		// Assemble message
@@ -522,12 +522,12 @@ public class CMCore  implements Listener{
 	}
 
 	public void onEnable(ContextManager plugin) {
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
 			@Override
 			public void run() {
 				updatePlayerInfos();
 			}
-		}, 117);
+		}, 117, 117);
 		for (ServiceHook hook : registeredServiceHooks.values()){
 			try{
 				hook.onEnable(plugin);
