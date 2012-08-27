@@ -338,6 +338,7 @@ consider: party chat : replace party chat (!).
 ? distribute updateing players over time better.
 ! make duration for getting infos configurable !
 ! add prefix to format descriptions ?
+? OPT: avoid synchronized stuff for hotspots, use setting the whole set/map on changes instead. 
 
 *** Completely async chat !
 
