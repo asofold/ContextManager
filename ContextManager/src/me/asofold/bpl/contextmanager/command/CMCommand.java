@@ -115,7 +115,8 @@ public class CMCommand implements CommandExecutor {
 			
 		} 
 		else if ((len==1 || len==2 ) && label.equals("mute")){
-			if( !Utils.checkPerm(sender, "contextmanager.admin.cmd.mute")) return true;
+		    final boolean fullPerm = Utils.checkPerm(sender, "contextmanager.admin.cmd.mute");
+			if(!fullPerm && !Utils.checkPerm(sender, "contextmanager.admin.cmd.mute.mild")) return true;
 			int minutes = 0;
 			if ( len == 2){
 				try{
@@ -129,6 +130,12 @@ public class CMCommand implements CommandExecutor {
 			boolean known = Utils.isPlayerKnown(name);
 			
 			String end = ".";
+			
+			if (minutes > 20 && !fullPerm){
+			    sender.sendMessage("You don't have permission to mute for more than 20 min.");
+			    return true;
+			}
+			
 			Long ts = 0L;
 			if (minutes>0){
 				end = " for "+minutes+" minutes.";

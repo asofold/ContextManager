@@ -150,6 +150,7 @@ Administrative commands:
     contextmanager.admin.cmd.reload
 * mute <player> | mute <player> <minutes>
     contextmanager.admin.cmd.mute
+    contextmanager.admin.cmd.mute.mild <- for 20 minutes mute
 * unmute <player>
     contextmanager.admin.cmd.unmute
 * muted
@@ -347,10 +348,15 @@ consider: party chat : replace party chat (!).
 
 !add ranged mode (how ? rec + send?)
 
-!configurable messages: "You are talking to yourself!"
+!configurable messages: "You are talking to yourself!" <- DOCUMETN IN LISTS !
+
+!add perm for short term muting
 
 VERSION HISTORY
 -----------------------------------
+
+(2.2.0)
+- Add mild mute perm (20 min).
 
 (2.1.0)
 - (bugfix) Correctly schedule the task for updating the players permissions and prefixes.
