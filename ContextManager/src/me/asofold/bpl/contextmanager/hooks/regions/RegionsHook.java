@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -15,6 +16,24 @@ import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class RegionsHook extends AbstractServiceHook {
+	
+	final static BlockFace[] horizontalFaces = new BlockFace[]{
+		BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST
+	};
+	
+	private static BlockFace xPosFace;
+	private static BlockFace xNegFace;
+	private static BlockFace zPosFace;
+	private static BlockFace zNegFace;
+	
+	static{
+		for (final BlockFace face : horizontalFaces){
+			if (face.getModX() > 0) xPosFace = face;
+			else if (face.getModX() < 0) xNegFace = face;
+			if (face.getModZ() > 0) zPosFace = face;
+			else if (face.getModZ() < 0) zNegFace = face;
+		}
+	}
 	
 	public RegionsHook(){
 		if (Bukkit.getPluginManager().getPlugin("WorldGuard") == null) throw new RuntimeException("WorldGuard not present.");
@@ -86,15 +105,20 @@ public class RegionsHook extends AbstractServiceHook {
 		int dz = cz - loc.getBlockZ();
 		StringBuilder b = new StringBuilder();
 		b.append(ChatColor.DARK_GRAY+"[Regions] "+ChatColor.GREEN+region.getId()+ChatColor.GRAY+": "+ChatColor.AQUA);
-		if (dx > rx) b.append((dx-rx)+" South ");
-		else if (dx < -rx) b.append((-dx-rx)+" North ");
-		if (dz > rz) b.append((dz-rz) + " West ");
-		else if (dz < -rz) b.append((-dz-rz) + " East ");
+		if (dx > rx) b.append((dx-rx) + " " + capitalize(xNegFace) + " ");
+		else if (dx < -rx) b.append((-dx-rx) +"  " + capitalize(xPosFace)  + " ");
+		if (dz > rz) b.append((dz-rz) + " " + capitalize(zNegFace) + " ");
+		else if (dz < -rz) b.append((-dz-rz) + " " + capitalize(zPosFace) + " ");
 		if (dy > ry) b.append((dy-ry) + " Up");
 		else if (dy < -ry) b.append((-dy-ry) + " Down");
 		player.sendMessage(b.toString());
 	}
-
+	
+	public static String capitalize(Object o){
+		String s = o.toString();
+		return "" + Character.toUpperCase(s.charAt(0)) + s.substring(1).toLowerCase();
+	}
+	
 	@Override
 	public boolean delegateFind(CommandSender sender, String[] args) {
 		if (args.length == 2) return trySendDistance(sender, args[1], false);
