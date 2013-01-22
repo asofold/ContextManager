@@ -1,7 +1,11 @@
 package me.asofold.bpl.contextmanager.command;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +21,11 @@ import me.asofold.bpl.contextmanager.util.Utils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
-public class CMCommand implements CommandExecutor {
+public class CMCommand implements TabExecutor {
 	
 	/**
 	 * First is the label, rest aliases, for each array.	
@@ -38,7 +42,7 @@ public class CMCommand implements CommandExecutor {
 		{"world", "wor", "w"},
 		{"info", "?", "help", "hlp"},
 		{"reset", "clear", "clr", "cl", "res"},
-		{"ignore", "ign", "ig" , "i"},
+		{"ignore", "ign", "ig" , "i", "ignored"},
 		{"all", "al", "a"},
 		{"global", "glob", "glo", "gl", "g"},
 		{"recipients", "recipient", "recip", "rec", "re" , "r"},
@@ -60,6 +64,33 @@ public class CMCommand implements CommandExecutor {
 		"context", "cxc", "cxch", "cxr", "cxrec", "cxign", "cxcl", "cxinf",
 		"cxfind", "cxfin", "cxfi", "cxf", "tellplayer", "tellall", "tellchannel",
 		// TODO: remove aliases form here, unless necessary.
+	};
+	
+	/** Only the labels for context commands. */
+	final Set<String> contextLabels = new LinkedHashSet<String>(Arrays.asList(new String[]{
+			// Core chat stuff
+			"reset",
+			"ignore",
+			"channel",
+			"recipients",
+			"ignore",  
+			"greedy",
+			"info",
+			// Admin stuff
+			"history",
+			// SERVICES
+			"services",
+			"find",
+			// HACKY:
+			"shop", "region"
+	}));
+	
+	private static String[] clearChoices = new String[]{
+		"all",
+		"channel",
+		"contexts",
+		"ignore",
+		"recipients",
 	};
 	
 	private CMCore core;
@@ -295,6 +326,10 @@ public class CMCommand implements CommandExecutor {
 					data.resetChannel();
 					Utils.send(player, ChatColor.YELLOW+ContextManager.plgLabel+" Channel reset.");
 				}
+				else if (target.equals("contexts")){
+					data.resetContexts();
+					Utils.send(player, ChatColor.YELLOW+ContextManager.plgLabel+" Contexts reset.");
+				}
 			}
 			sendInfo(player, data);
 			return true;
@@ -398,6 +433,47 @@ public class CMCommand implements CommandExecutor {
 
 	public String[] getAllCommands() {
 		return allCommands;
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command,
+			String label, String[] args) {
+		if (command.getLabel().equalsIgnoreCase("context")){
+			String arg = args.length == 0 ? "" : aliasMap.getMappedCommandLabel(args[0].trim());
+			if ((args.length == 1 || args.length == 2) && arg.equalsIgnoreCase("reset")){
+				return tabCompleteContextReset((Player) sender, args);
+			}
+			if (args.length <= 1 && (sender instanceof Player)){
+				return tabCompleteContextCommand((Player) sender, args);
+			}
+			
+		}
+		return null;
+	}
+
+	private List<String> tabCompleteContextReset(Player sender, String[] args) {
+		String arg = args.length == 1 ? "" : args[1].trim().toLowerCase();
+		final Set<String> choices = new LinkedHashSet<String>(10);
+		for (final String ref : clearChoices){
+			if (ref.startsWith(arg)) choices.add(ref);
+		}
+		return sortedList(choices);
+	}
+
+	private List<String> tabCompleteContextCommand(Player sender, String[] args) {
+		String arg = args.length == 0 ? "" : args[0].trim().toLowerCase();
+		final Set<String> choices = new LinkedHashSet<String>(10);
+		for (final String ref : contextLabels){
+			if (ref.startsWith(arg)) choices.add(ref);
+		}
+		aliasMap.fillInTabCompletions(arg, choices, contextLabels);
+		return sortedList(choices);
+	}
+
+	private List<String> sortedList(Set<String> choices) {
+		final List<String> out = new ArrayList<String>(choices);
+		if (!out.isEmpty()) Collections.sort(out);
+		return out;
 	}
 
 
