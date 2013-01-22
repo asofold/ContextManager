@@ -116,7 +116,15 @@ public class CMCore  implements Listener{
 		removeServiceHook(name);
 		registeredServiceHooks.put(name, hook);
 		for (String label : hook.getCommandLabels()){
-			serviceHookCommandMap.put(label.toLowerCase(), hook);
+			String lcLabel = label.toLowerCase();
+			serviceHookCommandMap.put(lcLabel, hook);
+			String[] aliases = hook.getCommandLabelAliases(label);
+			if (aliases != null){
+				for (String alias : aliases){
+					String lcAlias = alias.toLowerCase();
+					if (!serviceHookCommandMap.containsKey(lcAlias)) serviceHookCommandMap.put(lcAlias, hook);
+				}
+			}
 		}
 		Listener listener = hook.getListener();
 		if (listener != null) Bukkit.getPluginManager().registerEvents(listener, getPlugin()); 
@@ -129,10 +137,15 @@ public class CMCore  implements Listener{
 		ServiceHook hook = registeredServiceHooks.remove(name);
 		// also remove command mappings:
 		List<String> rem = new LinkedList<String>();
-		for (String cmd : hook.getCommandLabels()){
-			String key = cmd.toLowerCase();
-			ServiceHook ref = serviceHookCommandMap.get(key);
-			if (hook == ref) rem.add(key);
+		for (String label : hook.getCommandLabels()){
+			String lcLabel = label.toLowerCase();
+			ServiceHook ref = serviceHookCommandMap.get(lcLabel);
+			if (hook == ref) rem.add(lcLabel);
+			for (String alias : hook.getCommandLabelAliases(label)){
+				String lcAlias = alias.toLowerCase();
+				ref = serviceHookCommandMap.get(lcAlias);
+				if (hook == ref) rem.add(lcLabel);
+			}
 		}
 		for (String key : rem){
 			serviceHookCommandMap.remove(key);

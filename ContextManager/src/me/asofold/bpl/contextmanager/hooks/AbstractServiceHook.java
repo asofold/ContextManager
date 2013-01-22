@@ -10,19 +10,13 @@ import org.bukkit.plugin.Plugin;
  *
  */
 public abstract class AbstractServiceHook implements ServiceHook {
-	
-	// Override:
-
-	@Override
-	public abstract String getHookName();
-
-	@Override
-	public abstract String[] getCommandLabels();
-	
-	@Override
-	public abstract void onCommand(CommandSender sender, String label, String[] args);
 
 	// NO-OPs:
+	
+	@Override
+	public String[] getCommandLabelAliases(String label){
+		return null;
+	}
 
 	@Override
 	public Listener getListener() {

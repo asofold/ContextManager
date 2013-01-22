@@ -57,7 +57,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		if (Bukkit.getPluginManager().getPlugin("ChestShop") == null) throw new RuntimeException("ChestShop");
 	}
 	
-	private final static String[] labels = new String[]{"shop" , "shops", "chestshop", "chestshops"};
+	private final static String[] labels = new String[]{"chestshop"};
 	
 	// TODO: filter by another region, if desired.
 	
@@ -426,6 +426,14 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	@Override
 	public String[] getCommandLabels() {
 		return labels;
+	}
+
+	@Override
+	public String[] getCommandLabelAliases(String label) {
+		if (label.equals("chestshop")){
+			return new String[]{"chestshops", "shop" , "shops"};
+		}
+		else return null;
 	}
 
 	@Override

@@ -13,11 +13,18 @@ public interface ServiceHook {
 	public String getHookName();
 	
 	/**
-	 * Sub-command labels.
+	 * Sub-command labels. These should be unique, return aliases in getCommandLabelAliases.
 	 * for "/cx <label> ..."
 	 * @return
 	 */
 	public String[] getCommandLabels();
+	
+	/**
+	 * Aliases for the labels returned by getCommandLabels. Only those not yet used will be registered.
+	 * @param label
+	 * @return Can be null or empty for "no aliases".
+	 */
+	public String[] getCommandLabelAliases(String label);
 	
 	/**
 	 * Execute a command, delegated by ContextManager - args will not contain label.

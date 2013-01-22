@@ -46,7 +46,13 @@ public class RegionsHook extends AbstractServiceHook {
 
 	@Override
 	public String[] getCommandLabels() {
-		return new String[]{"region", "regions"};
+		return new String[]{"region"};
+	}
+
+	@Override
+	public String[] getCommandLabelAliases(String label) {
+		if (label.equals("region")) return new String[]{"regions", "plot", "plots"};
+		else return null;
 	}
 
 	@Override
