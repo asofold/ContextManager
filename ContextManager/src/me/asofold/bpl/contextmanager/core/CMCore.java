@@ -2,6 +2,7 @@ package me.asofold.bpl.contextmanager.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -702,6 +703,35 @@ public class CMCore  implements Listener{
 		addToHistory(new HistoryElement(type, playerName, null, sendMsg, true));
 	}
 
-
+	/**
+	 * Best effort for the moment.
+	 * @param arg lower case !
+	 * @param choices
+	 */
+	public void fillInServiceHookCommandTabCompletion(String arg, Collection<String> choices){
+		for (String alias : serviceHookCommandMap.keySet()){
+			if (alias.startsWith(arg)){
+				ServiceHook hook = serviceHookCommandMap.get(alias);
+				for (String label : hook.getCommandLabels()){
+					if (label.equalsIgnoreCase(alias)){
+						choices.add(label);
+						break;
+					}
+					else{
+						// Check aliases...
+						String[] aliases = hook.getCommandLabelAliases(label);
+						if (aliases != null){
+							for (String ref : aliases){
+								if (ref.equalsIgnoreCase(alias)){
+									choices.add(label);
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
 }

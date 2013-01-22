@@ -355,5 +355,3 @@ consider: party chat : replace party chat (!).
 *** Tab completion ...
 
 ?Add tab completion for service hook sub commands.
-
-!Add tab completion for service hook root-command labels (only complete root labels!).

@@ -81,8 +81,6 @@ public class CMCommand implements TabExecutor {
 			// SERVICES
 			"services",
 			"find",
-			// TODO: HACKY
-			"shop", "item", "region"
 	}));
 	
 	private static String[] clearChoices = new String[]{
@@ -494,6 +492,7 @@ public class CMCommand implements TabExecutor {
 			if (ref.startsWith(arg)) choices.add(ref);
 		}
 		aliasMap.fillInTabCompletions(arg, choices, contextLabels);
+		core.fillInServiceHookCommandTabCompletion(arg, choices);
 		return sortedList(choices);
 	}
 
