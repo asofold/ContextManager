@@ -57,7 +57,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		if (Bukkit.getPluginManager().getPlugin("ChestShop") == null) throw new RuntimeException("ChestShop");
 	}
 	
-	private final static String[] labels = new String[]{"shop", "shops"};
+	private final static String[] labels = new String[]{"shop" , "shops", "chestshop", "chestshops"};
 	
 	// TODO: filter by another region, if desired.
 	

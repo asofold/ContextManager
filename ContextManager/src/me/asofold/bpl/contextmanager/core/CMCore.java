@@ -349,6 +349,10 @@ public class CMCore  implements Listener{
 		return settings.channels.getAvailableChannel(name);
 	}
 	
+	public String[] getChannelNames(){
+		return settings.channels.getChannelNames();
+	}
+	
 	// LISTENER STUFF -------------------------------------------------------------
 	
 	@EventHandler(priority=EventPriority.HIGHEST)

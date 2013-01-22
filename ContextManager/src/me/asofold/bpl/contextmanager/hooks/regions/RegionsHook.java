@@ -46,7 +46,7 @@ public class RegionsHook extends AbstractServiceHook {
 
 	@Override
 	public String[] getCommandLabels() {
-		return new String[]{"regions", "rgs"};
+		return new String[]{"region", "regions"};
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public class RegionsHook extends AbstractServiceHook {
 	}
 
 	boolean sendUsage(CommandSender sender){
-		sender.sendMessage(ChatColor.RED+"Only players: /cx regions find <region> | /cx find <region>");
+		sender.sendMessage(ChatColor.RED+"Only players: /cx region find <region> | /cx find <region>");
 		return false;
 	}
 

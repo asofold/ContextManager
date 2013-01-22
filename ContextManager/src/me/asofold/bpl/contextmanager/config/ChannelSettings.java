@@ -39,6 +39,9 @@ public class ChannelSettings {
 	
 	String[] channelsString = new String[]{ChatColor.YELLOW + "[ContextManager] Available channels: ", ChatColor.GRAY+"(0)" + ChatColor.YELLOW + getDefaultChannelDisplayName()};
 
+	/** This is meant for tab-completion rather. */
+	private String[] channelNames = new String[]{getDefaultChannelDisplayName()};
+	
 	public ChannelSettings(){
 		channelsOrdered.add(getDefaultChannelName());
 	}
@@ -56,16 +59,19 @@ public class ChannelSettings {
 		// TODO: generate on load settings.
 		
 		Map<String, Integer> userCount = getChannelUserCount(core);
-		
-		String[] out = new String[channelsOrdered.size()+1];
+		String[] channelNames = new String[channelsOrdered.size()];
+		String[] out = new String[channelsOrdered.size() + 1];
+		channelNames[0] = getDefaultChannelDisplayName();
 		out[0] = ChatColor.YELLOW + "[ContextManager" +
 				"] Available channels: ";
 		out[1] = getChannelListEntry(0, getDefaultChannelDisplayName(), userCount.get(ChannelSettings.getDefaultChannelName()));
-		for (int i = 1; i< channelsOrdered.size(); i++){
+		for (int i = 1; i < channelsOrdered.size(); i++){
 			String ch = channelsOrdered.get(i);
 			out[i+1] = getChannelListEntry(i, ch, userCount.get(ch));
+			channelNames[i] = ch;
 		}
 		channelsString =  out;
+		this.channelNames = channelNames;
 	}
 	
 	public  Map<String, Integer> getChannelUserCount(CMCore core) {
@@ -140,5 +146,13 @@ public class ChannelSettings {
 
 	public static void setDefaultChannelName(String defaultChannelName) {
 		ChannelSettings.defaultChannelName = defaultChannelName;
+	}
+
+	/**
+	 * This is meant for tab-completion rather.
+	 * @return
+	 */
+	public String[] getChannelNames() {
+		return channelNames;
 	}
 }

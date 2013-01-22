@@ -51,7 +51,7 @@ public class CMCommand implements TabExecutor {
 		{"history", "hist", "h"},
 		{"default", "def"},
 		{"greedy", "greed", "gre"},
-		{"services", "service", "serv", "ser"},
+		{"services", "service", "serv", "ser", "hook", "hooks"},
 		{"find" , "fin", "fi", "f"},
 		{"cxfind", "cxfin", "cxfi", "cxf"},
 		{"tellplayer", "tellp", "tell"},
@@ -81,8 +81,8 @@ public class CMCommand implements TabExecutor {
 			// SERVICES
 			"services",
 			"find",
-			// HACKY:
-			"shop", "region"
+			// TODO: HACKY
+			"shop", "item", "region"
 	}));
 	
 	private static String[] clearChoices = new String[]{
@@ -440,8 +440,14 @@ public class CMCommand implements TabExecutor {
 			String label, String[] args) {
 		if (command.getLabel().equalsIgnoreCase("context")){
 			String arg = args.length == 0 ? "" : aliasMap.getMappedCommandLabel(args[0].trim());
-			if ((args.length == 1 || args.length == 2) && arg.equalsIgnoreCase("reset")){
-				return tabCompleteContextReset((Player) sender, args);
+			if ((args.length == 1 || args.length == 2)){
+				if (arg.equalsIgnoreCase("reset")) return tabCompleteContextReset((Player) sender, args);
+				else if (arg.equalsIgnoreCase("greedy")) return tabCompleteContextGreedy((Player) sender, args);
+				else if (arg.equalsIgnoreCase("channel")) return tabCompleteContextChannel((Player) sender, args);
+				else if (arg.matches("shop|item|region")){
+					// TODO: HACKY
+					return new LinkedList<String>();
+				}
 			}
 			if (args.length <= 1 && (sender instanceof Player)){
 				return tabCompleteContextCommand((Player) sender, args);
@@ -451,7 +457,28 @@ public class CMCommand implements TabExecutor {
 		return null;
 	}
 
-	private List<String> tabCompleteContextReset(Player sender, String[] args) {
+	private List<String> tabCompleteContextChannel(Player sender, String[] args)
+	{
+		String arg = args.length == 1 ? "" : args[1].trim().toLowerCase();
+		final String[] channels = core.getChannelNames();
+		final List<String> out = new ArrayList<String>(channels.length);
+		for (int i = 0; i < channels.length; i++){
+			if (channels[i].trim().toLowerCase().startsWith(arg)) out.add(channels[i]);
+		}
+		return out;
+	}
+
+	private List<String> tabCompleteContextGreedy(Player player, String[] args)
+	{
+		String arg = args.length == 1 ? "" : args[1].trim().toLowerCase();
+		final Set<String> choices = new LinkedHashSet<String>(10);
+		for (final ContextType type : new ContextType[]{ContextType.CHANNEL, ContextType.PRIVATE}){
+			if (type.name().toLowerCase().startsWith(arg) && Utils.hasPermission(player, "contextmanager.greedy."+type.toString().toLowerCase())) choices.add(type.name());
+		}
+		return sortedList(choices);
+	}
+
+	private List<String> tabCompleteContextReset(Player player, String[] args) {
 		String arg = args.length == 1 ? "" : args[1].trim().toLowerCase();
 		final Set<String> choices = new LinkedHashSet<String>(10);
 		for (final String ref : clearChoices){
