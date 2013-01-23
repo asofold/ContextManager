@@ -524,7 +524,7 @@ public class CMCore  implements Listener{
 	public boolean checkServiceHookCommand(CommandSender sender, String[] args){
 		if (args.length == 0) return false;
 		final String lcLabel = args[0].toLowerCase();
-		ServiceHook hook = serviceHookCommandMap.get(lcLabel);
+		final ServiceHook hook = serviceHookCommandMap.get(lcLabel);
 		if (hook == null) return false;
 		String[] newArgs = new String[args.length -1];
 		for (int i = 1; i<args.length; i++){
@@ -537,6 +537,30 @@ public class CMCore  implements Listener{
 			t.printStackTrace(); // TODO log on warning
 		}
 		return true;
+	}
+	
+	/**
+	 * Tab completion by service hooks (delegation only).
+	 * @param sender
+	 * @param args
+	 * @return
+	 */
+	public List<String> tabCompleteServiceHookCommand(CommandSender sender, String[] args){
+		if (args.length <= 1) return null;
+		final String lcLabel = args[0].toLowerCase();
+		final ServiceHook hook = serviceHookCommandMap.get(lcLabel);
+		if (hook == null) return null;
+		String[] newArgs = new String[args.length -1];
+		for (int i = 1; i<args.length; i++){
+			newArgs[i-1] = args[i];
+		}
+		try{
+			return hook.onTabComplete(sender, lcLabel, newArgs);
+		} catch (Throwable t){
+			Bukkit.getLogger().warning("[ContextManager] Hook failed on tab-completion for command '"+lcLabel+"':");
+			t.printStackTrace(); // TODO log on warning
+		}
+		return null;
 	}
 
 	public void onEnable(ContextManager plugin) {
@@ -708,7 +732,7 @@ public class CMCore  implements Listener{
 	 * @param arg lower case !
 	 * @param choices
 	 */
-	public void fillInServiceHookCommandTabCompletion(String arg, Collection<String> choices){
+	public void fillInServiceHookCommandLabelTabCompletion(String arg, Collection<String> choices){
 		for (String alias : serviceHookCommandMap.keySet()){
 			if (alias.startsWith(arg)){
 				ServiceHook hook = serviceHookCommandMap.get(alias);

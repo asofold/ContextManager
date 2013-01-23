@@ -1,5 +1,7 @@
 package me.asofold.bpl.contextmanager.hooks;
 
+import java.util.List;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -37,6 +39,12 @@ public abstract class AbstractServiceHook implements ServiceHook {
 
 	@Override
 	public void onDisable() {
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, String label, String[] args)
+	{
+		return null;
 	}
 
 	@Override

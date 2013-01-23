@@ -1,5 +1,7 @@
 package me.asofold.bpl.contextmanager.hooks;
 
+import java.util.List;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -33,6 +35,14 @@ public interface ServiceHook {
 	 * @param args
 	 */
 	public void onCommand(CommandSender sender, String label, String[] args);
+	
+	/**
+	 * Tab completion, delegated by ContextManager - args will not contain label.
+	 * @param sender
+	 * @param label
+	 * @param args
+	 */
+	public List<String> onTabComplete(CommandSender sender, String label, String[] args);
 	
 	/**
 	 * Listener to be registered with ContextManager as plugin.

@@ -444,10 +444,13 @@ public class CMCommand implements TabExecutor {
 				else if (mappedArg.equalsIgnoreCase("greedy")) return tabCompleteContextGreedy((Player) sender, args);
 				else if (mappedArg.equalsIgnoreCase("channel")) return tabCompleteContextChannel((Player) sender, args);
 			}
-			if (args.length <= 1 && (sender instanceof Player)){
-				return tabCompleteContextCommand((Player) sender, args);
+			if (args.length <= 1){
+				return tabCompleteContextCommand(sender, args);
 			}
-			
+			if (args.length > 1){
+				// Finally check services.
+				return core.tabCompleteServiceHookCommand(sender, args);
+			}
 		}
 		return null;
 	}
@@ -482,14 +485,14 @@ public class CMCommand implements TabExecutor {
 		return sortedList(choices);
 	}
 
-	private List<String> tabCompleteContextCommand(Player sender, String[] args) {
+	private List<String> tabCompleteContextCommand(CommandSender sender, String[] args) {
 		String arg = args.length == 0 ? "" : args[0].trim().toLowerCase();
 		final Set<String> choices = new LinkedHashSet<String>(10);
 		for (final String ref : contextLabels){
 			if (ref.startsWith(arg)) choices.add(ref);
 		}
 		aliasMap.fillInTabCompletions(arg, choices, contextLabels);
-		core.fillInServiceHookCommandTabCompletion(arg, choices);
+		core.fillInServiceHookCommandLabelTabCompletion(arg, choices);
 		return sortedList(choices);
 	}
 
