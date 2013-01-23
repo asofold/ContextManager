@@ -346,12 +346,10 @@ consider: party chat : replace party chat (!).
 ? add stats especially for async chat, but maybe for commands too?
 ? add greedy Party ?
 
-!add ranged mode (how ? rec + send?)
+!add ranged mode (how ? rec + send?) <- per channel + channel availability settings (worlds etc., needs config change, needs concept for auto changing the channel)
 
 !configurable messages: "You are talking to yourself!" <- DOCUMETN IN LISTS !
 
 !add perm for short term muting
 
-*** Tab completion ...
 
-?Add tab completion for service hook sub commands.

@@ -36,14 +36,14 @@ public class AliasMap {
 	/**
 	 * 
 	 * @param arg Must be lower case
-	 * @param completions Result 
-	 * @param filter Only these can be added.
+	 * @param choices Result 
+	 * @param filter Only these can be added, unless null.
 	 */
-	public void fillInTabCompletions(final String arg, final Collection<String> completions, final Set<String> filter){
+	public void fillInTabCompletions(final String arg, final Collection<String> choices, final Set<String> filter){
 		for (final String alias : commandAliases.keySet()){
 			if (alias.startsWith(arg)){
 				final String x = commandAliases.get(alias);
-				if (filter.contains(x)) completions.add(x);
+				if (filter == null || filter.contains(x)) choices.add(x);
 			}
 		}
 	}

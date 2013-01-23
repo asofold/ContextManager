@@ -2,7 +2,6 @@ package me.asofold.bpl.contextmanager.command;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -473,7 +472,7 @@ public class CMCommand implements TabExecutor {
 		for (final ContextType type : new ContextType[]{ContextType.CHANNEL, ContextType.PRIVATE}){
 			if (type.name().toLowerCase().startsWith(arg) && Utils.hasPermission(player, "contextmanager.greedy."+type.toString().toLowerCase())) choices.add(type.name());
 		}
-		return sortedList(choices);
+		return Utils.sortedList(choices);
 	}
 
 	private List<String> tabCompleteContextReset(Player player, String[] args) {
@@ -482,7 +481,7 @@ public class CMCommand implements TabExecutor {
 		for (final String ref : clearChoices){
 			if (ref.startsWith(arg)) choices.add(ref);
 		}
-		return sortedList(choices);
+		return Utils.sortedList(choices);
 	}
 
 	private List<String> tabCompleteContextCommand(CommandSender sender, String[] args) {
@@ -493,13 +492,7 @@ public class CMCommand implements TabExecutor {
 		}
 		aliasMap.fillInTabCompletions(arg, choices, contextLabels);
 		core.fillInServiceHookCommandLabelTabCompletion(arg, choices);
-		return sortedList(choices);
-	}
-
-	private List<String> sortedList(Set<String> choices) {
-		final List<String> out = new ArrayList<String>(choices);
-		if (!out.isEmpty()) Collections.sort(out);
-		return out;
+		return Utils.sortedList(choices);
 	}
 
 

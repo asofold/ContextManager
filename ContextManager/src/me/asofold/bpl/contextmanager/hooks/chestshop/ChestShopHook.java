@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -508,6 +509,43 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		// TODO: list
 	}
 	
+	
+	
+	@Override
+	public List<String> onTabComplete(CommandSender sender, String label, String[] args)
+	{
+		final Set<String> choices = new LinkedHashSet<String>(); // TODO
+		if (args.length == 1){
+			String arg = args[0].trim().toLowerCase();
+			if (me.asofold.bpl.contextmanager.util.Utils.hasPermission(sender, "contextmanager.admin.cmd.reload")){
+				if ("reload".startsWith(arg)) choices.add("reload");
+				if ("clear".startsWith(arg)) choices.add("clear");
+			}
+			if (me.asofold.bpl.contextmanager.util.Utils.hasPermission(sender, "contextmanager.admin.cmd.save")){
+				if ("save".startsWith(arg)) choices.add("save");
+			}
+			aliasMap.fillInTabCompletions(arg, choices, null);
+		}
+		else if (args.length == 2){
+			String cmd = args[0].trim().toLowerCase();
+			String arg = args[1].trim().toLowerCase();
+			if (me.asofold.bpl.contextmanager.util.Utils.hasPermission(sender, "contextmanager.admin.cmd.reload")){
+				if (cmd.equals("reload")){
+					for (String ref : new String[]{
+							"all", "data", "settings",
+					}){
+						if (ref.startsWith(arg)) choices.add(ref);
+					}
+					if ("configuration".startsWith(arg)) choices.add("settings");
+				}
+				else if (cmd.equals("clear") && "data".startsWith(arg)){
+					choices.add("data");
+				}
+			}
+		}
+		return me.asofold.bpl.contextmanager.util.Utils.sortedList(choices); // No completion for names.
+	}
+
 	@Override
 	public boolean delegateFind(CommandSender sender, String[] args) {
 		String world = null;
