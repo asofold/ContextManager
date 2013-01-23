@@ -437,15 +437,12 @@ public class CMCommand implements TabExecutor {
 	public List<String> onTabComplete(CommandSender sender, Command command,
 			String label, String[] args) {
 		if (command.getLabel().equalsIgnoreCase("context")){
-			String arg = args.length == 0 ? "" : aliasMap.getMappedCommandLabel(args[0].trim());
-			if ((args.length == 1 || args.length == 2)){
-				if (arg.equalsIgnoreCase("reset")) return tabCompleteContextReset((Player) sender, args);
-				else if (arg.equalsIgnoreCase("greedy")) return tabCompleteContextGreedy((Player) sender, args);
-				else if (arg.equalsIgnoreCase("channel")) return tabCompleteContextChannel((Player) sender, args);
-				else if (arg.matches("shop|item|region")){
-					// TODO: HACKY
-					return new LinkedList<String>();
-				}
+			String mappedArg = args.length == 0 ? "" : aliasMap.getMappedCommandLabel(args[0].trim());
+			if (args.length == 2){
+				System.out.println(args.length);
+				if (mappedArg.equalsIgnoreCase("reset")) return tabCompleteContextReset((Player) sender, args);
+				else if (mappedArg.equalsIgnoreCase("greedy")) return tabCompleteContextGreedy((Player) sender, args);
+				else if (mappedArg.equalsIgnoreCase("channel")) return tabCompleteContextChannel((Player) sender, args);
 			}
 			if (args.length <= 1 && (sender instanceof Player)){
 				return tabCompleteContextCommand((Player) sender, args);
