@@ -244,9 +244,8 @@ public class CMCore  implements Listener{
 	public boolean isPartyChat(Player player){
 		try{
 			// TODO:
-			com.gmail.nossr50.datatypes.PlayerProfile pp = com.gmail.nossr50.util.Users.getProfile(player);
-			return pp.getPartyChatMode() && pp.getParty() != null;
-//			return com.gmail.nossr50.mcMMO.p.getPlayerProfile(player).getPartyChatMode();
+			com.gmail.nossr50.datatypes.McMMOPlayer mp = com.gmail.nossr50.util.Users.getPlayer(player.getName());
+			return mp.inParty() && mp.getPartyChatMode();
 		}
 		catch (Throwable t){
 		}
