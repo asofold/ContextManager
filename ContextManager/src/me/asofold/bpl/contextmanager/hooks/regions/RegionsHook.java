@@ -27,11 +27,12 @@ public class RegionsHook extends AbstractServiceHook {
 	private static BlockFace zNegFace;
 	
 	static{
+		// NOTE: This is "reversed", either due to bugs below, or because you have to walk north to undo "south-diff".
 		for (final BlockFace face : horizontalFaces){
-			if (face.getModX() > 0) xPosFace = face;
-			else if (face.getModX() < 0) xNegFace = face;
-			if (face.getModZ() > 0) zPosFace = face;
-			else if (face.getModZ() < 0) zNegFace = face;
+			if (face.getModX() < 0) xPosFace = face;
+			else if (face.getModX() > 0) xNegFace = face;
+			if (face.getModZ() < 0) zPosFace = face;
+			else if (face.getModZ() > 0) zNegFace = face;
 		}
 	}
 	
