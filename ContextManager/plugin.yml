@@ -1,6 +1,6 @@
 name: ContextManager
 main: me.asofold.bpl.contextmanager.ContextManager
-version: 2.3.3
+version: 2.3.4
 depend:
 - PermissionsEx
 softdepend:
