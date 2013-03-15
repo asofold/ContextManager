@@ -621,7 +621,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		}
 	}
 
-	private final String getItemsStr(final String world, final String rid, String prefix) {
+	private final String getItemsStr(final String world, final String rid, final String prefix) {
 		// TODO: use digested versions and save them somewhere with timestamps !
 		final RegionSpec rSpec = getRegionSpec(world.toLowerCase(), rid.toLowerCase(), false);
 		if (rSpec == null) return null;

@@ -79,7 +79,7 @@ public class RegionSpec {
 		final List<String> itemStrings = getItemStrings(specs); 
 		for (int i = 0 ; i < itemStrings.size(); i++){
 			final String ref = itemStrings.get(i);
-			if (ref.toLowerCase().startsWith(prefix)) out.add(ref);
+			if (ChatColor.stripColor(ref.toLowerCase()).startsWith(prefix)) out.add(ref);
 		}
 		if (out.isEmpty()) return null;
 		else return Utils.join(out, ChatColor.DARK_GRAY + " | ");
