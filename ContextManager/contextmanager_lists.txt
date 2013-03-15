@@ -353,3 +353,7 @@ consider: party chat : replace party chat (!).
 !add perm for short term muting
 
 
+!? party chat (mcmmo) does not get logged.
+
+
+! Add prefix option for cx shop

@@ -21,7 +21,7 @@ public class RegionSpec {
 	
 	final Set<FBlockPos> shops = new HashSet<FBlockPos>();
 	
-	private String itemString = "<not available>";
+	private final List<String> itemStrings = new ArrayList<String>(20);
 	
 	long tsSetItemString = 0;
 	
@@ -29,6 +29,7 @@ public class RegionSpec {
 		this.worldName = worldName;
 		this.regionName = regionName;
 		hash = worldName.hashCode() ^ regionName.hashCode();
+		itemStrings.add("<not available>");
 	}
 	
 	@Override
@@ -43,21 +44,45 @@ public class RegionSpec {
 		return regionName.equals(other.regionName) && worldName.equals(other.worldName);
 	}
 	
-	public String getItemString(Map<FBlockPos, ShopSpec> specs){
+	public List<String> getItemStrings(final Map<FBlockPos, ShopSpec> specs){
 		if (System.currentTimeMillis() - tsSetItemString >10000) setItemString(specs);
-		return itemString;
+		return itemStrings;
+	}
+	
+	public String getFullItemString(final Map<FBlockPos, ShopSpec> specs){
+		return Utils.join(getItemStrings(specs), ChatColor.DARK_GRAY + " | ");
 	}
 
 	private final void setItemString(final Map<FBlockPos, ShopSpec> specs) {
 		tsSetItemString = System.currentTimeMillis();
-		final List<String> items = new ArrayList<String>(20);
+		itemStrings.clear();
 		for (final FBlockPos pos : shops){
 			final ShopSpec spec = specs.get(pos);
 			if (spec == null) continue; // overly ...
-			items.add(spec.toString());
+			itemStrings.add(spec.toString());
 		}
-		Collections.sort(items);
-		itemString = Utils.join(items, ChatColor.DARK_GRAY + " | ");
+		Collections.sort(itemStrings, String.CASE_INSENSITIVE_ORDER);
+//		itemString = Utils.join(items, ChatColor.DARK_GRAY + " | ");
+	}
+
+	/**
+	 * 
+	 * @param blockMap
+	 * @param prefix Must have: trim/lower-case.
+	 * @return
+	 */
+	public String getItemStrings(Map<FBlockPos, ShopSpec> specs, String prefix)
+	{
+		if (itemStrings.isEmpty()) return null;
+		if (prefix == null || prefix.isEmpty()) return getFullItemString(specs);
+		final List<String> out = new ArrayList<String>(itemStrings.size());
+		final List<String> itemStrings = getItemStrings(specs); 
+		for (int i = 0 ; i < itemStrings.size(); i++){
+			final String ref = itemStrings.get(i);
+			if (ref.toLowerCase().startsWith(prefix)) out.add(ref);
+		}
+		if (out.isEmpty()) return null;
+		else return Utils.join(out, ChatColor.DARK_GRAY + " | ");
 	}
 	
 }

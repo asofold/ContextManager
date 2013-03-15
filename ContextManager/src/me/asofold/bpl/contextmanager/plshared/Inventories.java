@@ -327,7 +327,7 @@ public class Inventories {
 				
 				ItemStack stack; 
 				if ( isBlock){
-					stack = new ItemStack(mId, max, (short) 0, (byte) dv);
+					stack = new ItemStack(mId, max, (short) dv);
 				} else{
 					stack = new ItemStack(mId, max);
 					stack.setDurability((short) dv);

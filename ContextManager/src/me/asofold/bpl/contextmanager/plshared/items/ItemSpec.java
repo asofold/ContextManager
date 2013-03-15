@@ -70,11 +70,11 @@ public class ItemSpec {
 		if (amount <= 0 ) amount = 1; // TODO
 		Material mat = Material.getMaterial(id);
 		if ( mat == null ) return null;
-		if ( mat.isBlock()) new ItemStack(id, amount, (short) 0, (byte)data );
-		ItemStack out = new ItemStack(id,amount);
-		// TODO: maybe consider maxDurability ( mitght be done in matchItem though).
-		out.setDurability((short) data);
-		return out;
+		return new ItemStack(id, amount, (byte) data );
+//		ItemStack out = new ItemStack(id, amount);
+//		// TODO: maybe consider maxDurability ( mitght be done in matchItem though).
+//		out.setDurability((short) data);
+//		return out;
 	}
 	
 	@Override

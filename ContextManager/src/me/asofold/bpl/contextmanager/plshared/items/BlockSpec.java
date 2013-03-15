@@ -77,7 +77,7 @@ public class BlockSpec {
 	}
 	public ItemStack getItem(int amount){
 		if (amount <= 0 ) amount = 1; // TODO
-		return new ItemStack(id,amount, (short) 0, data );
+		return new ItemStack(id, amount, (short) data );
 	}
 	
 	@Override

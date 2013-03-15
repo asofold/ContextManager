@@ -488,22 +488,35 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			return;
 		}
 		else if (len == 2 && cmd.equals("find")){
-			onFindOrList(sender, null, args[1]);
+			onFindOrList(sender, null, args[1], null);
 			return;
 		}
 		else if (len == 3 && cmd.equals("find")){
-			onFindOrList(sender, args[1], args[2]);
+			onFindOrList(sender, null, args[1], args[2]);
 			return;
 		}
-		else if (len == 2 && (cmd.equals("list") || cmd.equals("info"))) onListOrFind(sender, null, args[1]);
-		else if (len == 3 && (cmd.equals("list") || cmd.equals("info"))) onListOrFind(sender, args[1], args[2]);
+		else if (len == 3 && cmd.equals("find")){
+			onFindOrList(sender, args[1], args[2], null);
+			return;
+		}
+		else if (len == 4 && cmd.equals("find")){
+			onFindOrList(sender, args[1], args[2], args[3]);
+			return;
+		}
+		else if (len == 2 && (cmd.equals("list") || cmd.equals("info"))) onListOrFind(sender, null, args[1], null);
+		else if (len == 3 && (cmd.equals("list") || cmd.equals("info"))) onListOrFind(sender, args[1], args[2], null);
+		else if (len == 4 && (cmd.equals("list") || cmd.equals("info"))) onListOrFind(sender, args[1], args[2], args[3]);
 		else if (len == 1){
 			// remaining commands:
-			onListOrFind(sender, null, args[0]); 
+			onListOrFind(sender, null, args[0], null); 
 		}
 		else if (len == 2){
 			// remaining commands:
-			onListOrFind(sender, args[0], args[1]);
+			onListOrFind(sender, args[0], args[1], null);
+		}
+		else if (len == 3){
+			// remaining commands:
+			onListOrFind(sender, args[0], args[1], args[2]);
 		}
 		else sendUsage(sender); // hmm
 		// TODO: list
@@ -550,47 +563,53 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 	public boolean delegateFind(CommandSender sender, String[] args) {
 		String world = null;
 		String query;
+		String prefix;
+		if (args.length == 4){
+			world = args[1];
+			query = args[2];
+			prefix = args[3];
+		}
 		if (args.length == 3){
 			world = args[1];
 			query = args[2];
+			prefix = null;
 		}
 		else if (args.length == 2){
 			if (sender instanceof Player) world = ((Player) sender).getWorld().getName();
 			query = args[1];
+			prefix = null;
 		}
 		else return false;
 		if (onFind(sender, world, query)) return true;
-		else if (onList(sender, world, query)) return true;
+		else if (onList(sender, world, query, prefix)) return true;
 		else return false;
 	}
 
-	private void onFindOrList(CommandSender sender, String world,
-			String input) {
+	private void onFindOrList(CommandSender sender, String world, String input, String prefix) {
 		if (onFind(sender, world, input)) return;
-		if (!onList(sender, world, input )) sender.sendMessage("[ShopService] No matches found.");
+		if (!onList(sender, world, input, prefix)) sender.sendMessage("[ShopService] No matches found.");
 	}
 
-	private void onListOrFind(CommandSender sender, String world,
-			String input) {
-		if (onList(sender, world, input)) return;
-		if (!onFind(sender, world, input )) sender.sendMessage("[ShopService] No matches found.");
+	private void onListOrFind(CommandSender sender, String world, String input, String prefix) {
+		if (onList(sender, world, input, prefix)) return;
+		if (!onFind(sender, world, input)) sender.sendMessage("[ShopService] No matches found.");
  	}
 
 	private void sendUsage(CommandSender sender) {
 		sender.sendMessage("[ShopService] Options  (/cx shop ...): info | find <item> | find <region> | list <region> | list <world> <region> |");
 	}
 
-	private boolean onList(CommandSender sender, String world, String rid) {
+	private boolean onList(CommandSender sender, String world, String rid, String prefix) {
 		if ((sender instanceof Player) && world == null) world = ((Player)sender).getWorld().getName();
 		List<String> msgs = new LinkedList<String>();
 		if (world == null){
 			for (String worldName : regionMap.keySet()){
-				String msg = getItemsStr(worldName, rid);
+				String msg = getItemsStr(worldName, rid, prefix);
 				if (msg != null) msgs.add("("+worldName+"): "+msg);
 			}
 		}
 		else{
-			String msg = getItemsStr(world, rid);
+			String msg = getItemsStr(world, rid, prefix);
 			if (msg != null) msgs.add(msg);
 		}
 		
@@ -602,11 +621,11 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		}
 	}
 
-	private final String getItemsStr(final String world, final String rid) {
+	private final String getItemsStr(final String world, final String rid, String prefix) {
 		// TODO: use digested versions and save them somewhere with timestamps !
 		final RegionSpec rSpec = getRegionSpec(world.toLowerCase(), rid.toLowerCase(), false);
 		if (rSpec == null) return null;
-		return rSpec.getItemString(blockMap);
+		return rSpec.getItemStrings(blockMap, prefix == null ? null : prefix.trim().toLowerCase());
 	}
 
 	/**
@@ -895,8 +914,8 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		int d = cfg.getInt(keyBase+"d", 0);
 		final Material mat = Material.getMaterial(id);
 		final ItemStack stack;
-		if (mat.isBlock()) stack = new ItemStack(mat, 0, (short) 0, (byte) d);
-		else stack = new ItemStack(mat, 0, (short) d, (byte) 0);
+		if (mat.isBlock()) stack = new ItemStack(mat, 0, (short) d);
+		else stack = new ItemStack(mat, 0, (short) d);
 		checkAddShopSpec(pos, block, shopOwner, stack, amount, pb, ps);
 		// set timestamp if added: [WORKAROUND]
 		ShopSpec spec = blockMap.get(pos);
