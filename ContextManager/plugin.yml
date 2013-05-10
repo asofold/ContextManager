@@ -1,6 +1,6 @@
 name: ContextManager
 main: me.asofold.bpl.contextmanager.ContextManager
-version: 2.4.1
+version: 2.4.2
 depend:
 - PermissionsEx
 softdepend:
@@ -56,7 +56,8 @@ commands:
     usage: "tell <player> .... <message> ..."
     aliases:
     - tellp
-    - tell 
+    - tell
+    - msg
   tellall:
     description: "Global announcement."
     usage: "tella .... <message> ..."

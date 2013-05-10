@@ -357,3 +357,6 @@ consider: party chat : replace party chat (!).
 
 
 ! Add prefix option for cx shop
+
+
+! recode  shop hook info commands / data holding....

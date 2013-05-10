@@ -35,6 +35,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerChatTabCompleteEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
@@ -753,6 +754,29 @@ public class CMCore  implements Listener{
 				}
 			}
 		}
+	}
+	
+	/**
+	 * 
+	 * @param event
+	 */
+	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+	public void onPlayerChatTabComplete(final PlayerChatTabCompleteEvent event){
+		if (event.isAsynchronous()) return;
+		final String token = event.getLastToken().toLowerCase();
+		if (!token.startsWith("@")) return;
+		final Collection<String> completions = event.getTabCompletions();
+		if (!completions.isEmpty()) return;
+		// TODO: Might only complete first token ?
+		// TODO: Might check permission?
+		final List<String> choices = new LinkedList<String>();
+		final String sub = token.substring(1).toLowerCase();
+		for (final Player other : getPlugin().getServer().getOnlinePlayers()){
+			final String name = other.getName();
+			if (name.toLowerCase().startsWith(sub)) choices.add("@" + name);
+		}
+		Collections.sort(choices);
+		completions.addAll(choices);
 	}
 
 }
