@@ -360,3 +360,6 @@ consider: party chat : replace party chat (!).
 
 
 ! recode  shop hook info commands / data holding....
+
+
+-> add full text search for chat history + pages according to what is displayed + might set a browser for it (check permissions first then detach fully async setting?)

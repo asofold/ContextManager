@@ -3,3 +3,4 @@
 /.settings
 /jar_desc.jardesc
 /.gitignore
+*.class

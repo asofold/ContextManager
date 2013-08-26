@@ -344,4 +344,63 @@ public class Inventories {
 		return true;
 	}
 
+	
+	/**
+	 * Number of free slots over all inventories.
+	 * @param inventories
+	 * @return
+	 */
+	public static int freeSlots(List<Inventory> inventories) {
+		int count = 0;
+		for (final Inventory inv : inventories) {
+			count += freeSlots(inv).size();
+		}
+		return count;
+	}
+	
+	/**
+	 * Item count for the kind (id + durability).
+	 * @param inventories
+	 * @param ref
+	 * @return
+	 */
+	public static int countItems(List<Inventory> inventories, ItemStack ref) {
+		int count = 0;
+		int id = ref.getTypeId();
+		int durability = ref.getDurability();
+		for (final Inventory inv : inventories) {
+			for (ItemStack stack : inv.all(id).values()) {
+				if (stack.getDurability() == durability) {
+					count += stack.getAmount();
+				}
+			}
+		}
+		return count;
+	}
+
+	/**
+	 * Space for the kind of item (id + durability).
+	 * @param inventories
+	 * @param ref
+	 * @return
+	 */
+	public static int getSpace(List<Inventory> inventories, ItemStack ref) {
+		int maxStackSize = ref.getMaxStackSize();
+		int id = ref.getTypeId();
+		int durability = ref.getDurability();
+		int freeSlots = freeSlots(inventories);
+		int space = freeSlots * maxStackSize;
+		for (final Inventory inv : inventories) {
+			for (ItemStack stack : inv.all(id).values()) {
+				if (stack.getDurability() == durability) {
+					int has = maxStackSize - stack.getAmount();
+					if (has > 0) {
+						space += has;
+					}
+				}
+			}
+		}
+		return space;
+	}
+
 }

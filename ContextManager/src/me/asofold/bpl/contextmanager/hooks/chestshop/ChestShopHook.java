@@ -25,6 +25,7 @@ import me.asofold.bpl.contextmanager.plshared.blocks.FBlockPos;
 import me.asofold.bpl.contextmanager.plshared.items.ItemSpec;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -125,13 +126,45 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		return "ShopService(ChestShop3)";
 	}
 	
-	@EventHandler(priority = EventPriority.MONITOR)
+	public void tellStock(final Player player, final Block chestBlock, final Block signBlock) {
+		final Sign sign = (Sign) signBlock.getState();
+		final String[] lines = sign.getLines();
+		// TODO: pluginlib shops ...
+		if (!com.Acrobot.ChestShop.Signs.ChestShopSign.isValid(lines)) return;
+		final ItemStack stack = com.Acrobot.Breeze.Utils.MaterialUtil.getItem(lines[3]);
+		if (stack == null || stack.getType() == Material.AIR) return; 
+		final List<Inventory> inventories = Inventories.getChestInventories(chestBlock);
+		final String priceSpec = lines[2];
+		final double priceBuy = com.Acrobot.Breeze.Utils.PriceUtil.getBuyPrice(priceSpec);
+		String spec = "";
+		if (priceBuy >= 0.0) {
+			spec += "Items on stock: " + Inventories.countItems(inventories, stack) + " ";
+		}
+		final double priceSell= com.Acrobot.Breeze.Utils.PriceUtil.getSellPrice(priceSpec);
+		if (priceSell >= 0.0) {
+			spec += "Space for items: " + Inventories.getSpace(inventories, stack) + " ";
+		}
+		if (!spec.isEmpty()) {
+			player.sendMessage(ChatColor.AQUA + spec);
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
 	final void onPlayerInteract(final PlayerInteractEvent event){
 //		if (event.isCancelled()) return;
 		Action action = event.getAction();
-		if ( action!= Action.RIGHT_CLICK_BLOCK && action != Action.LEFT_CLICK_BLOCK) return; // [mind leftclick sell]
+		if (action!= Action.RIGHT_CLICK_BLOCK && action != Action.LEFT_CLICK_BLOCK) return; // [mind leftclick sell]
 		final Block block = event.getClickedBlock();
-		if (block == null || block.getType() != Material.WALL_SIGN) return;
+		if (block == null || block.getType() != Material.WALL_SIGN) {
+			if (block.getType() == Material.CHEST && event.isCancelled()) {
+				final Block above = block.getRelative(BlockFace.UP);
+				final Material mat = above.getType();
+				if (mat == Material.WALL_SIGN || mat == Material.SIGN_POST) {
+					tellStock(event.getPlayer(), block, above);
+				}
+			}
+			return;
+		}
 		// Check wall signs for ChestShop syntax:
 		final Sign sign = (Sign) block.getState();
 		final String[] lines = sign.getLines();
