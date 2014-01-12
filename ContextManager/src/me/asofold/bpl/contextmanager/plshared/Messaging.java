@@ -5,6 +5,9 @@ import java.util.Collection;
 import me.asofold.bpl.contextmanager.plshared.messaging.AddressingScheme;
 import me.asofold.bpl.contextmanager.plshared.messaging.AddressingSchemeImpl;
 import me.asofold.bpl.contextmanager.plshared.messaging.SendMessage;
+import me.asofold.bpl.contextmanager.plshared.messaging.json.IJsonMessageAPI;
+import me.asofold.bpl.contextmanager.plshared.messaging.json.JMessage;
+import me.asofold.bpl.contextmanager.plshared.messaging.json.JsonMessageFactory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -20,6 +23,15 @@ import org.bukkit.plugin.Plugin;
  *
  */
 public class Messaging {
+	
+	private static IJsonMessageAPI jImpl = null;
+	
+	/**
+	 * Run at enabling some plugin.
+	 */
+	public static void init() {
+		jImpl = new JsonMessageFactory().getNewAPI();
+	}
 	
 	public static  AddressingScheme getAddressingScheme(){
 		// TODO: take from internals
@@ -46,12 +58,10 @@ public class Messaging {
 	 * @param msgColor
 	 */
 	public static void sendMessage(CommandSender sender, String msg, ChatColor msgColor){
-		String prefix = 
-				"[pluginlib] ";
-		if ( sender instanceof Player){
-			sender.sendMessage(ChatColor.GRAY+prefix+msgColor+msg);
+		if (sender instanceof Player){
+			sender.sendMessage(ChatColor.GRAY.toString()+msgColor+msg);
 		} else{
-			sender.sendMessage(Messaging.removeChatColors(prefix + msg));
+			sender.sendMessage(Messaging.removeChatColors(msg));
 		}
 		
 	}
@@ -193,6 +203,68 @@ public class Messaging {
 		if (player == null || !player.isOnline()) return false;
 		player.sendMessage(message);
 		return true;
+	}
+	
+	/**
+	 * Json message (quick one).
+	 * @param sender
+	 * @param message
+	 * @param command
+	 */
+	public static void sendMessage(CommandSender sender, String message, String command) {
+		if (command == null) {
+			sendMessage(sender, message);
+		} else {
+			sendComplexMessage(sender, new JMessage(message, command, command));
+		}
+	}
+	
+	/**
+	 * Convenience method for json content (many parts).
+	 * @param sender
+	 * @param components String or Message.
+	 */
+	public static void sendComplexMessage(CommandSender sender, Object... components) {
+		sendMessage(sender, components);
+	}
+	
+	/**
+	 * Json message with many parts.
+	 * @param sender
+	 * @param components String or Message.
+	 */
+	public static void sendComplexMessage(CommandSender sender, Collection<Object> components) {
+		// TODO: Naming not optimal !?
+		final Object[] arr = new Object[components.size()];
+		components.toArray(arr);
+		sendMessage(sender, arr);
+	}
+	
+	/**
+	 * Json message with many parts.
+	 * @param sender
+	 * @param objects String or Message.
+	 */
+	public static void sendMessage(CommandSender sender, Object[] components) {
+		if (sender instanceof Player && jImpl != null) {
+			jImpl.sendMessage((Player) sender, components);
+		} else {
+			StringBuilder b = new StringBuilder(256);
+			for (Object obj : components) {
+				if (obj instanceof String) {
+					b.append((String) obj);
+				} else if (obj instanceof JMessage) {
+					b.append(((JMessage) obj).message);
+				}
+			}
+			String message = b.toString();
+			if (!message.isEmpty()) {
+				if (!(sender instanceof Player)) {
+					message = ChatColor.stripColor(message);
+				}
+				sender.sendMessage(message);
+			}
+		}
 	}
 	
 }
