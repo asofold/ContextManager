@@ -61,7 +61,8 @@ public class CMCommand implements TabExecutor {
 	private static final String[] allCommands = new String[]{
 		"cmreload",	"cmmute", "cmunmute", "mute", "unmute", "demute", "muted",
 		"context", "cxc", "cxch", "cxr", "cxrec", "cxign", "cxcl", "cxinf",
-		"cxfind", "cxfin", "cxfi", "cxf", "tellplayer", "tellall", "tellchannel",
+		"cxfind", "cxfin", "cxfi", "cxf", "find", "find-region", "find-item", 
+		"findregion", "finditem", "tellplayer", "tellall", "tellchannel",
 		// TODO: remove aliases form here, unless necessary.
 	};
 	
