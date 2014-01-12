@@ -135,8 +135,7 @@ public class RegionsHook extends AbstractServiceHook {
 		else if (dz < -rz) b.append((-dz-rz) + " " + capitalize(zPosFace) + " ");
 		if (dy > ry) b.append((dy-ry) + " Up");
 		else if (dy < -ry) b.append((-dy-ry) + " Down");
-		player.sendMessage(b.toString());
-		Messaging.sendComplexMessage(player, new JMessage(b.toString(), "/context region find " + rid, "Click to continue tracking " + rid + "!"));
+		Messaging.sendComplexMessage(player, new JMessage(b.toString(), "/context region find " + rid, "Click to continue tracking " + rid + " !"));
 	}
 	
 	public static String capitalize(Object o){
