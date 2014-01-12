@@ -20,9 +20,11 @@ import me.asofold.bpl.contextmanager.hooks.regions.RegionsHook;
 import me.asofold.bpl.contextmanager.plshared.Blocks;
 import me.asofold.bpl.contextmanager.plshared.Inventories;
 import me.asofold.bpl.contextmanager.plshared.Logging;
+import me.asofold.bpl.contextmanager.plshared.Messaging;
 import me.asofold.bpl.contextmanager.plshared.Utils;
 import me.asofold.bpl.contextmanager.plshared.blocks.FBlockPos;
 import me.asofold.bpl.contextmanager.plshared.items.ItemSpec;
+import me.asofold.bpl.contextmanager.plshared.messaging.json.JMessage;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -717,15 +719,28 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 			}
 			sender.sendMessage("[ShopService] Shops with item type "+Material.getMaterial(spec.id).toString()+":");
 			// TODO: more sophisticated.
-			StringBuilder b = new StringBuilder();
-			b.append("Regions: ");
+			List<Object> components = new LinkedList<Object>();
+			components.add("Regions:");
+			Player player = null;
+			String playerWorld = null;
+			if (sender instanceof Player) {
+				player = (Player) sender;
+				playerWorld = player.getWorld().getName();
+			}
 			for (RegionSpec rSpec : specs ){
 				if (world != null && !rSpec.worldName.equals(world)) continue;
-				b.append(" ");
-				b.append(rSpec.regionName);
-				if (world == null) b.append("("+rSpec.worldName+")");
+				components.add(" ");
+				String rid;
+				if (world == null) rid = rSpec.regionName + "("+rSpec.worldName+")";
+				else rid = rSpec.regionName;
+				if (playerWorld != null && playerWorld.equalsIgnoreCase(rSpec.worldName)) {
+					// Player, the region can be found.
+					components.add(new JMessage(rid, "/context region find " + rSpec.regionName, "Click to find the region " + rSpec.regionName + " !"));
+				} else {
+					components.add(rid);
+				}
 			}	 
-			sender.sendMessage(b.toString());
+			Messaging.sendComplexMessage(sender, components);
 		}
 		return true;
 	}

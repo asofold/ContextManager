@@ -1,7 +1,9 @@
 package me.asofold.bpl.contextmanager.hooks.regions;
 
 import me.asofold.bpl.contextmanager.hooks.AbstractServiceHook;
+import me.asofold.bpl.contextmanager.plshared.Messaging;
 import me.asofold.bpl.contextmanager.plshared.Utils;
+import me.asofold.bpl.contextmanager.plshared.messaging.json.JMessage;
 import me.asofold.bpl.contextmanager.plshared.permissions.pex.PexUtil;
 
 import org.bukkit.Bukkit;
@@ -125,7 +127,8 @@ public class RegionsHook extends AbstractServiceHook {
 		int dy = cy - loc.getBlockY();
 		int dz = cz - loc.getBlockZ();
 		StringBuilder b = new StringBuilder();
-		b.append(ChatColor.DARK_GRAY+"[Regions] "+ChatColor.GREEN+region.getId()+ChatColor.GRAY+": "+ChatColor.AQUA);
+		final String rid = region.getId();
+		b.append(ChatColor.DARK_GRAY+"[Regions] "+ChatColor.GREEN+ rid +ChatColor.GRAY+": "+ChatColor.AQUA);
 		if (dx > rx) b.append((dx-rx) + " " + capitalize(xNegFace) + " ");
 		else if (dx < -rx) b.append((-dx-rx) +"  " + capitalize(xPosFace)  + " ");
 		if (dz > rz) b.append((dz-rz) + " " + capitalize(zNegFace) + " ");
@@ -133,6 +136,7 @@ public class RegionsHook extends AbstractServiceHook {
 		if (dy > ry) b.append((dy-ry) + " Up");
 		else if (dy < -ry) b.append((-dy-ry) + " Down");
 		player.sendMessage(b.toString());
+		Messaging.sendComplexMessage(player, new JMessage(b.toString(), "/context region find " + rid, "Click to continue tracking " + rid + "!"));
 	}
 	
 	public static String capitalize(Object o){
