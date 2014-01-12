@@ -52,7 +52,7 @@ public class CMCommand implements TabExecutor {
 		{"greedy", "greed", "gre"},
 		{"services", "service", "serv", "ser", "hook", "hooks"},
 		{"find" , "fin", "fi", "f"},
-		{"cxfind", "cxfin", "cxfi", "cxf"},
+		{"cxfind", "cxfin", "cxfi", "cxf", "find", "find-item", "find-region", "finditem", "findregion"},
 		{"tellplayer", "tellp", "tell", "msg"},
 		{"tellall", "tella"},
 		{"tellchannel", "tellchan", "tellch", "tellc"},
