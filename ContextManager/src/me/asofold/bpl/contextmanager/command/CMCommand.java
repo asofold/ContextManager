@@ -52,7 +52,7 @@ public class CMCommand implements TabExecutor {
 		{"greedy", "greed", "gre"},
 		{"services", "service", "serv", "ser", "hook", "hooks"},
 		{"find" , "fin", "fi", "f"},
-		{"cxfind", "cxfin", "cxfi", "cxf", "find", "find-item", "find-region", "finditem", "findregion"},
+		{"cxfind", "cxfin", "cxfi", "cxf"},
 		{"tellplayer", "tellp", "tell", "msg"},
 		{"tellall", "tella"},
 		{"tellchannel", "tellchan", "tellch", "tellc"},
@@ -61,8 +61,7 @@ public class CMCommand implements TabExecutor {
 	private static final String[] allCommands = new String[]{
 		"cmreload",	"cmmute", "cmunmute", "mute", "unmute", "demute", "muted",
 		"context", "cxc", "cxch", "cxr", "cxrec", "cxign", "cxcl", "cxinf",
-		"cxfind", "cxfin", "cxfi", "cxf", "find", "find-region", "find-item", 
-		"findregion", "finditem", "tellplayer", "tellall", "tellchannel",
+		"cxfind", "cxfin", "cxfi", "cxf", "tellplayer", "tellall", "tellchannel",
 		// TODO: remove aliases form here, unless necessary.
 	};
 	
@@ -105,6 +104,7 @@ public class CMCommand implements TabExecutor {
 	public boolean onCommand(CommandSender sender, Command command,
 			String label, String[] args) {
 		core.lightChecks();
+		if (command != null) label = command.getLabel();
 		label = aliasMap.getMappedCommandLabel(label);
 		int len = args.length;
 		
