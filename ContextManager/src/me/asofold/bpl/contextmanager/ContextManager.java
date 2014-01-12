@@ -2,6 +2,7 @@ package me.asofold.bpl.contextmanager;
 
 import me.asofold.bpl.contextmanager.command.CMCommand;
 import me.asofold.bpl.contextmanager.core.CMCore;
+import me.asofold.bpl.contextmanager.plshared.Messaging;
 
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,6 +31,7 @@ public class ContextManager extends JavaPlugin{
 		core.addStandardServiceHooks();
 		core.addListeners(this);
 		core.onEnable(this);
+		Messaging.init();
 		System.out.println(plgLabel+" "+getDescription().getFullName()+ " enabled.");
 	}
 
