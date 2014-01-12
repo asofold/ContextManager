@@ -79,7 +79,21 @@ public class RegionsHook extends AbstractServiceHook {
 		if (region != null){
 			String playerName = player.getName();
 			if (!region.isMember(playerName) && !region.isOwner(playerName)){
-				if (!PexUtil.hasPermission(playerName, "regions.find.w."+(world.getName().toLowerCase())+".r."+(region.getId().toLowerCase())) ) region = null;
+				String worldPermBase = "regions.find.w."+(world.getName().toLowerCase());
+				boolean hasPerm = false;
+				
+				if (PexUtil.hasPermission(playerName, worldPermBase + ".r."+(region.getId().toLowerCase()))) {
+					hasPerm = true;
+				}
+				else if (PexUtil.hasPermission(playerName, worldPermBase + ".r.*")) {
+					hasPerm = true;
+				} else if (PexUtil.hasPermission(playerName, worldPermBase + ".public")) {
+					// TODO: Check shop regions and rbuy (!) and other.
+				}
+					
+				if (!hasPerm) {
+					region = null;
+				}
 			}
 		}
 		if (region == null){
