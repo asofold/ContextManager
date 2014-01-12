@@ -52,6 +52,11 @@ commands:
     - cxfin
     - cxfi
     - cxf
+    - find
+    - find-item
+    - find-region
+    - finditem
+    - findregion
   tellplayer:
     description: "Classical tell command."
     usage: "tell <player> .... <message> ..."
