@@ -25,22 +25,32 @@ public class Inventories {
 	
 	/**
 	 * convenience method to get inventories - checks all orthogonal neighbour blocks for chest (!).
+	 * Works for chest and trapped chest but only returns the same kind. No check for attachments ..
 	 * @param block
 	 * @return
 	 */
-	public static List<Inventory> getChestInventories(Block block){
-		List<Inventory> inventories = new LinkedList<Inventory>();
-		if (block.getType() != Material.CHEST){
-			return inventories;
+	public static List<Inventory> getChestInventories(final Block block){
+		final List<Inventory> inventories = new LinkedList<Inventory>();
+		final Material mat = block.getType();
+		switch (mat) {
+			case CHEST:
+			case TRAPPED_CHEST:
+				break;
+			default:
+				return inventories;
 		}
-		List<Block> blocks = new LinkedList<Block>();
+		final List<Block> blocks = new LinkedList<Block>();
 		blocks.add(block);
-		blocks.addAll(Blocks.getNeighbourBlocks(block, Material.CHEST));
-		for ( Block chest : blocks){
-			BlockState cstate = chest.getState();
-			if ( cstate instanceof Chest){
+		blocks.addAll(Blocks.getNeighbourBlocks(block, mat));
+		for (final Block chest : blocks){
+			final BlockState cstate = chest.getState();
+			if (cstate instanceof Chest){
 				// might use ContainerBlock for better future compatibility (!)
-				inventories.add(((Chest) cstate).getInventory());
+				final Inventory inv = ((Chest) cstate).getInventory();
+				if (!inventories.contains(inv)) {
+					// Two at most, just in case ...
+					inventories.add(inv);
+				}
 			}
 		}
 		return inventories;

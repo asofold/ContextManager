@@ -158,7 +158,7 @@ public class ChestShopHook extends AbstractServiceHook implements Listener{
 		if (action!= Action.RIGHT_CLICK_BLOCK && action != Action.LEFT_CLICK_BLOCK) return; // [mind leftclick sell]
 		final Block block = event.getClickedBlock();
 		if (block == null || block.getType() != Material.WALL_SIGN) {
-			if (block.getType() == Material.CHEST && event.isCancelled()) {
+			if ((block.getType() == Material.CHEST || block.getType() == Material.TRAPPED_CHEST) && event.isCancelled()) {
 				final Block above = block.getRelative(BlockFace.UP);
 				final Material mat = above.getType();
 				if (mat == Material.WALL_SIGN || mat == Material.SIGN_POST) {
