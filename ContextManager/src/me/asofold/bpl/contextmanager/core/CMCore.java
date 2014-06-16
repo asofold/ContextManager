@@ -278,17 +278,17 @@ public class CMCore  implements Listener{
 		final String playerName = player.getName();
 		// TODO: context dependent ...
 		if ( !isAnnounce && isPartyChat(player)) return getPartyFormat(playerName, msgCol);
-		else return getNormalFormat(playerName, msgCol, isAnnounce);
+		else return getNormalFormat(player, msgCol, isAnnounce);
 	}
 	
-	public final String getNormalFormat(String playerName, String msgCol, boolean isAnnounce){
+	public final String getNormalFormat(Player player, String msgCol, boolean isAnnounce){
 		if (msgCol == null) msgCol = settings.msgCol;
-		String[] decorated = PexUtil.findDecoration(playerName);
+		String[] decorated = PexUtil.findDecoration(player.getUniqueId());
 		if (decorated[0] == null) decorated[0] = "";
 		else decorated[0] = Messaging.withChatColors(decorated[0]);
 		if (decorated[1] == null) decorated[1] = "";
 		else decorated[1] = Messaging.withChatColors(decorated[1]);
-		return msgCol+"<"+decorated[0]+"%1$s"+decorated[1]+msgCol+">"+(isAnnounce?"":getPlayerData(playerName).getExtraFormat())+msgCol+" %2$s";
+		return msgCol+"<"+decorated[0]+"%1$s"+decorated[1]+msgCol+">"+(isAnnounce?"":getPlayerData(player.getName()).getExtraFormat())+msgCol+" %2$s";
 	}
 	
 	public final String getPartyFormat(String playerName, String msgCol){
@@ -633,8 +633,8 @@ public class CMCore  implements Listener{
 		data.permMuted = Utils.hasPermission(player, "contextmanager.bypass.mute");
 		
 		// Set formats:
-		data.normalFormat = getNormalFormat(playerName, settings.msgCol, false);
-		data.announceFormat = getNormalFormat(playerName, settings.broadCastCol, true);
+		data.normalFormat = getNormalFormat(player, settings.msgCol, false);
+		data.announceFormat = getNormalFormat(player, settings.broadCastCol, true);
 		data.partyFormat = getPartyFormat(playerName, settings.partyMsgCol);
 	}
 	

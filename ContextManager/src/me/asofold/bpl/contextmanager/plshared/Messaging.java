@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import me.asofold.bpl.contextmanager.plshared.messaging.AddressingScheme;
 import me.asofold.bpl.contextmanager.plshared.messaging.AddressingSchemeImpl;
-import me.asofold.bpl.contextmanager.plshared.messaging.SendMessage;
 import me.asofold.bpl.contextmanager.plshared.messaging.json.IJsonMessageAPI;
 import me.asofold.bpl.contextmanager.plshared.messaging.json.JMessage;
 import me.asofold.bpl.contextmanager.plshared.messaging.json.JsonMessageFactory;
@@ -14,7 +13,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 
 /**
@@ -129,13 +127,6 @@ public class Messaging {
 		broadcast(world, message);
 	}
 	
-	public static void scheduleMessage(Plugin plugin, Player player , String msg, long ticks,  boolean force){
-		if (Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SendMessage(player, msg), ticks) == -1){
-			if ( force ){
-				player.sendMessage(msg);
-			}
-		}
-	}
 	
 	/**
 	 * Compatibility method.
@@ -190,19 +181,6 @@ public class Messaging {
 			} else out += split;
 		}
 		return out;
-	}
-	
-	/**
-	 * Try to find player (exact) and send the message if online.
-	 * @param playerName
-	 * @param message
-	 * @return If message was sent.
-	 */
-	public static boolean tryMessage(String playerName, String message){
-		Player player = Bukkit.getServer().getPlayerExact(playerName);
-		if (player == null || !player.isOnline()) return false;
-		player.sendMessage(message);
-		return true;
 	}
 	
 	/**

@@ -4,7 +4,6 @@ import me.asofold.bpl.contextmanager.hooks.AbstractServiceHook;
 import me.asofold.bpl.contextmanager.plshared.Messaging;
 import me.asofold.bpl.contextmanager.plshared.Utils;
 import me.asofold.bpl.contextmanager.plshared.messaging.json.JMessage;
-import me.asofold.bpl.contextmanager.plshared.permissions.pex.PexUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -84,12 +83,12 @@ public class RegionsHook extends AbstractServiceHook {
 				String worldPermBase = "regions.find.w."+(world.getName().toLowerCase());
 				boolean hasPerm = false;
 				
-				if (PexUtil.hasPermission(playerName, worldPermBase + ".r."+(region.getId().toLowerCase()))) {
+				if (player.hasPermission(worldPermBase + ".r."+(region.getId().toLowerCase()))) {
 					hasPerm = true;
 				}
-				else if (PexUtil.hasPermission(playerName, worldPermBase + ".r.*")) {
+				else if (player.hasPermission(worldPermBase + ".r.*")) {
 					hasPerm = true;
-				} else if (PexUtil.hasPermission(playerName, worldPermBase + ".public")) {
+				} else if (player.hasPermission(worldPermBase + ".public")) {
 					// TODO: Check shop regions and rbuy (!) and other.
 				}
 					
