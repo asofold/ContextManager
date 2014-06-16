@@ -3,6 +3,7 @@ package me.asofold.bpl.contextmanager.core;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import me.asofold.bpl.contextmanager.ContextManager;
 import me.asofold.bpl.contextmanager.config.ChannelSettings;
@@ -15,6 +16,7 @@ public class PlayerData {
 	 * Lower case name.
 	 */
 	public final String lcName;
+	public final UUID id;
 	
 	private  String extraFormat = "";
 	
@@ -25,7 +27,8 @@ public class PlayerData {
 	public String announceFormat = null;
 	public String partyFormat = null;
 	
-	public  PlayerData(String lcName){
+	public  PlayerData(UUID id, String lcName){
+		this.id = id;
 		this.lcName = lcName;
 		setExtraFormat();
 	}

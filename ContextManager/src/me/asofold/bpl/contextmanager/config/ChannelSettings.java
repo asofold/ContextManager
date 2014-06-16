@@ -77,7 +77,7 @@ public class ChannelSettings {
 	public  Map<String, Integer> getChannelUserCount(CMCore core) {
 		Map<String, Integer> counts = new HashMap<String, Integer>();
 		for ( Player player : Bukkit.getServer().getOnlinePlayers()){
-			PlayerData data = core.getPlayerData(player.getName());
+			PlayerData data = core.getPlayerData(player);
 			String ch;
 			if (!data.recipients.isEmpty()) continue; // regard as if not there
 			if (data.channel == null) ch = ChannelSettings.getDefaultChannelName();

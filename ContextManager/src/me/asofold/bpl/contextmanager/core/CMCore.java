@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import me.asofold.bpl.contextmanager.ContextManager;
 import me.asofold.bpl.contextmanager.chat.HistoryElement;
@@ -90,6 +91,15 @@ public class CMCore  implements Listener{
 		// TODO: maybe store it.
 		return (ContextManager) Bukkit.getServer().getPluginManager().getPlugin("ContextManager");
 	}
+	
+	/**
+	 * Get PlayerData, crete if not existent.
+	 * @param player
+	 * @return
+	 */
+	public PlayerData getPlayerData(final Player player) {
+		return getPlayerData(player.getUniqueId(), player.getName(), true);
+	}
 
 	/**
 	 * Obtain player data.
@@ -97,16 +107,26 @@ public class CMCore  implements Listener{
 	 * @param create
 	 * @return
 	 */
-	public PlayerData getPlayerData(String playerName, boolean create){
+	public PlayerData getPlayerData(UUID id, String playerName, boolean create){
 		String lcName = playerName.toLowerCase(); 
 		PlayerData data = playerData.get(lcName);
 		if (data != null) return data;
 		else if (!create) return null;
 		else{
-			data = new PlayerData(lcName);
+			data = new PlayerData(id, lcName);
 			playerData.put(lcName, data);
 			return data;
 		}
+	}
+	
+	/**
+	 * Obtain PlayerData, if existent.
+	 * @param playerName
+	 * @return
+	 */
+	public PlayerData getPresentPlayerData(String playerName){
+		String lcName = playerName.toLowerCase(); 
+		return playerData.get(lcName);
 	}
 	
 	/**
@@ -172,15 +192,6 @@ public class CMCore  implements Listener{
 	}
 	
 	/**
-	 * Obtain PlayerData, create if not existent.
-	 * @param playerName
-	 * @return
-	 */
-	public PlayerData getPlayerData(String playerName){
-		return getPlayerData(playerName, true);
-	}
-	
-	/**
 	 * Light checks to be performed now and then.
 	 * (such as cleanup muted).
 	 */
@@ -223,7 +234,7 @@ public class CMCore  implements Listener{
 				if (( tsMute!=0L) && (System.currentTimeMillis() > tsMute)){
 					muted.remove(lcn);
 				}
-				else if (getPlayerData(lcn).permMuted){
+				else if (getPlayerData(player).permMuted){
 					// The message locks longer than wanted, but it is seldom.
 					if (message) player.sendMessage(ChatColor.YELLOW+ContextManager.plgLabel+" Removed you from muted (permission present).");
 					muted.remove(lcn);
@@ -288,7 +299,7 @@ public class CMCore  implements Listener{
 		else decorated[0] = Messaging.withChatColors(decorated[0]);
 		if (decorated[1] == null) decorated[1] = "";
 		else decorated[1] = Messaging.withChatColors(decorated[1]);
-		return msgCol+"<"+decorated[0]+"%1$s"+decorated[1]+msgCol+">"+(isAnnounce?"":getPlayerData(player.getName()).getExtraFormat())+msgCol+" %2$s";
+		return msgCol+"<"+decorated[0]+"%1$s"+decorated[1]+msgCol+">"+(isAnnounce?"":getPlayerData(player).getExtraFormat())+msgCol+" %2$s";
 	}
 	
 	public final String getPartyFormat(String playerName, String msgCol){
@@ -303,7 +314,7 @@ public class CMCore  implements Listener{
 	 */
 	public final int adjustRecipients(final Player player, final Set<Player> recipients, final boolean isAnnounce) {
 		int n = 0;
-		PlayerData data = getPlayerData(player.getName());
+		PlayerData data = getPlayerData(player);
 //		if ( !isAnnounce && isPartyChat(player)){
 //			// TODO: these might be already set by mcmmo, on the other hand this allows for others.
 //			List<Player> add = new LinkedList<Player>();
@@ -319,7 +330,7 @@ public class CMCore  implements Listener{
 //		else{
 		List<Player> rem = new LinkedList<Player>();
 		for (Player other : recipients){
-			PlayerData otherData = getPlayerData(other.getName());
+			PlayerData otherData = getPlayerData(other);
 			if (!otherData.canHear(data, isAnnounce)) rem.add(other);
 			else if (!player.canSee(other)){
 				// depends now on the settings:
@@ -422,7 +433,7 @@ public class CMCore  implements Listener{
 		}
 		
 		final String playerName = player.getName();
-		final PlayerData data = getPlayerData(playerName);
+		final PlayerData data = getPlayerData(player);
 		
 		// Announcements
 		if (settings.shortcutAnnounce && data.permAnnounce && checkAnnounce(playerName, message)){
@@ -491,7 +502,7 @@ public class CMCore  implements Listener{
 	 * @return true if it is an annoucnement (cancel event then)
 	 */
 	public boolean checkPartyAnnounce(final String playerName, final String message) {
-		final PlayerData data = getPlayerData(playerName, false); 
+		final PlayerData data = getPresentPlayerData(playerName); 
 		if (data == null) return false;
 		return settings.shortcutAnnounce && data.permAnnounce && checkAnnounce(playerName, message);
 	}
@@ -626,7 +637,7 @@ public class CMCore  implements Listener{
 	 */
 	private final void updatePlayerInfos(final Player player) {
 		final String playerName = player.getName();
-		final PlayerData data = getPlayerData(playerName, true);
+		final PlayerData data = getPlayerData(player.getUniqueId(), playerName, true);
 		
 		// Set permissions:
 		data.permAnnounce = player.hasPermission("contextmanager.chat.announce");
@@ -666,7 +677,7 @@ public class CMCore  implements Listener{
 			player.sendMessage(ChatColor.DARK_RED+ContextManager.plgLabel+" Bad tell message.");
 			return;
 		}
-		PlayerData otherData = getPlayerData(recipient, false);
+		PlayerData otherData = getPresentPlayerData(recipient);
 		if (otherData != null && otherData.ignored.contains(lcName) && !Utils.hasPermission(player, "contextmanager.bypass.tell")){
 			player.sendMessage(ChatColor.DARK_RED+ContextManager.plgLabel+" You are ignored by this player.");
 			return;
@@ -703,7 +714,7 @@ public class CMCore  implements Listener{
 
 	public void onAnnounce(Player player, String[] args, boolean global) {
 		String playerName = player.getName();
-		final PlayerData data = getPlayerData(playerName);
+		final PlayerData data = getPlayerData(player);
 		ContextType type;
 		if (data.channel == null) type = ContextType.DEFAULT;
 		else type = ContextType.CHANNEL;

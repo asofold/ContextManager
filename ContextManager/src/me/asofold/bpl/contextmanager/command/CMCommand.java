@@ -301,7 +301,7 @@ public class CMCommand implements TabExecutor {
 		int len = args.length;
 		String cmd = aliasMap.getMappedCommandLabel(args[0]);
 		// TODO: permissions
-		PlayerData data = core.getPlayerData(player.getName());
+		PlayerData data = core.getPlayerData(player);
 		if (cmd.equals("reset")){
 			if (len == 1){
 				data.resetContexts();
